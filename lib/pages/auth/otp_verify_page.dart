@@ -40,13 +40,19 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
       final existing = await _users.getUser(user.uid);
 
       if (widget.isSignup) {
-        // If user already exists, ask to login
+        // Signup flow
         if (existing != null) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please login, account already registered')));
-          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
+          // User already registered, ask to login
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Please login, your account is already registered')));
+          // Sign out to prevent auto login as new user
+          await FirebaseAuth.instance.signOut();
+          Navigator.pushNamedAndRemoveUntil(
+              context, AppRoutes.phoneLogin, (_) => false,
+              arguments: {'isSignup': false});
           return;
         }
-        // First-time signup: create minimal record and go to details
+        // Create minimal user record, then navigate to details page
         final appUser = AppUser(
           uid: user.uid,
           phone: user.phoneNumber ?? '',
@@ -57,21 +63,17 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
         await _users.createOrUpdateUser(appUser);
         Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
       } else {
-        // Login path
+        // Login flow
         if (existing == null) {
-          // No profile: ask to signup first
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please first signup. Your account doesn\'t exist.')));
-          // Keep them signed in but navigate to details to complete? Or sign out and go to phone page.
-          await FirebaseAuth.instance.signOut();
-          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.phoneLogin, (_) => false, arguments: {'isSignup': true});
+          // Instead of showing error, redirect to details page to complete signup
+          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
           return;
         }
-        // If profile incomplete, go to details
+
         if (!existing.isProfileComplete) {
           Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
           return;
         }
-        // Go to main menu
         Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
       }
     } catch (e) {

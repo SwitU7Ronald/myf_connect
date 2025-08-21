@@ -29,6 +29,16 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     final user = _auth.currentUser;
     if (user == null) return;
 
+    if (_first.text.trim().isEmpty ||
+        _last.text.trim().isEmpty ||
+        _birthdate == null ||
+        _gender == null ||
+        _state.text.trim().isEmpty ||
+        _city.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
     setState(() => _loading = true);
     try {
       final existing = await _users.getUser(user.uid);
@@ -46,6 +56,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         updatedAt: DateTime.now(),
       );
       await _users.createOrUpdateUser(appUser);
+      // After saving full profile, navigate to main menu
       Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
     } finally {
       if (mounted) setState(() => _loading = false);
