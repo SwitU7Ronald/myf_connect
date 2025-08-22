@@ -98,7 +98,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _gender,
+                        initialValue: _gender,
                         items: const [
                           DropdownMenuItem(value: 'Male', child: Text('Male')),
                           DropdownMenuItem(value: 'Female', child: Text('Female')),

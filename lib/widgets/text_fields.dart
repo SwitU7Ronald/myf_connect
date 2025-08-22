@@ -5,7 +5,7 @@ class AppTextField extends StatelessWidget {
   final String label;
   final TextInputType? keyboardType;
   final bool enabled;
-  AppTextField({super.key, required this.controller, required this.label, this.keyboardType, this.enabled=true});
+  const AppTextField({super.key, required this.controller, required this.label, this.keyboardType, this.enabled=true});
 
   @override
   Widget build(BuildContext context) {
