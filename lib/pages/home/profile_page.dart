@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../app_router.dart';
 import '../../services/user_service.dart';
 import '../../models/app_user.dart';
 
@@ -79,7 +80,10 @@ class _ProfilePageState extends State<ProfilePage> {
             FilledButton.tonal(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                if (mounted) Navigator.of(context).pop();
+                if (mounted) {
+                  Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
+                }
+
               },
               child: const Text('Logout'),
             ),
