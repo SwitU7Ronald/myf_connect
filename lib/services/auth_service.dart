@@ -1,44 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
   User? get currentUser => _auth.currentUser;
 
-  Future<void> signOut() => _auth.signOut();
-
-  Future<void> verifyIndianPhone({
-    required String rawPhone,
-    required Function(String verificationId, int? resendToken) codeSent,
-    required Function(FirebaseAuthException e) verificationFailed,
-    required Function(PhoneAuthCredential cred) verificationCompleted,
-    required Function(String verificationId) codeAutoRetrievalTimeout,
-    Duration timeout = const Duration(seconds: 60),
-  }) async {
-    final digits = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
-    final phone = digits.startsWith('91') && !rawPhone.startsWith('+')
-        ? '+$digits'
-        : (rawPhone.startsWith('+91') ? rawPhone : '+91$digits');
-
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phone,
-      timeout: timeout,
-      verificationCompleted: (cred) => verificationCompleted(cred),
-      verificationFailed: (e) => verificationFailed(e),
-      codeSent: (id, token) => codeSent(id, token),
-      codeAutoRetrievalTimeout: (id) => codeAutoRetrievalTimeout(id),
-    );
+  Future<void> signOut() async {
+    await _auth.signOut();
+    await _googleSignIn.signOut();
   }
 
-  Future<UserCredential> signInWithSmsCode({
-    required String verificationId,
-    required String smsCode,
-  }) async {
-    final cred = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: smsCode,
-    );
-    return _auth.signInWithCredential(cred);
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null;
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      return await _auth.signInWithCredential(credential);
+    } catch (e) {
+      rethrow;
+    }
   }
 }
