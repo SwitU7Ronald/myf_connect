@@ -15,44 +15,49 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   final _auth = AuthService();
   bool _loading = false;
+  final _userService = UserService();
 
   Future<void> _googleSignIn() async {
     setState(() => _loading = true);
     try {
+      // Sign in with Google
       final cred = await _auth.signInWithGoogle();
-      if (cred == null) {
-        // User cancelled sign-in
+      if (cred == null || cred.user == null) {
+        setState(() => _loading = false);
         return;
       }
-      final user = cred.user;
-      if (user == null) return;
-
-      final userService = UserService();
-      final existingUser = await userService.getUser(user.uid);
+      final user = cred.user!;
+      // Check Firestore for existing profile
+      final existingUser = await _userService.getUser(user.uid);
 
       if (existingUser == null) {
-        // New user, create minimal profile with Google info, navigate to details page
-        await userService.createOrUpdateUser(AppUser(
-          uid: user.uid,
-          phone: user.phoneNumber ?? '',
-          firstName: user.displayName?.split(' ').first ?? '',
-          lastName: user.displayName?.split(' ').skip(1).join(' ') ?? '',
-          permissions: const ['general'],
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ));
-        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
-      } else {
-        if (!existingUser.isProfileComplete) {
+        // Not in Firestore - show message, then redirect to signup
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Account doesn't exist. Please sign up."))
+          );
           Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
-          return;
         }
+        setState(() => _loading = false);
+        return;
+      } else if (!existingUser.isProfileComplete) {
+        // Profile incomplete - direct to signup details
+        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
+        setState(() => _loading = false);
+        return;
+      } else {
+        // Profile complete - direct to main menu
         Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
+        setState(() => _loading = false);
+        return;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error signing in: $e')));
-    } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Sign-in error: $e'))
+        );
+      }
+      setState(() => _loading = false);
     }
   }
 
@@ -74,8 +79,8 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 const SizedBox(height: 24),
                 PrimaryButton(
-                  label: 'Sign in with Google',
-                  onPressed: _googleSignIn,
+                  label: _loading ? 'Signing in...' : 'Sign in with Google',
+                  onPressed: _loading ? () {} : _googleSignIn,
                   loading: _loading,
                 ),
               ],
