@@ -47,6 +47,11 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     }
   }
 
+  String capitalize(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+  }
+
   Future<void> _submit() async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -74,12 +79,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       final appUser = AppUser(
         uid: user.uid,
         phone: '+91${_phone.text.trim()}', // prepend +91 here before save
-        firstName: _first.text.trim(),
-        lastName: _last.text.trim(),
+        firstName: capitalize(_first.text.trim()),
+        lastName: capitalize(_last.text.trim()),
         birthdate: _birthdate,
         gender: _gender,
-        district: _district.text.trim(),
-        church: _church.text.trim(),
+        district: capitalize(_district.text.trim()),
+        church: capitalize(_church.text.trim()),
         permissions: existing?.permissions ?? const ['general'],
         createdAt: existing?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
