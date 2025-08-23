@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../models/app_user.dart';
 import '../../app_router.dart';
-import '../camps/camps_list_page.dart';  // Import the camps list page here
+import '../../services/user_service.dart';
+import '../../models/app_user.dart';
+import '../camps/camps_list_page.dart';
+import '../myf/myf_list_page.dart';  // Correct relative import
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -13,68 +14,77 @@ class MainMenuPage extends StatefulWidget {
 }
 
 class _MainMenuPageState extends State<MainMenuPage> {
-  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+  final _users = UserService();
+  AppUser? _user;
+  bool _loading = true;
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _user = await _users.getUser(user.uid);
+      final idTokenResult = await user.getIdTokenResult(true);
+      final adminClaim = idTokenResult.claims?['admin'] == true;
+      if (mounted) {
+        setState(() {
+          _isAdmin = adminClaim;
+          _loading = false;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (uid == null) {
-      return const Center(child: Text('User not logged in'));
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Scaffold(
-            body: Center(child: Text('User data not found')),
-          );
-        }
-
-        final userData = snapshot.data!.data()!;
-        final appUser = AppUser.fromMap(uid!, userData);
-        final isAdmin = appUser.permissions.contains('admin');
-
-        return DefaultTabController(
-          length: 2, // Only Camps and MYF tabs
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text('Methodist Connect'),
-              actions: [
-                if (isAdmin)
-                  IconButton(
-                    icon: const Icon(Icons.admin_panel_settings),
-                    tooltip: 'Admin Dashboard',
-                    onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.adminDashboard);
-                    },
-                  ),
-                IconButton(
-                  icon: const Icon(Icons.person),
-                  onPressed: () => Navigator.pushNamed(context, AppRoutes.profile),
-                ),
-              ],
-              bottom: const TabBar(
-                tabs: [
-                  Tab(text: 'Camps'),
-                  Tab(text: 'MYF'),
-                ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Methodist Connect'),
+          actions: [
+            if (_isAdmin)
+              IconButton(
+                icon: const Icon(Icons.admin_panel_settings),
+                tooltip: 'Admin Dashboard',
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.adminDashboard);
+                },
               ),
+            IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.profile),
             ),
-            body: const TabBarView(
-              children: [
-                CampsListPage(),  // Direct show camps list in this tab
-                Center(child: Text('MYF section')), // Placeholder for MYF
-              ],
-            ),
+          ],
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Camps'),
+              Tab(text: 'MYF'),
+            ],
           ),
-        );
-      },
+        ),
+        body: const TabBarView(
+          children: [
+            CampsListPage(),
+            MyfListPage(),
+          ],
+        ),
+      ),
     );
   }
 }

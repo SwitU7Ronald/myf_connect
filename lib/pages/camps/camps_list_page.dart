@@ -1,61 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../services/user_service.dart';
-import '../../models/app_user.dart';
-import '../../app_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CampsListPage extends StatefulWidget {
+class CampsListPage extends StatelessWidget {
   const CampsListPage({super.key});
 
   @override
-  State<CampsListPage> createState() => _CampsListPageState();
-}
-
-class _CampsListPageState extends State<CampsListPage> {
-  final _users = UserService();
-  AppUser? _user;
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      _user = await _users.getUser(uid);
-    }
-    if (mounted) setState(() => _loading = false);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final permitted = _user?.permissions.contains('godhra_camp_2025') ?? false;
+    final campsStream = FirebaseFirestore.instance
+        .collection('camps')
+        .orderBy('date')
+        .snapshots();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Camps')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          if (permitted)
-            ListTile(
-              title: const Text('Godhra Camp 2025'),
-              subtitle: const Text('Open to approved users'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.pushNamed(context, AppRoutes.godhraCamp),
-            )
-          else
-            const ListTile(
-              title: Text('Godhra Camp 2025'),
-              subtitle: Text('Waiting for admin approval'),
-              trailing: Icon(Icons.lock),
-            ),
-        ],
-      ),
+    return StreamBuilder<QuerySnapshot>(
+      stream: campsStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No camps found'));
+        }
+
+        final camps = snapshot.data!.docs;
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(12),
+          itemCount: camps.length,
+          separatorBuilder: (_, __) => const Divider(),
+          itemBuilder: (context, index) {
+            final camp = camps[index];
+            final data = camp.data() as Map<String, dynamic>;
+
+            final title = data['title'] ?? 'Untitled Camp';
+            final date = data['date'] ?? '';
+            final place = data['place'] ?? '';
+            final description = data['description'] ?? '';
+
+            return ListTile(
+              title: Text(title),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Date: $date'),
+                  Text('Place: $place'),
+                  if (description.isNotEmpty) Text('Description: $description'),
+                ],
+              ),
+              isThreeLine: true,
+              onTap: () {
+                // TODO: Navigate to detailed camp page or events if needed
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

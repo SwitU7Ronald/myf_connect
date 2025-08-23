@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'myf_create_page.dart';
 
 class MyfManagementPage extends StatelessWidget {
   const MyfManagementPage({super.key});
 
-  Future<void> _createMYF() async {
-    await FirebaseFirestore.instance.collection("myf").add({
-      "title": "New MYF",
-      "description": "MYF description",
-    });
+  Future<void> _navigateToCreateMyf(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyfCreatePage()),
+    );
+    // Optionally refresh UI after return
   }
 
-  Future<void> _deleteMYF(String id) async {
-    await FirebaseFirestore.instance.collection("myf").doc(id).delete();
+  Future<void> _deleteMyf(String id) async {
+    await FirebaseFirestore.instance.collection('myf').doc(id).delete();
   }
 
   @override
@@ -20,7 +22,7 @@ class MyfManagementPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('MYF Management')),
       floatingActionButton: FloatingActionButton(
-        onPressed: _createMYF,
+        onPressed: () => _navigateToCreateMyf(context),
         tooltip: 'Add MYF',
         child: const Icon(Icons.add),
       ),
@@ -38,12 +40,14 @@ class MyfManagementPage extends StatelessWidget {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final myf = myfDocs[index];
+              final data = myf.data() as Map<String, dynamic>;
+
               return ListTile(
-                title: Text(myf['title']),
-                subtitle: Text(myf['description']),
+                title: Text(data['title'] ?? ''),
+                subtitle: Text(data['description'] ?? ''),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteMYF(myf.id),
+                  onPressed: () => _deleteMyf(myf.id),
                 ),
               );
             },
