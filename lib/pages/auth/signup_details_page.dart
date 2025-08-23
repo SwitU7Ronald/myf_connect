@@ -16,10 +16,11 @@ class SignupDetailsPage extends StatefulWidget {
 class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _first = TextEditingController();
   final _last = TextEditingController();
+  final _phone = TextEditingController();
   DateTime? _birthdate;
   String? _gender;
-  final _state = TextEditingController();
-  final _city = TextEditingController();
+  final _district = TextEditingController();
+  final _church = TextEditingController();
 
   final _users = UserService();
   final _auth = AuthService();
@@ -29,7 +30,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   void initState() {
     super.initState();
     final user = _auth.currentUser;
-    // Prepopulate if Google Display Name present
     if (user != null) {
       final displayName = user.displayName ?? '';
       if (displayName.isNotEmpty) {
@@ -37,6 +37,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         _first.text = parts.isNotEmpty ? parts.first : '';
         _last.text = parts.length > 1 ? parts.sublist(1).join(' ') : '';
       }
+      _phone.text = user.phoneNumber ?? '';
     }
   }
 
@@ -44,20 +45,19 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     final user = _auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Auth error. Please sign in again.'))
-      );
+          const SnackBar(content: Text('Auth error. Please sign in again.')));
       return;
     }
 
     if (_first.text.trim().isEmpty ||
         _last.text.trim().isEmpty ||
+        _phone.text.trim().isEmpty ||
         _birthdate == null ||
         _gender == null ||
-        _state.text.trim().isEmpty ||
-        _city.text.trim().isEmpty) {
+        _district.text.trim().isEmpty ||
+        _church.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please fill all fields'))
-      );
+          const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -66,19 +66,18 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       final existing = await _users.getUser(user.uid);
       final appUser = AppUser(
         uid: user.uid,
-        phone: user.phoneNumber ?? '',
+        phone: _phone.text.trim(),
         firstName: _first.text.trim(),
         lastName: _last.text.trim(),
         birthdate: _birthdate,
         gender: _gender,
-        state: _state.text.trim(),
-        city: _city.text.trim(),
+        district: _district.text.trim(),
+        church: _church.text.trim(),
         permissions: existing?.permissions ?? const ['general'],
         createdAt: existing?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
       await _users.createOrUpdateUser(appUser);
-      // Navigate to main menu on success
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -111,6 +110,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   const SizedBox(height: 12),
                   AppTextField(controller: _last, label: 'Last name'),
                   const SizedBox(height: 12),
+                  AppTextField(
+                    controller: _phone,
+                    label: 'Phone number',
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -121,46 +126,44 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                               context: context,
                               firstDate: DateTime(1900),
                               lastDate: DateTime(now.year, now.month, now.day),
-                              initialDate: DateTime(now.year - 18, now.month, now.day),
+                              initialDate:
+                              DateTime(now.year - 18, now.month, now.day),
                             );
                             if (picked != null) setState(() => _birthdate = picked);
                           },
-                          child: Text(
-                              _birthdate == null
-                                  ? 'Birthdate'
-                                  : _birthdate!.toIso8601String().split('T').first
-                          ),
+                          child: Text(_birthdate == null
+                              ? 'Birthdate'
+                              : _birthdate!.toIso8601String().split('T').first),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: _gender,
+                          initialValue: _gender,
                           items: const [
                             DropdownMenuItem(value: 'Male', child: Text('Male')),
-                            DropdownMenuItem(value: 'Female', child: Text('Female')),
+                            DropdownMenuItem(
+                                value: 'Female', child: Text('Female')),
                             DropdownMenuItem(value: 'Other', child: Text('Other')),
                           ],
                           onChanged: (v) => setState(() => _gender = v),
                           decoration: const InputDecoration(
-                              border: OutlineInputBorder(), labelText: 'Gender'
-                          ),
+                              border: OutlineInputBorder(), labelText: 'Gender'),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  AppTextField(controller: _state, label: 'State'),
+                  AppTextField(controller: _district, label: 'District'),
                   const SizedBox(height: 12),
-                  AppTextField(controller: _city, label: 'City'),
+                  AppTextField(controller: _church, label: 'Church'),
                   const SizedBox(height: 16),
-              PrimaryButton(
-                label: 'Submit',
-                onPressed: () {
-                  _submit();
-                },
-                loading: _loading,
-              ),
+                  PrimaryButton(
+                    label: 'Submit',
+                    onPressed: _loading ? () {} : () { _submit(); },  // provide empty function to disable
+                    loading: _loading,
+                  ),
+
                 ],
               ),
             ),

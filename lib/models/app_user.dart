@@ -5,8 +5,8 @@ class AppUser {
   final String? lastName;
   final DateTime? birthdate;
   final String? gender;
-  final String? state;
-  final String? city;
+  final String? district;
+  final String? church;
   final List<String> permissions;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -18,8 +18,8 @@ class AppUser {
     this.lastName,
     this.birthdate,
     this.gender,
-    this.state,
-    this.city,
+    this.district,
+    this.church,
     this.permissions = const ['general'],
     this.createdAt,
     this.updatedAt,
@@ -30,8 +30,8 @@ class AppUser {
           lastName != null &&
           birthdate != null &&
           gender != null &&
-          state != null &&
-          city != null;
+          district != null &&
+          church != null;
 
   factory AppUser.fromMap(String uid, Map<String, dynamic> data) {
     return AppUser(
@@ -43,8 +43,8 @@ class AppUser {
           ? DateTime.tryParse(data['birthdate'])
           : null,
       gender: data['gender'],
-      state: data['state'],
-      city: data['city'],
+      district: data['district'],
+      church: data['church'],
       permissions: (data['permissions'] as List?)?.cast<String>() ?? ['general'],
       createdAt: data['createdAt'] != null
           ? DateTime.tryParse(data['createdAt'])
@@ -62,8 +62,8 @@ class AppUser {
       'lastName': lastName,
       'birthdate': birthdate?.toIso8601String(),
       'gender': gender,
-      'state': state,
-      'city': city,
+      'district': district,
+      'church': church,
       'permissions': permissions,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

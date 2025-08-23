@@ -46,13 +46,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_userModel?.phone ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    Text(
+                      _userModel?.phone ?? '',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
-                    Text('${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}'),
-                    Text('Birthdate: ${_userModel?.birthdate?.toString().split(' ').first ?? '-'}'),
+                    Text(
+                        '${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}'),
+                    Text(
+                        'Birthdate: ${_userModel?.birthdate?.toString().split(' ').first ?? '-'}'),
                     Text('Gender: ${_userModel?.gender ?? '-'}'),
-                    Text('State: ${_userModel?.state ?? '-'}'),
-                    Text('City: ${_userModel?.city ?? '-'}'),
+                    Text('District: ${_userModel?.district ?? '-'}'),
+                    Text('Church: ${_userModel?.church ?? '-'}'),
                   ],
                 ),
               ),
@@ -64,7 +70,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Approvals/Permissions', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Approvals/Permissions',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -81,9 +88,9 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, AppRoutes.welcome, (route) => false);
                 }
-
               },
               child: const Text('Logout'),
             ),
