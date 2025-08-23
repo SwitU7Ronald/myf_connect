@@ -84,7 +84,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-
                               if (_userModel?.nickname != null &&
                                   _userModel!.nickname!.isNotEmpty)
                                 Text(
@@ -97,9 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-
                               const SizedBox(height: 6),
-
                               Text(
                                 '${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}',
                                 style: const TextStyle(
@@ -108,9 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   color: Colors.black87,
                                 ),
                               ),
-
                               const SizedBox(height: 6),
-
                               Text(
                                 _userModel?.phone ?? '',
                                 style: TextStyle(
@@ -165,7 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       const SizedBox(height: 20),
 
-                      // Permissions Card
+                      // Permissions Card (filtered to exclude 'general')
                       Card(
                         color: cardGray,
                         shape: RoundedRectangleBorder(
@@ -188,33 +183,42 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               const Divider(height: 24, thickness: 1.2),
-                              if ((_userModel?.permissions ?? []).isEmpty)
-                                const Text(
-                                  'No permissions assigned',
-                                  style: TextStyle(color: Colors.grey),
-                                )
-                              else
-                                Container(
-                                  constraints: const BoxConstraints(maxHeight: 100),
-                                  child: SingleChildScrollView(
-                                    child: Wrap(
-                                      spacing: 10,
-                                      runSpacing: 8,
-                                      children: (_userModel?.permissions ?? const [])
-                                          .map((perm) => Chip(
-                                        label: Text(
-                                          perm,
-                                          style:
-                                          const TextStyle(color: Colors.white),
-                                        ),
-                                        backgroundColor: primaryRed,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 4),
-                                      ))
-                                          .toList(),
+                              Builder(
+                                builder: (_) {
+                                  final filteredPermissions =
+                                  (_userModel?.permissions ?? [])
+                                      .where((perm) => perm != 'general')
+                                      .toList();
+                                  if (filteredPermissions.isEmpty) {
+                                    return const Text(
+                                      'No permissions assigned',
+                                      style: TextStyle(color: Colors.grey),
+                                    );
+                                  }
+                                  return Container(
+                                    constraints:
+                                    const BoxConstraints(maxHeight: 100),
+                                    child: SingleChildScrollView(
+                                      child: Wrap(
+                                        spacing: 10,
+                                        runSpacing: 8,
+                                        children: filteredPermissions
+                                            .map((perm) => Chip(
+                                          label: Text(
+                                            perm,
+                                            style: const TextStyle(
+                                                color: Colors.white),
+                                          ),
+                                          backgroundColor: primaryRed,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 4),
+                                        ))
+                                            .toList(),
+                                      ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -234,7 +238,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: primaryRed,
                           side: BorderSide(color: primaryRed),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -246,7 +251,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             applicationVersion: '1.0.0',
                             applicationIcon: CircleAvatar(
                               backgroundColor: primaryRed,
-                              child: const Icon(Icons.church, color: Colors.white),
+                              child: const Icon(Icons.church,
+                                  color: Colors.white),
                             ),
                             children: const [
                               SizedBox(height: 10),
@@ -269,11 +275,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     Expanded(
                       child: FilledButton.tonal(
                         style: ButtonStyle(
-                          backgroundColor:
-                          MaterialStateProperty.all(primaryRed.withOpacity(0.15)),
-                          foregroundColor: MaterialStateProperty.all(primaryRed),
+                          backgroundColor: MaterialStateProperty.all(
+                              primaryRed.withOpacity(0.15)),
+                          foregroundColor:
+                          MaterialStateProperty.all(primaryRed),
                           shape: MaterialStateProperty.all(
-                            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.circular(8)),
                           ),
                           padding: MaterialStateProperty.all(
                             const EdgeInsets.symmetric(vertical: 14),
