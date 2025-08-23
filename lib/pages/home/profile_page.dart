@@ -16,6 +16,10 @@ class _ProfilePageState extends State<ProfilePage> {
   AppUser? _userModel;
   bool _loading = true;
 
+  final Color primaryRed = const Color(0xFFB71C1C);
+  final Color backgroundGray = const Color(0xFFF5F5F5);
+  final Color cardGray = const Color(0xFFFAFAFA);
+
   @override
   void initState() {
     super.initState();
@@ -29,10 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
     if (mounted) setState(() => _loading = false);
   }
-
-  final Color primaryRed = const Color(0xFFB71C1C);
-  final Color backgroundGray = const Color(0xFFF5F5F5);
-  final Color cardGray = const Color(0xFFFAFAFA);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Column(
                     children: [
-                      // Profile Info Card
+                      // Profile Info Card with nickname above name
                       Card(
                         color: cardGray,
                         shape: RoundedRectangleBorder(
@@ -83,7 +83,23 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
+
+                              if (_userModel?.nickname != null &&
+                                  _userModel!.nickname!.isNotEmpty)
+                                Text(
+                                  _userModel!.nickname!,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontStyle: FontStyle.italic,
+                                    color: primaryRed,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+
+                              const SizedBox(height: 6),
+
                               Text(
                                 '${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}',
                                 style: const TextStyle(
@@ -92,7 +108,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   color: Colors.black87,
                                 ),
                               ),
+
                               const SizedBox(height: 6),
+
                               Text(
                                 _userModel?.phone ?? '',
                                 style: TextStyle(
@@ -115,8 +133,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         elevation: 2,
                         child: Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -155,8 +173,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         elevation: 2,
                         child: Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -205,6 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
+
               // Buttons Row for About and Logout
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
