@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // <-- add this import
+import 'package:flutter/services.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/text_fields.dart';
 import '../../services/user_service.dart';
@@ -17,6 +17,7 @@ class SignupDetailsPage extends StatefulWidget {
 class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _first = TextEditingController();
   final _last = TextEditingController();
+  final _nickname = TextEditingController(); // Will hold nickname silently
   final _phone = TextEditingController();
   DateTime? _birthdate;
   String? _gender;
@@ -27,6 +28,24 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _auth = AuthService();
   bool _loading = false;
 
+  String toTitleCase(String text) {
+    if (text.isEmpty) return '';
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  void _capitalizeText(TextEditingController controller, String val) {
+    final newValue = toTitleCase(val);
+    if (val != newValue) {
+      controller.value = controller.value.copyWith(
+        text: newValue,
+        selection: TextSelection.collapsed(offset: newValue.length),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,13 +53,22 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     if (user != null) {
       final displayName = user.displayName ?? '';
       if (displayName.isNotEmpty) {
-        final parts = displayName.split(' ');
-        _first.text = parts.isNotEmpty ? parts.first : '';
-        _last.text = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+        final nicknameRegex = RegExp(r'\(([^)]+)\)$');
+        final nicknameMatch = nicknameRegex.firstMatch(displayName);
+        String nickname = '';
+        String nameWithoutNickname = displayName;
+        if (nicknameMatch != null) {
+          nickname = nicknameMatch.group(1)!;
+          nameWithoutNickname = displayName.replaceAll(nicknameMatch.group(0)!, '').trim();
+        }
+        final parts = nameWithoutNickname.split(' ');
+        _first.text = parts.isNotEmpty ? toTitleCase(parts.first) : '';
+        _last.text = parts.length > 1 ? toTitleCase(parts.sublist(1).join(' ')) : '';
+        _nickname.text = toTitleCase(nickname); // stores silently, no UI
       }
       final phone = user.phoneNumber ?? '';
       if (phone.startsWith('+91')) {
-        _phone.text = phone.substring(3); // Remove +91 prefix & show only 10 digits
+        _phone.text = phone.substring(3);
       } else {
         _phone.text = phone;
       }
@@ -63,7 +91,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     if (_first.text.trim().isEmpty ||
         _last.text.trim().isEmpty ||
         _phone.text.trim().isEmpty ||
-        _phone.text.trim().length != 10 || // additional validation
+        _phone.text.trim().length != 10 ||
         _birthdate == null ||
         _gender == null ||
         _district.text.trim().isEmpty ||
@@ -78,9 +106,10 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       final existing = await _users.getUser(user.uid);
       final appUser = AppUser(
         uid: user.uid,
-        phone: '+91${_phone.text.trim()}', // prepend +91 here before save
+        phone: '+91${_phone.text.trim()}',
         firstName: capitalize(_first.text.trim()),
         lastName: capitalize(_last.text.trim()),
+        nickname: _nickname.text.trim().isEmpty ? null : _nickname.text.trim(),
         birthdate: _birthdate,
         gender: _gender,
         district: capitalize(_district.text.trim()),
@@ -91,11 +120,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       );
       await _users.createOrUpdateUser(appUser);
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.mainMenu,
-              (_) => false,
-        );
+        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,12 +143,21 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  AppTextField(controller: _first, label: 'First name'),
+                  AppTextField(
+                    controller: _first,
+                    label: 'First name',
+                    textCapitalization: TextCapitalization.words,
+                    onChanged: (val) => _capitalizeText(_first, val),
+                  ),
                   const SizedBox(height: 12),
-                  AppTextField(controller: _last, label: 'Last name'),
+                  AppTextField(
+                    controller: _last,
+                    label: 'Last name',
+                    textCapitalization: TextCapitalization.words,
+                    onChanged: (val) => _capitalizeText(_last, val),
+                  ),
+                  // Nickname input removed intentionally
                   const SizedBox(height: 12),
-
-                  // Phone input with fixed +91 prefix and 10-digit input
                   Row(
                     children: [
                       Container(
@@ -155,7 +189,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -183,7 +216,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                           items: const [
                             DropdownMenuItem(value: 'Male', child: Text('Male')),
                             DropdownMenuItem(value: 'Female', child: Text('Female')),
-                            DropdownMenuItem(value: 'Other', child: Text('Other')),
                           ],
                           onChanged: (v) => setState(() => _gender = v),
                           decoration: const InputDecoration(
@@ -193,13 +225,23 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  AppTextField(controller: _district, label: 'District'),
+                  AppTextField(
+                    controller: _district,
+                    label: 'District',
+                    textCapitalization: TextCapitalization.words,
+                    onChanged: (val) => _capitalizeText(_district, val),
+                  ),
                   const SizedBox(height: 12),
-                  AppTextField(controller: _church, label: 'Church'),
+                  AppTextField(
+                    controller: _church,
+                    label: 'Church',
+                    textCapitalization: TextCapitalization.words,
+                    onChanged: (val) => _capitalizeText(_church, val),
+                  ),
                   const SizedBox(height: 16),
                   PrimaryButton(
                     label: 'Submit',
-                    onPressed: _loading ? () {} : () { _submit(); },
+                    onPressed: _loading ? () {} : () => _submit(),
                     loading: _loading,
                   ),
                 ],

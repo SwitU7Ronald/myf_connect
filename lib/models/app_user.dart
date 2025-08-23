@@ -3,6 +3,7 @@ class AppUser {
   final String phone;
   final String? firstName;
   final String? lastName;
+  final String? nickname;  // new field
   final DateTime? birthdate;
   final String? gender;
   final String? district;
@@ -16,6 +17,7 @@ class AppUser {
     required this.phone,
     this.firstName,
     this.lastName,
+    this.nickname,
     this.birthdate,
     this.gender,
     this.district,
@@ -39,6 +41,7 @@ class AppUser {
       phone: data['phone'] ?? '',
       firstName: data['firstName'],
       lastName: data['lastName'],
+      nickname: data['nickname'],
       birthdate: data['birthdate'] != null
           ? DateTime.tryParse(data['birthdate'])
           : null,
@@ -60,6 +63,7 @@ class AppUser {
       'phone': phone,
       'firstName': firstName,
       'lastName': lastName,
+      'nickname': nickname,
       'birthdate': birthdate?.toIso8601String(),
       'gender': gender,
       'district': district,

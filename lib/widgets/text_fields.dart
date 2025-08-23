@@ -3,17 +3,27 @@ import 'package:flutter/material.dart';
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
-  final TextInputType? keyboardType;
-  final bool enabled;
-  const AppTextField({super.key, required this.controller, required this.label, this.keyboardType, this.enabled=true});
+  final TextCapitalization textCapitalization;
+  final ValueChanged<String>? onChanged;
+
+  const AppTextField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.textCapitalization = TextCapitalization.none,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      keyboardType: keyboardType,
-      enabled: enabled,
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      textCapitalization: textCapitalization,
+      onChanged: onChanged,
     );
   }
 }
