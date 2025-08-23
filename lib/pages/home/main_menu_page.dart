@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/app_user.dart';
 import '../../app_router.dart';
+import '../camps/camps_list_page.dart';  // Import the camps list page here
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -40,7 +41,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
         final isAdmin = appUser.permissions.contains('admin');
 
         return DefaultTabController(
-          length: 3,
+          length: 2, // Only Camps and MYF tabs
           child: Scaffold(
             appBar: AppBar(
               title: const Text('Methodist Connect'),
@@ -62,34 +63,18 @@ class _MainMenuPageState extends State<MainMenuPage> {
                 tabs: [
                   Tab(text: 'Camps'),
                   Tab(text: 'MYF'),
-                  Tab(text: 'Others'),
                 ],
               ),
             ),
             body: const TabBarView(
               children: [
-                _CampsTab(),
-                Center(child: Text('MYF section')),
-                Center(child: Text('Others section')),
+                CampsListPage(),  // Direct show camps list in this tab
+                Center(child: Text('MYF section')), // Placeholder for MYF
               ],
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class _CampsTab extends StatelessWidget {
-  const _CampsTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: FilledButton(
-        onPressed: () => Navigator.pushNamed(context, AppRoutes.camps),
-        child: const Text('Open Camps'),
-      ),
     );
   }
 }
