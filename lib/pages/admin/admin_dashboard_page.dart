@@ -1,78 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/app_user.dart';
 
-class AdminDashboardPage extends StatefulWidget {
+import 'users_management_page.dart';
+import 'camps_management_page.dart';
+import 'myf_management_page.dart';
+
+class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
-
-  @override
-  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
-}
-
-class _AdminDashboardPageState extends State<AdminDashboardPage> {
-  late Future<List<AppUser>> _usersFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _usersFuture = _fetchUsers();
-  }
-
-  Future<List<AppUser>> _fetchUsers() async {
-    final snapshot = await FirebaseFirestore.instance.collection('users').get();
-    return snapshot.docs.map((doc) => AppUser.fromMap(doc.id, doc.data())).toList();
-  }
-
-  Future<void> _toggleAdmin(AppUser user) async {
-    final isAdmin = user.permissions.contains('admin');
-    final newPermissions = List<String>.from(user.permissions);
-    if (isAdmin) {
-      newPermissions.remove('admin');
-    } else {
-      newPermissions.add('admin');
-    }
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .update({'permissions': newPermissions});
-    setState(() {
-      _usersFuture = _fetchUsers();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Dashboard')),
-      body: FutureBuilder<List<AppUser>>(
-        future: _usersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Failed to load users: ${snapshot.error}'));
-          }
-          final users = snapshot.data ?? [];
-          if (users.isEmpty) {
-            return const Center(child: Text('No users found'));
-          }
-          return ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              final user = users[index];
-              final isAdmin = user.permissions.contains('admin');
-              return ListTile(
-                title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
-                subtitle: Text(user.phone),
-                trailing: Switch(
-                  value: isAdmin,
-                  onChanged: (_) => _toggleAdmin(user),
-                ),
-              );
-            },
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: ListView(
+          children: [
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                title: const Text('Users Management',
+                    style:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Approve users and manage permissions'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const UsersManagementPage()));
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                title: const Text('Camps Management',
+                    style:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                subtitle:
+                const Text('Create, edit, delete camps and events'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const CampsManagementPage()));
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                title: const Text('MYF Management',
+                    style:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Manage MYF groups'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const MyfManagementPage()));
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
