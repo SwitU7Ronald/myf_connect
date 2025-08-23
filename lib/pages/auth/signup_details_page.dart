@@ -5,7 +5,7 @@ import '../../widgets/text_fields.dart';
 import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/app_user.dart';
-import '../../app_router.dart';
+import '../../app/app_router.dart';
 
 class SignupDetailsPage extends StatefulWidget {
   const SignupDetailsPage({super.key});

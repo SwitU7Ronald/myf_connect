@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../app_router.dart';
+import '../../app/app_router.dart';
 import '../../services/user_service.dart';
 import '../../models/app_user.dart';
 import '../camps/camps_list_page.dart';
@@ -72,11 +72,15 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ),
           ],
           bottom: const TabBar(
+            labelColor: Colors.white,               // Active tab text color
+            unselectedLabelColor: Colors.white70,  // Inactive tab text color
+            indicatorColor: Colors.white,           // Indicator underline color
             tabs: [
               Tab(text: 'Camps'),
               Tab(text: 'MYF'),
             ],
           ),
+
         ),
         body: const TabBarView(
           children: [

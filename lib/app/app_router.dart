@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'pages/welcome_page.dart';
-import 'pages/auth/signup_details_page.dart';
-import 'pages/home/main_menu_page.dart';
-import 'pages/home/profile_page.dart';
-import 'pages/camps/camps_list_page.dart';
-import 'pages/camps/godhra_camp_page.dart';
-import 'pages/myf/myf_list_page.dart'; // MYF list page
-import 'pages/admin/admin_dashboard_page.dart';
-import 'pages/admin/myf_create_page.dart';
-import 'pages/admin/myf_management_page.dart';
+import '../pages/auth/welcome_page.dart';
+import '../pages/auth/signup_details_page.dart';
+import '../pages/home/main_menu_page.dart';
+import '../pages/home/profile_page.dart';
+import '../pages/camps/camps_list_page.dart';
+import '../pages/myf/myf_list_page.dart';
+import '../pages/admin/admin_dashboard_page.dart';
+import '../pages/admin/myf_create_page.dart';
+import '../pages/admin/myf_management_page.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -34,8 +33,6 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ProfilePage());
       case camps:
         return MaterialPageRoute(builder: (_) => const CampsListPage());
-      case godhraCamp:
-        return MaterialPageRoute(builder: (_) => const GodhraCampPage());
       case myfList:
         return MaterialPageRoute(builder: (_) => const MyfListPage());
       case adminDashboard:

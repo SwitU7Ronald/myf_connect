@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../app_router.dart';
-import '../widgets/primary_button.dart';
-import '../services/auth_service.dart';
-import '../services/user_service.dart';
-import '../models/app_user.dart';
+import '../../app/app_router.dart';
+import '../../widgets/primary_button.dart';
+import '../../services/auth_service.dart';
+import '../../services/user_service.dart';
+import '../../models/app_user.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
