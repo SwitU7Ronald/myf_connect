@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'app_router.dart';
-import 'theme.dart';
+import 'theme.dart';  // Make sure this imports MethodistTheme or appTheme
 import 'services/auth_service.dart';
 
 void main() async {
@@ -24,10 +24,9 @@ class _MethodistConnectAppState extends State<MethodistConnectApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Methodist Connect',
-      theme: appTheme(),
+      theme: MethodistTheme.themeData,  // Use MethodistTheme.themeData here
       onGenerateRoute: AppRoutes.onGenerateRoute,
       initialRoute: AppRoutes.welcome,
-      // Optional: redirect if already logged in
       builder: (context, child) {
         return StreamBuilder(
           stream: _auth.authStateChanges,
