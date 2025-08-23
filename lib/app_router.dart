@@ -5,6 +5,8 @@ import 'pages/home/main_menu_page.dart';
 import 'pages/home/profile_page.dart';
 import 'pages/camps/camps_list_page.dart';
 import 'pages/camps/godhra_camp_page.dart';
+// Import the admin dashboard page
+import 'pages/admin/admin_dashboard_page.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -13,6 +15,7 @@ class AppRoutes {
   static const profile = '/home/profile';
   static const camps = '/home/camps';
   static const godhraCamp = '/home/camps/godhra2025';
+  static const adminDashboard = '/admin';  // <- Add this
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -28,6 +31,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const CampsListPage());
       case godhraCamp:
         return MaterialPageRoute(builder: (_) => const GodhraCampPage());
+      case adminDashboard:  // <- Add case here
+        return MaterialPageRoute(builder: (_) => const AdminDashboardPage());
       default:
         return MaterialPageRoute(builder: (_) => const WelcomePage());
     }
