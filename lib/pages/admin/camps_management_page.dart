@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'camp_create_page.dart';  // Make sure this file exists in the same folder
+import 'camp_create_page.dart';  // Ensure this file exists in the same folder
+import 'camp_events_management_page.dart'; // Import the new events management page
 
 class CampsManagementPage extends StatelessWidget {
   const CampsManagementPage({super.key});
@@ -27,7 +28,7 @@ class CampsManagementPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('camps').snapshots(),
+        stream: FirebaseFirestore.instance.collection('camps').orderBy('date').snapshots(),
         builder: (context, snap) {
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
 
@@ -40,15 +41,36 @@ class CampsManagementPage extends StatelessWidget {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final camp = camps[index];
+              final campId = camp.id;
+              final title = camp['title'] ?? 'Unnamed Camp';
+              final date = camp['date'] ?? '';
+
               return ListTile(
-                title: Text(camp['title'] ?? 'Unnamed'),
-                subtitle: Text(camp['date'] ?? ''),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteCamp(camp.id),
+                title: Text(title),
+                subtitle: Text(date),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.event, color: Colors.blue),
+                      tooltip: 'Manage Events',
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => CampEventsManagementPage(
+                              campId: campId,
+                              campTitle: title,
+                            )));
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      tooltip: 'Delete Camp',
+                      onPressed: () => _deleteCamp(campId),
+                    ),
+                  ],
                 ),
                 onTap: () {
-                  // TODO: Open event management for this camp
+                  // Optionally allow editing camp details or show details
                 },
               );
             },
