@@ -18,16 +18,22 @@ class AdminDashboardPage extends StatelessWidget {
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ListTile(
-                title: const Text('Users Management',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                title: const Text(
+                  'Users Management',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 subtitle: const Text('Approve users and manage permissions'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const UsersManagementPage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UsersManagementPage(),
+                    ),
+                  );
                 },
               ),
             ),
@@ -35,17 +41,22 @@ class AdminDashboardPage extends StatelessWidget {
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ListTile(
-                title: const Text('Camps Management',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                subtitle:
-                const Text('Create, edit, delete camps and events'),
+                title: const Text(
+                  'Camps Management',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                subtitle: const Text('Create, edit, delete camps and events'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const CampsManagementPage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CampsManagementPage(),
+                    ),
+                  );
                 },
               ),
             ),
@@ -53,16 +64,22 @@ class AdminDashboardPage extends StatelessWidget {
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ListTile(
-                title: const Text('MYF Management',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                title: const Text(
+                  'MYF Management',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 subtitle: const Text('Manage MYF groups'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const MyfManagementPage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MyfManagementPage(),
+                    ),
+                  );
                 },
               ),
             ),

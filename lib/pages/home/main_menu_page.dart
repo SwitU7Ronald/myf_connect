@@ -4,7 +4,7 @@ import '../../app/app_router.dart';
 import '../../services/user_service.dart';
 import '../../models/app_user.dart';
 import '../camps/camps_list_page.dart';
-import '../myf/myf_list_page.dart';  // Correct relative import
+import '../myf/myf_list_page.dart'; // Correct relative import
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -47,9 +47,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return DefaultTabController(
@@ -72,22 +70,16 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ),
           ],
           bottom: const TabBar(
-            labelColor: Colors.white,               // Active tab text color
-            unselectedLabelColor: Colors.white70,  // Inactive tab text color
-            indicatorColor: Colors.white,           // Indicator underline color
+            labelColor: Colors.white, // Active tab text color
+            unselectedLabelColor: Colors.white70, // Inactive tab text color
+            indicatorColor: Colors.white, // Indicator underline color
             tabs: [
               Tab(text: 'Camps'),
               Tab(text: 'MYF'),
             ],
           ),
-
         ),
-        body: const TabBarView(
-          children: [
-            CampsListPage(),
-            MyfListPage(),
-          ],
-        ),
+        body: const TabBarView(children: [CampsListPage(), MyfListPage()]),
       ),
     );
   }

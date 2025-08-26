@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'camp_create_page.dart';  // Ensure this file exists in the same folder
+import 'camp_create_page.dart'; // Ensure this file exists in the same folder
 import 'camp_events_management_page.dart'; // Import the new events management page
 
 class CampsManagementPage extends StatelessWidget {
@@ -28,9 +28,13 @@ class CampsManagementPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('camps').orderBy('date').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('camps')
+            .orderBy('date')
+            .snapshots(),
         builder: (context, snap) {
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snap.hasData)
+            return const Center(child: CircularProgressIndicator());
 
           final camps = snap.data!.docs;
           if (camps.isEmpty) return const Center(child: Text('No camps found'));
@@ -55,11 +59,15 @@ class CampsManagementPage extends StatelessWidget {
                       icon: const Icon(Icons.event, color: Colors.blue),
                       tooltip: 'Manage Events',
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => CampEventsManagementPage(
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CampEventsManagementPage(
                               campId: campId,
                               campTitle: title,
-                            )));
+                            ),
+                          ),
+                        );
                       },
                     ),
                     IconButton(

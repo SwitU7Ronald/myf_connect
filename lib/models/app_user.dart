@@ -3,7 +3,7 @@ class AppUser {
   final String phone;
   final String? firstName;
   final String? lastName;
-  final String? nickname;  // new field
+  final String? nickname; // new field
   final DateTime? birthdate;
   final String? gender;
   final String? district;
@@ -29,11 +29,11 @@ class AppUser {
 
   bool get isProfileComplete =>
       firstName != null &&
-          lastName != null &&
-          birthdate != null &&
-          gender != null &&
-          district != null &&
-          church != null;
+      lastName != null &&
+      birthdate != null &&
+      gender != null &&
+      district != null &&
+      church != null;
 
   factory AppUser.fromMap(String uid, Map<String, dynamic> data) {
     return AppUser(
@@ -48,7 +48,8 @@ class AppUser {
       gender: data['gender'],
       district: data['district'],
       church: data['church'],
-      permissions: (data['permissions'] as List?)?.cast<String>() ?? ['general'],
+      permissions:
+          (data['permissions'] as List?)?.cast<String>() ?? ['general'],
       createdAt: data['createdAt'] != null
           ? DateTime.tryParse(data['createdAt'])
           : null,

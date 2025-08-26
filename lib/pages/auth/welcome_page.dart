@@ -34,28 +34,42 @@ class _WelcomePageState extends State<WelcomePage> {
         // Not in Firestore - show message, then redirect to signup
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Account doesn't exist. Please sign up."))
+            const SnackBar(
+              content: Text("Account doesn't exist. Please sign up."),
+            ),
           );
-          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.signupDetails,
+            (_) => false,
+          );
         }
         setState(() => _loading = false);
         return;
       } else if (!existingUser.isProfileComplete) {
         // Profile incomplete - direct to signup details
-        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signupDetails, (_) => false);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.signupDetails,
+          (_) => false,
+        );
         setState(() => _loading = false);
         return;
       } else {
         // Profile complete - direct to main menu
-        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.mainMenu,
+          (_) => false,
+        );
         setState(() => _loading = false);
         return;
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign-in error: $e'))
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sign-in error: $e')));
       }
       setState(() => _loading = false);
     }

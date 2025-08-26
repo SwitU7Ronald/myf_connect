@@ -6,13 +6,18 @@ class CampDetailPage extends StatefulWidget {
   final String campId;
   final String campTitle;
 
-  const CampDetailPage({super.key, required this.campId, required this.campTitle});
+  const CampDetailPage({
+    super.key,
+    required this.campId,
+    required this.campTitle,
+  });
 
   @override
   State<CampDetailPage> createState() => _CampDetailPageState();
 }
 
-class _CampDetailPageState extends State<CampDetailPage> with SingleTickerProviderStateMixin {
+class _CampDetailPageState extends State<CampDetailPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final today = DateTime.now();
 
@@ -30,11 +35,17 @@ class _CampDetailPageState extends State<CampDetailPage> with SingleTickerProvid
         .collection('events');
 
     final query = upcoming
-        ? collection.where('dateTime', isGreaterThanOrEqualTo: nowIso).orderBy('dateTime')
-        : collection.where('dateTime', isLessThan: nowIso).orderBy('dateTime', descending: true);
+        ? collection
+              .where('dateTime', isGreaterThanOrEqualTo: nowIso)
+              .orderBy('dateTime')
+        : collection
+              .where('dateTime', isLessThan: nowIso)
+              .orderBy('dateTime', descending: true);
 
-    return query.snapshots().map((snap) =>
-        snap.docs.map((doc) => CampEvent.fromMap(doc.id, doc.data())).toList()
+    return query.snapshots().map(
+      (snap) => snap.docs
+          .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
+          .toList(),
     );
   }
 
@@ -45,7 +56,9 @@ class _CampDetailPageState extends State<CampDetailPage> with SingleTickerProvid
         if (snapshot.connectionState == ConnectionState.waiting)
           return const Center(child: CircularProgressIndicator());
         if (!snapshot.hasData || snapshot.data!.isEmpty)
-          return Center(child: Text(upcoming ? 'No upcoming events' : 'No past events'));
+          return Center(
+            child: Text(upcoming ? 'No upcoming events' : 'No past events'),
+          );
 
         final events = snapshot.data!;
         return ListView.separated(
@@ -55,8 +68,10 @@ class _CampDetailPageState extends State<CampDetailPage> with SingleTickerProvid
             final ev = events[index];
             return ListTile(
               title: Text(ev.title),
-              subtitle: Text('${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')[0]}'
-                  '\n${ev.description}'),
+              subtitle: Text(
+                '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')[0]}'
+                '\n${ev.description}',
+              ),
               isThreeLine: true,
             );
           },
@@ -80,10 +95,7 @@ class _CampDetailPageState extends State<CampDetailPage> with SingleTickerProvid
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEventList(true),
-          _buildEventList(false),
-        ],
+        children: [_buildEventList(true), _buildEventList(false)],
       ),
     );
   }

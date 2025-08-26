@@ -32,13 +32,8 @@ class MethodistTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryRed,
           foregroundColor: white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
 
@@ -50,8 +45,16 @@ class MethodistTheme {
       ),
 
       textTheme: TextTheme(
-        displayLarge: TextStyle(color: black, fontSize: 28, fontWeight: FontWeight.bold),
-        headlineMedium: TextStyle(color: black, fontSize: 22, fontWeight: FontWeight.w600),
+        displayLarge: TextStyle(
+          color: black,
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+        ),
+        headlineMedium: TextStyle(
+          color: black,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
         bodyLarge: TextStyle(color: darkGray, fontSize: 16),
         bodyMedium: TextStyle(color: darkGray, fontSize: 14),
         titleMedium: TextStyle(color: primaryRed, fontWeight: FontWeight.w600),
@@ -65,9 +68,7 @@ class MethodistTheme {
       cardTheme: CardThemeData(
         color: lightGray,
         elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
 

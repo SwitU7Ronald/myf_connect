@@ -30,10 +30,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
   String toTitleCase(String text) {
     if (text.isEmpty) return '';
-    return text.split(' ').map((word) {
-      if (word.isEmpty) return '';
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return '';
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
   void _capitalizeText(TextEditingController controller, String val) {
@@ -59,11 +62,15 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         String nameWithoutNickname = displayName;
         if (nicknameMatch != null) {
           nickname = nicknameMatch.group(1)!;
-          nameWithoutNickname = displayName.replaceAll(nicknameMatch.group(0)!, '').trim();
+          nameWithoutNickname = displayName
+              .replaceAll(nicknameMatch.group(0)!, '')
+              .trim();
         }
         final parts = nameWithoutNickname.split(' ');
         _first.text = parts.isNotEmpty ? toTitleCase(parts.first) : '';
-        _last.text = parts.length > 1 ? toTitleCase(parts.sublist(1).join(' ')) : '';
+        _last.text = parts.length > 1
+            ? toTitleCase(parts.sublist(1).join(' '))
+            : '';
         _nickname.text = toTitleCase(nickname); // stores silently, no UI
       }
       final phone = user.phoneNumber ?? '';
@@ -84,7 +91,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     final user = _auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Auth error. Please sign in again.')));
+        const SnackBar(content: Text('Auth error. Please sign in again.')),
+      );
       return;
     }
 
@@ -96,8 +104,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         _gender == null ||
         _district.text.trim().isEmpty ||
         _church.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Please fill all fields and enter valid 10-digit phone number')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please fill all fields and enter valid 10-digit phone number',
+          ),
+        ),
+      );
       return;
     }
 
@@ -120,12 +133,16 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       );
       await _users.createOrUpdateUser(appUser);
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainMenu, (_) => false);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.mainMenu,
+          (_) => false,
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving details: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error saving details: $e')));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -161,7 +178,10 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(4),
@@ -200,13 +220,23 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                               context: context,
                               firstDate: DateTime(1900),
                               lastDate: DateTime(now.year, now.month, now.day),
-                              initialDate: DateTime(now.year - 18, now.month, now.day),
+                              initialDate: DateTime(
+                                now.year - 18,
+                                now.month,
+                                now.day,
+                              ),
                             );
-                            if (picked != null) setState(() => _birthdate = picked);
+                            if (picked != null)
+                              setState(() => _birthdate = picked);
                           },
-                          child: Text(_birthdate == null
-                              ? 'Birthdate'
-                              : _birthdate!.toIso8601String().split('T').first),
+                          child: Text(
+                            _birthdate == null
+                                ? 'Birthdate'
+                                : _birthdate!
+                                      .toIso8601String()
+                                      .split('T')
+                                      .first,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -214,12 +244,20 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                         child: DropdownButtonFormField<String>(
                           initialValue: _gender,
                           items: const [
-                            DropdownMenuItem(value: 'Male', child: Text('Male')),
-                            DropdownMenuItem(value: 'Female', child: Text('Female')),
+                            DropdownMenuItem(
+                              value: 'Male',
+                              child: Text('Male'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Female',
+                              child: Text('Female'),
+                            ),
                           ],
                           onChanged: (v) => setState(() => _gender = v),
                           decoration: const InputDecoration(
-                              border: OutlineInputBorder(), labelText: 'Gender'),
+                            border: OutlineInputBorder(),
+                            labelText: 'Gender',
+                          ),
                         ),
                       ),
                     ],

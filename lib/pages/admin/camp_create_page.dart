@@ -44,13 +44,15 @@ class _CampCreatePageState extends State<CampCreatePage> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _placeController,
                 decoration: const InputDecoration(labelText: 'Place'),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               ListTile(
@@ -78,7 +80,8 @@ class _CampCreatePageState extends State<CampCreatePage> {
                 controller: _descriptionController,
                 decoration: const InputDecoration(labelText: 'Description'),
                 maxLines: 3,
-                validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(

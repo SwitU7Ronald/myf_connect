@@ -29,10 +29,12 @@ class MyfManagementPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('myf').snapshots(),
         builder: (context, snap) {
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snap.hasData)
+            return const Center(child: CircularProgressIndicator());
 
           final myfDocs = snap.data!.docs;
-          if (myfDocs.isEmpty) return const Center(child: Text('No MYF entries found'));
+          if (myfDocs.isEmpty)
+            return const Center(child: Text('No MYF entries found'));
 
           return ListView.separated(
             padding: const EdgeInsets.all(12),

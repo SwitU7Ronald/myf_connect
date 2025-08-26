@@ -6,10 +6,15 @@ class CampEventsManagementPage extends StatefulWidget {
   final String campId;
   final String campTitle;
 
-  const CampEventsManagementPage({super.key, required this.campId, required this.campTitle});
+  const CampEventsManagementPage({
+    super.key,
+    required this.campId,
+    required this.campTitle,
+  });
 
   @override
-  State<CampEventsManagementPage> createState() => _CampEventsManagementPageState();
+  State<CampEventsManagementPage> createState() =>
+      _CampEventsManagementPageState();
 }
 
 class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
@@ -20,12 +25,18 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
         .collection('events')
         .orderBy('dateTime')
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => CampEvent.fromMap(doc.id, doc.data())).toList());
+        .map(
+          (snap) => snap.docs
+              .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
     final titleController = TextEditingController(text: event?.title ?? '');
-    final descriptionController = TextEditingController(text: event?.description ?? '');
+    final descriptionController = TextEditingController(
+      text: event?.description ?? '',
+    );
     DateTime? selectedDateTime = event?.dateTime;
 
     final formKey = GlobalKey<FormState>();
@@ -41,7 +52,10 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
 
       TimeOfDay initialTime;
       if (selectedDateTime != null) {
-        initialTime = TimeOfDay(hour: selectedDateTime!.hour, minute: selectedDateTime!.minute);
+        initialTime = TimeOfDay(
+          hour: selectedDateTime!.hour,
+          minute: selectedDateTime!.minute,
+        );
       } else {
         initialTime = TimeOfDay.now();
       }
@@ -53,7 +67,13 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
       if (time == null) return;
 
       setState(() {
-        selectedDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        selectedDateTime = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
       });
     }
 
@@ -70,20 +90,24 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
                 TextFormField(
                   controller: titleController,
                   decoration: const InputDecoration(labelText: 'Event Title'),
-                  validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
+                  validator: (val) =>
+                      val == null || val.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
-                  validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
+                  validator: (val) =>
+                      val == null || val.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(
-                  title: Text(selectedDateTime == null
-                      ? 'Select Date & Time'
-                      : selectedDateTime!.toLocal().toString()),
+                  title: Text(
+                    selectedDateTime == null
+                        ? 'Select Date & Time'
+                        : selectedDateTime!.toLocal().toString(),
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: pickDateTime,
                 ),
@@ -92,10 +116,14 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              if (!formKey.currentState!.validate() || selectedDateTime == null) return;
+              if (!formKey.currentState!.validate() || selectedDateTime == null)
+                return;
               final eventsCollection = FirebaseFirestore.instance
                   .collection('camps')
                   .doc(widget.campId)
@@ -144,10 +172,12 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
       body: StreamBuilder<List<CampEvent>>(
         stream: _getEvents(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
 
           final events = snapshot.data!;
-          if (events.isEmpty) return const Center(child: Text('No events found'));
+          if (events.isEmpty)
+            return const Center(child: Text('No events found'));
 
           return ListView.separated(
             itemCount: events.length,
@@ -157,7 +187,8 @@ class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
               return ListTile(
                 title: Text(ev.title),
                 subtitle: Text(
-                    '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')[0]}\n${ev.description}'),
+                  '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')[0]}\n${ev.description}',
+                ),
                 isThreeLine: true,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,

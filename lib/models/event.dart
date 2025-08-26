@@ -11,7 +11,8 @@ class CampEvent {
     required this.description,
   });
 
-  String get dayOfWeek => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][dateTime.weekday-1];
+  String get dayOfWeek =>
+      ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dateTime.weekday - 1];
 
   factory CampEvent.fromMap(String id, Map<String, dynamic> data) {
     return CampEvent(

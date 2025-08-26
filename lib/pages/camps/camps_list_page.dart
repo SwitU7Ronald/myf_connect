@@ -10,12 +10,17 @@ class CampsListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Camps')),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('camps').orderBy('date').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('camps')
+            .orderBy('date')
+            .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
 
           final camps = snapshot.data!.docs;
-          if (camps.isEmpty) return const Center(child: Text('No camps available'));
+          if (camps.isEmpty)
+            return const Center(child: Text('No camps available'));
 
           return ListView.separated(
             padding: const EdgeInsets.all(12),
@@ -28,11 +33,17 @@ class CampsListPage extends StatelessWidget {
 
               return ListTile(
                 title: Text(title),
-                subtitle: Text('${camp['date'] ?? ''} • ${camp['place'] ?? ''}'),
+                subtitle: Text(
+                  '${camp['date'] ?? ''} • ${camp['place'] ?? ''}',
+                ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => CampDetailPage(campId: campId, campTitle: title),
-                  ));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          CampDetailPage(campId: campId, campTitle: title),
+                    ),
+                  );
                 },
               );
             },
