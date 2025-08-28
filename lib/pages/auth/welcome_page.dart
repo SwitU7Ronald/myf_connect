@@ -71,7 +71,11 @@ class _WelcomePageState extends State<WelcomePage> {
           context,
         ).showSnackBar(SnackBar(content: Text('Sign-in error: $e')));
       }
-      setState(() => _loading = false);
+      if (!mounted) return;
+      setState(() {
+      }
+      );
+
     }
   }
 

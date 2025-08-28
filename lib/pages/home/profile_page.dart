@@ -36,13 +36,20 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
+    if (!mounted) return; // Check first
+
     setState(() => _loggingOut = true);
+
     await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
+
+    if (!mounted) return; // Check again after async await
+
     setState(() => _loggingOut = false);
-    // Clear navigation stack and go to WelcomePage
-    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
+
+    // Clear navigation stack and go to WelcomePage only once
+    Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (route) => false);
   }
+
 
   @override
   Widget build(BuildContext context) {
