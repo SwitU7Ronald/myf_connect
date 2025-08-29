@@ -11,6 +11,9 @@ class MyfsManagementPage extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (_) => const MyfsCreatePage()),
     );
+    if (!context.mounted) {
+      return; // guard after async gap even if unused to satisfy lint
+    }
   }
 
   Future<void> _deleteMyf(BuildContext context, String id) async {
@@ -18,7 +21,9 @@ class MyfsManagementPage extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete MYF'),
-        content: const Text('Are you sure you want to delete this MYF? This cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this MYF? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -30,20 +35,23 @@ class MyfsManagementPage extends StatelessWidget {
           ),
         ],
       ),
-    ); // confirm dialog [1][2]
+    ); // confirm dialog
     if (confirmed == true) {
       await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('MYF deleted')),
-      ); // snackbar [3]
+      if (!context.mounted) {
+        return; // guard before using ScaffoldMessenger after await
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('MYF deleted'))); // snackbar
     }
   }
 
   Future<void> _showEditMyfDialog(
-      BuildContext context,
-      String myfId,
-      Map<String, dynamic> data,
-      ) async {
+    BuildContext context,
+    String myfId,
+    Map<String, dynamic> data,
+  ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final descCtrl = TextEditingController(text: data['description'] ?? '');
@@ -61,38 +69,56 @@ class MyfsManagementPage extends StatelessWidget {
                 TextFormField(
                   controller: titleCtrl,
                   decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
-                ), // validation [4]
+                  validator: (v) {
+                    return v == null || v.trim().isEmpty ? 'Required' : null;
+                  },
+                ), // validation
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: descCtrl,
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
-                ), // validation [4]
+                  validator: (v) {
+                    return v == null || v.trim().isEmpty ? 'Required' : null;
+                  },
+                ), // validation
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              if (!formKey.currentState!.validate()) return;
-              await FirebaseFirestore.instance.collection('myfs').doc(myfId).update({
-                'title': titleCtrl.text.trim(),
-                'description': descCtrl.text.trim(),
-              }); // update [5]
-              if (context.mounted) Navigator.pop(context);
+              if (!formKey.currentState!.validate()) {
+                return; // braces for lint
+              }
+              await FirebaseFirestore.instance
+                  .collection('myfs')
+                  .doc(myfId)
+                  .update({
+                    'title': titleCtrl.text.trim(),
+                    'description': descCtrl.text.trim(),
+                  }); // update
+              if (!context.mounted) {
+                return; // guard before Navigator and ScaffoldMessenger
+              }
+              Navigator.pop(context);
+              if (!context.mounted) {
+                return; // guard again before snackbar
+              }
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('MYF updated')),
-              ); // snackbar [3]
+              ); // snackbar
             },
             child: const Text('Update'),
           ),
         ],
       ),
-    ); // dialog [1]
+    ); // dialog
   }
 
   @override
@@ -105,16 +131,22 @@ class MyfsManagementPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('myfs').snapshots(), // realtime [5]
+        stream: FirebaseFirestore.instance
+            .collection('myfs')
+            .snapshots(), // realtime
         builder: (context, snap) {
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snap.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
           final myfDocs = snap.data!.docs;
-          if (myfDocs.isEmpty) return const Center(child: Text('No MYF entries found'));
+          if (myfDocs.isEmpty) {
+            return const Center(child: Text('No MYF entries found'));
+          }
 
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: myfDocs.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
               final myf = myfDocs[index];
               final data = myf.data() as Map<String, dynamic>;
@@ -129,7 +161,8 @@ class MyfsManagementPage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.orange),
                       tooltip: 'Edit MYF',
-                      onPressed: () => _showEditMyfDialog(context, myfId, data), // edit [1]
+                      onPressed: () =>
+                          _showEditMyfDialog(context, myfId, data), // edit
                     ),
                     IconButton(
                       icon: const Icon(Icons.event, color: Colors.blue),
@@ -149,7 +182,8 @@ class MyfsManagementPage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       tooltip: 'Delete MYF',
-                      onPressed: () => _deleteMyf(context, myfId), // confirm + delete [1]
+                      onPressed: () =>
+                          _deleteMyf(context, myfId), // confirm+delete
                     ),
                   ],
                 ),

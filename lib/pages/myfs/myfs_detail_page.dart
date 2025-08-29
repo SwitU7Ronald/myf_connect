@@ -60,16 +60,15 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
 
     final query = upcoming
         ? collection
-        .where('dateTime', isGreaterThanOrEqualTo: nowIso)
-        .orderBy('dateTime')
+              .where('dateTime', isGreaterThanOrEqualTo: nowIso)
+              .orderBy('dateTime')
         : collection
-        .where('dateTime', isLessThan: nowIso)
-        .orderBy('dateTime', descending: true);
+              .where('dateTime', isLessThan: nowIso)
+              .orderBy('dateTime', descending: true);
 
     return query.snapshots().map(
-          (snap) => snap.docs
-          .map((doc) => MyfEvent.fromMap(doc.id, doc.data()))
-          .toList(),
+      (snap) =>
+          snap.docs.map((doc) => MyfEvent.fromMap(doc.id, doc.data())).toList(),
     );
   }
 
@@ -89,7 +88,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
         final events = snapshot.data!;
         return ListView.separated(
           itemCount: events.length,
-          separatorBuilder: (_, __) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             final ev = events[index];
             return ListTile(
@@ -120,10 +119,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEventList(true),
-          _buildEventList(false),
-        ],
+        children: [_buildEventList(true), _buildEventList(false)],
       ),
     );
   }

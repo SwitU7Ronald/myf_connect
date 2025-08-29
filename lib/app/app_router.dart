@@ -65,7 +65,7 @@ class AppRoutes {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-    // Auth & home
+      // Auth & home
       case welcome:
         return MaterialPageRoute(builder: (_) => const WelcomePage());
       case signupDetails:
@@ -77,99 +77,111 @@ class AppRoutes {
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfilePage());
 
-    // Camps (user)
+      // Camps (user)
       case campsList:
         return MaterialPageRoute(builder: (_) => const CampsListPage());
-      case campsDetail: {
-        final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || !args.containsKey('campId') || !args.containsKey('campTitle')) {
+      case campsDetail:
+        {
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args == null ||
+              !args.containsKey('campId') ||
+              !args.containsKey('campTitle')) {
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Center(child: Text('Missing campId or campTitle')),
+              ),
+            );
+          }
           return MaterialPageRoute(
-            builder: (_) => Scaffold(
-              body: Center(child: Text('Missing campId or campTitle')),
+            builder: (_) => CampsDetailPage(
+              campId: args['campId'],
+              campTitle: args['campTitle'],
             ),
           );
         }
-        return MaterialPageRoute(
-          builder: (_) => CampsDetailPage(
-            campId: args['campId'],
-            campTitle: args['campTitle'],
-          ),
-        );
-      }
 
-    // MYF (user)
+      // MYF (user)
       case myfsList:
         return MaterialPageRoute(builder: (_) => const MyfsListPage());
-      case myfsDetail: {
-        final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || !args.containsKey('myfId') || !args.containsKey('myfTitle')) {
+      case myfsDetail:
+        {
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args == null ||
+              !args.containsKey('myfId') ||
+              !args.containsKey('myfTitle')) {
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Center(child: Text('Missing myfId or myfTitle')),
+              ),
+            );
+          }
           return MaterialPageRoute(
-            builder: (_) => Scaffold(
-              body: Center(child: Text('Missing myfId or myfTitle')),
+            builder: (_) => MyfsDetailPage(
+              myfId: args['myfId'],
+              myfTitle: args['myfTitle'],
             ),
           );
         }
-        return MaterialPageRoute(
-          builder: (_) => MyfsDetailPage(
-            myfId: args['myfId'],
-            myfTitle: args['myfTitle'],
-          ),
-        );
-      }
 
-    // Admin hub
+      // Admin hub
       case adminDashboard:
         return MaterialPageRoute(builder: (_) => const AdminDashboardPage());
 
-    // Admin: Camps
+      // Admin: Camps
       case campsManagement:
         return MaterialPageRoute(builder: (_) => const CampsManagementPage());
       case campsCreate:
         return MaterialPageRoute(builder: (_) => const CampsCreatePage());
-      case campsEventsManagement: {
-        final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || !args.containsKey('campId') || !args.containsKey('campTitle')) {
+      case campsEventsManagement:
+        {
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args == null ||
+              !args.containsKey('campId') ||
+              !args.containsKey('campTitle')) {
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Center(child: Text('Missing campId or campTitle')),
+              ),
+            );
+          }
           return MaterialPageRoute(
-            builder: (_) => Scaffold(
-              body: Center(child: Text('Missing campId or campTitle')),
+            builder: (_) => CampsEventsManagementPage(
+              campId: args['campId'],
+              campTitle: args['campTitle'],
             ),
           );
         }
-        return MaterialPageRoute(
-          builder: (_) => CampsEventsManagementPage(
-            campId: args['campId'],
-            campTitle: args['campTitle'],
-          ),
-        );
-      }
 
-    // Admin: MYF
+      // Admin: MYF
       case myfsManagement:
         return MaterialPageRoute(builder: (_) => const MyfsManagementPage());
       case myfsCreate:
         return MaterialPageRoute(builder: (_) => const MyfsCreatePage());
-      case myfsEventsManagement: {
-        final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || !args.containsKey('myfId') || !args.containsKey('myfTitle')) {
+      case myfsEventsManagement:
+        {
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args == null ||
+              !args.containsKey('myfId') ||
+              !args.containsKey('myfTitle')) {
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Center(child: Text('Missing myfId or myfTitle')),
+              ),
+            );
+          }
           return MaterialPageRoute(
-            builder: (_) => Scaffold(
-              body: Center(child: Text('Missing myfId or myfTitle')),
+            builder: (_) => MyfsEventsManagementPage(
+              myfId: args['myfId'],
+              myfTitle: args['myfTitle'],
             ),
           );
         }
-        return MaterialPageRoute(
-          builder: (_) => MyfsEventsManagementPage(
-            myfId: args['myfId'],
-            myfTitle: args['myfTitle'],
-          ),
-        );
-      }
 
-    // Admin: Users
+      // Admin: Users
       case usersManagement:
         return MaterialPageRoute(builder: (_) => const UsersManagementPage());
 
-    // Fallback safely to welcome
+      // Fallback safely to welcome
       default:
         return MaterialPageRoute(builder: (_) => const WelcomePage());
     }

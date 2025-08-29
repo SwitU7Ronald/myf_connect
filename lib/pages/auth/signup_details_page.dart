@@ -29,12 +29,16 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   bool _loading = false;
 
   String toTitleCase(String text) {
-    if (text.isEmpty) return '';
+    if (text.isEmpty) {
+      return '';
+    }
     return text
         .split(' ')
         .map((word) {
-          if (word.isEmpty) return '';
-          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+          if (word.isEmpty) {
+            return '';
+          }
+          return word.toUpperCase() + word.substring(1).toLowerCase();
         })
         .join(' ');
   }
@@ -83,8 +87,10 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   }
 
   String capitalize(String input) {
-    if (input.isEmpty) return input;
-    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+    if (input.isEmpty) {
+      return input;
+    }
+    return input.toUpperCase() + input.substring(1).toLowerCase();
   }
 
   Future<void> _submit() async {
@@ -132,20 +138,37 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         updatedAt: DateTime.now(),
       );
       await _users.createOrUpdateUser(appUser);
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.mainMenu,
-          (_) => false,
-        );
+      if (!mounted) {
+        return; // guard State.context after awaits
       }
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.mainMenu,
+        (_) => false,
+      );
     } catch (e) {
+      if (!mounted) {
+        return; // guard State.context before showing snackbar after awaits
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error saving details: $e')));
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _first.dispose();
+    _last.dispose();
+    _nickname.dispose();
+    _phone.dispose();
+    _district.dispose();
+    _church.dispose();
+    super.dispose();
   }
 
   @override
@@ -226,8 +249,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                                 now.day,
                               ),
                             );
-                            if (picked != null)
+                            if (picked != null) {
+                              if (!mounted) {
+                                return; // guard before setState after await
+                              }
                               setState(() => _birthdate = picked);
+                            }
                           },
                           child: Text(
                             _birthdate == null
@@ -242,7 +269,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          initialValue: _gender,
+                          initialValue: _gender, // <- use this
                           items: const [
                             DropdownMenuItem(
                               value: 'Male',

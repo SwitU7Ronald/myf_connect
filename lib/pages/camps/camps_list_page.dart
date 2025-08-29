@@ -15,17 +15,19 @@ class CampsListPage extends StatelessWidget {
             .orderBy('date')
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
 
           final camps = snapshot.data!.docs;
-          if (camps.isEmpty)
+          if (camps.isEmpty) {
             return const Center(child: Text('No camps available'));
+          }
 
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: camps.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (context, index) {
               final camp = camps[index];
               final campId = camp.id;

@@ -19,19 +19,24 @@ class _MyfCreatePageState extends State<MyfsCreatePage> {
 
     setState(() => _loading = true);
 
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await FirebaseFirestore.instance.collection('myfs').add({
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
       });
 
-      Navigator.pop(context);
+      if (!mounted) return;
+      navigator.pop();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error creating MYF: $e')));
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text('Error creating MYF: $e')));
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false); // no return here
+      }
     }
   }
 

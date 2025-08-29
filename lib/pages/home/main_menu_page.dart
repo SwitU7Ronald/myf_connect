@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
-import '../../services/user_service.dart';
-import '../../models/app_user.dart';
 import '../camps/camps_list_page.dart';
 import '../myfs/myfs_list_page.dart';
-import '../myfs/myfs_list_page.dart'; // Correct relative import
+// Correct relative import
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -15,8 +13,6 @@ class MainMenuPage extends StatefulWidget {
 }
 
 class _MainMenuPageState extends State<MainMenuPage> {
-  final _users = UserService();
-  AppUser? _user;
   bool _loading = true;
   bool _isAdmin = false;
 
@@ -29,7 +25,6 @@ class _MainMenuPageState extends State<MainMenuPage> {
   Future<void> _load() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      _user = await _users.getUser(user.uid);
       final idTokenResult = await user.getIdTokenResult(true);
       final adminClaim = idTokenResult.claims?['admin'] == true;
       if (mounted) {

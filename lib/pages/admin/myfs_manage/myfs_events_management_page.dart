@@ -12,7 +12,8 @@ class MyfsEventsManagementPage extends StatefulWidget {
   });
 
   @override
-  State<MyfsEventsManagementPage> createState() => _MyfsEventsManagementPageState();
+  State<MyfsEventsManagementPage> createState() =>
+      _MyfsEventsManagementPageState();
 }
 
 class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
@@ -23,12 +24,19 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
         .doc(widget.myfId)
         .collection('events')
         .orderBy('dateTime')
-        .snapshots(); // realtime updates [8]
+        .snapshots();
   }
 
-  Future<void> _showEventDialog({DocumentSnapshot<Map<String, dynamic>>? doc}) async {
+  Future<void> _showEventDialog({
+    DocumentSnapshot<Map<String, dynamic>>? doc,
+  }) async {
+    // Cache navigator synchronously to avoid using context after awaits.
+    final navigator = Navigator.of(context); // safe to capture here [1][12]
+
     final titleCtrl = TextEditingController(text: doc?.data()?['title'] ?? '');
-    final descCtrl = TextEditingController(text: doc?.data()?['description'] ?? '');
+    final descCtrl = TextEditingController(
+      text: doc?.data()?['description'] ?? '',
+    );
 
     DateTime? selected = () {
       final raw = doc?.data()?['dateTime'];
@@ -42,6 +50,8 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
 
     Future<void> pickDateTime() async {
       final now = DateTime.now();
+
+      // First modal
       final date = await showDatePicker(
         context: context,
         firstDate: now.subtract(const Duration(days: 365)),
@@ -50,6 +60,12 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (date == null) return;
 
+      // Guard before using context again across the async gap
+      if (!mounted) {
+        return; // satisfies the lint before next context use [1][18]
+      }
+
+      // Second modal
       final time = await showTimePicker(
         context: context,
         initialTime: selected != null
@@ -58,8 +74,15 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (time == null) return;
 
+      if (!mounted) return; // safe before setState [1]
       setState(() {
-        selected = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        selected = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
       });
     }
 
@@ -76,18 +99,24 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                 TextFormField(
                   controller: titleCtrl,
                   decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null, // validation [6]
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: descCtrl,
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null, // validation [6]
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(
-                  title: Text(selected == null ? 'Select date & time' : selected!.toLocal().toString()),
+                  title: Text(
+                    selected == null
+                        ? 'Select date & time'
+                        : selected!.toLocal().toString(),
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: pickDateTime,
                 ),
@@ -96,13 +125,20 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => navigator.pop(), // use cached navigator [1][12]
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              if (!formKey.currentState!.validate() || selected == null) return; // validate [6]
+              if (!formKey.currentState!.validate() || selected == null) {
+                return;
+              }
 
               final col = FirebaseFirestore.instance
-                  .collection('myfs').doc(widget.myfId).collection('events');
+                  .collection('myfs')
+                  .doc(widget.myfId)
+                  .collection('events');
 
               // Choose storage format:
               // A) ISO string (compatible with your Camps page)
@@ -120,11 +156,14 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
               // };
 
               if (doc == null) {
-                await col.add(payload); // Create [8][1]
+                await col.add(payload);
               } else {
-                await col.doc(doc.id).update(payload); // Update [8][1]
+                await col.doc(doc.id).update(payload);
               }
-              if (context.mounted) Navigator.pop(context);
+
+              // Guard after async work, then close with cached navigator
+              if (!mounted) return; // satisfies the lint [1][18]
+              navigator.pop(); // no context used here [1][12]
             },
             child: Text(doc == null ? 'Add' : 'Update'),
           ),
@@ -135,9 +174,11 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
 
   Future<void> _deleteEvent(String id) async {
     await FirebaseFirestore.instance
-        .collection('myfs').doc(widget.myfId)
-        .collection('events').doc(id)
-        .delete(); // Delete [8][1]
+        .collection('myfs')
+        .doc(widget.myfId)
+        .collection('events')
+        .doc(id)
+        .delete();
   }
 
   @override
@@ -150,19 +191,19 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: _eventsStream(), // snapshots in realtime [8]
+        stream: _eventsStream(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator()); // loading [8]
+            return const Center(child: CircularProgressIndicator());
           }
           final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
-            return const Center(child: Text('No events found')); // empty [8]
+            return const Center(child: Text('No events found'));
           }
 
           return ListView.separated(
             itemCount: docs.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (_, i) {
               final d = docs[i];
               final data = d.data();

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import '../pages/auth/welcome_page.dart';
 import '../pages/home/main_menu_page.dart';
-import '../pages/home/credit_page.dart'; // Credit page location
+// Credit page location
 import './firebase_options.dart';
 import 'app_router.dart';
 import 'theme.dart';

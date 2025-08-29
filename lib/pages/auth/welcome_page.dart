@@ -3,7 +3,6 @@ import '../../app/app_router.dart';
 import '../../widgets/primary_button.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
-import '../../models/app_user.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -18,64 +17,67 @@ class _WelcomePageState extends State<WelcomePage> {
   final _userService = UserService();
 
   Future<void> _googleSignIn() async {
+    if (_loading) return;
     setState(() => _loading = true);
     try {
       // Sign in with Google
       final cred = await _auth.signInWithGoogle();
+      if (!mounted) {
+        return; // guard State.context and setState after await
+      }
       if (cred == null || cred.user == null) {
         setState(() => _loading = false);
         return;
       }
+
       final user = cred.user!;
       // Check Firestore for existing profile
       final existingUser = await _userService.getUser(user.uid);
+      if (!mounted) {
+        return; // guard before using State.context again
+      }
 
       if (existingUser == null) {
-        // Not in Firestore - show message, then redirect to signup
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Account doesn't exist. Please sign up."),
-            ),
-          );
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.signupDetails,
-            (_) => false,
-          );
-        }
+        // Not in Firestore - message, then redirect to signup
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Account doesn't exist. Please sign up."),
+          ),
+        );
         setState(() => _loading = false);
-        return;
-      } else if (!existingUser.isProfileComplete) {
-        // Profile incomplete - direct to signup details
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.signupDetails,
           (_) => false,
         );
-        setState(() => _loading = false);
         return;
-      } else {
-        // Profile complete - direct to main menu
+      }
+
+      if (!existingUser.isProfileComplete) {
+        setState(() => _loading = false);
         Navigator.pushNamedAndRemoveUntil(
           context,
-          AppRoutes.mainMenu,
+          AppRoutes.signupDetails,
           (_) => false,
         );
-        setState(() => _loading = false);
         return;
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Sign-in error: $e')));
-      }
-      if (!mounted) return;
-      setState(() {
-      }
-      );
 
+      // Profile complete - main menu
+      setState(() => _loading = false);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.mainMenu,
+        (_) => false,
+      );
+    } catch (e) {
+      if (!mounted) {
+        return; // widget might have been disposed during awaits
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Sign-in error: $e')));
+      setState(() => _loading = false);
     }
   }
 

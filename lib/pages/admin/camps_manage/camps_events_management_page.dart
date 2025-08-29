@@ -33,6 +33,9 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
+    // Cache Navigator to avoid using BuildContext after awaits.
+    final navigator = Navigator.of(context);
+
     final titleController = TextEditingController(text: event?.title ?? '');
     final descriptionController = TextEditingController(
       text: event?.description ?? '',
@@ -48,24 +51,29 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         firstDate: DateTime.now().subtract(const Duration(days: 365)),
         lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
       );
-      if (date == null) return;
-
-      TimeOfDay initialTime;
-      if (selectedDateTime != null) {
-        initialTime = TimeOfDay(
-          hour: selectedDateTime!.hour,
-          minute: selectedDateTime!.minute,
-        );
-      } else {
-        initialTime = TimeOfDay.now();
+      if (date == null) {
+        return;
       }
+
+      // Guard before using context again across async gap.
+      if (!mounted) return;
+
+      final initialTime = selectedDateTime != null
+          ? TimeOfDay(
+              hour: selectedDateTime!.hour,
+              minute: selectedDateTime!.minute,
+            )
+          : TimeOfDay.now();
 
       final time = await showTimePicker(
         context: context,
         initialTime: initialTime,
       );
-      if (time == null) return;
+      if (time == null) {
+        return;
+      }
 
+      if (!mounted) return;
       setState(() {
         selectedDateTime = DateTime(
           date.year,
@@ -117,32 +125,34 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => navigator.pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
-              if (!formKey.currentState!.validate() || selectedDateTime == null)
+              if (!formKey.currentState!.validate() ||
+                  selectedDateTime == null) {
                 return;
+              }
               final eventsCollection = FirebaseFirestore.instance
                   .collection('camps')
                   .doc(widget.campId)
                   .collection('events');
 
+              final payload = {
+                'title': titleController.text.trim(),
+                'description': descriptionController.text.trim(),
+                'dateTime': selectedDateTime!.toIso8601String(),
+              };
+
               if (event == null) {
-                await eventsCollection.add({
-                  'title': titleController.text.trim(),
-                  'description': descriptionController.text.trim(),
-                  'dateTime': selectedDateTime!.toIso8601String(),
-                });
+                await eventsCollection.add(payload);
               } else {
-                await eventsCollection.doc(event.id).update({
-                  'title': titleController.text.trim(),
-                  'description': descriptionController.text.trim(),
-                  'dateTime': selectedDateTime!.toIso8601String(),
-                });
+                await eventsCollection.doc(event.id).update(payload);
               }
-              Navigator.pop(context);
+
+              if (!mounted) return;
+              navigator.pop();
             },
             child: Text(event == null ? 'Add' : 'Update'),
           ),
@@ -172,22 +182,22 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
       body: StreamBuilder<List<CampEvent>>(
         stream: _getEvents(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
-
+          }
           final events = snapshot.data!;
-          if (events.isEmpty)
+          if (events.isEmpty) {
             return const Center(child: Text('No events found'));
-
+          }
           return ListView.separated(
             itemCount: events.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
               final ev = events[index];
               return ListTile(
                 title: Text(ev.title),
                 subtitle: Text(
-                  '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')[0]}\n${ev.description}',
+                  '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')}\n${ev.description}',
                 ),
                 isThreeLine: true,
                 trailing: Row(

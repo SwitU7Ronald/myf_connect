@@ -53,24 +53,25 @@ class _CampsDetailPageState extends State<CampsDetailPage>
     return StreamBuilder<List<CampEvent>>(
       stream: _getEvents(upcoming: upcoming),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        if (!snapshot.hasData || snapshot.data!.isEmpty)
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
             child: Text(upcoming ? 'No upcoming events' : 'No past events'),
           );
+        }
 
         final events = snapshot.data!;
         return ListView.separated(
           itemCount: events.length,
-          separatorBuilder: (_, __) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             final ev = events[index];
             return ListTile(
               title: Text(ev.title),
               subtitle: Text(
-                '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')[0]}'
-                '\n${ev.description}',
+                '${ev.dayOfWeek}, ${ev.dateTime.toLocal().toString().split(' ')}\n${ev.description}',
               ),
               isThreeLine: true,
             );

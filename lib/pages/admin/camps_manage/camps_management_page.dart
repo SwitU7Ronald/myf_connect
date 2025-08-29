@@ -11,6 +11,9 @@ class CampsManagementPage extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (_) => const CampsCreatePage()),
     );
+    if (!context.mounted) {
+      return;
+    }
   }
 
   Future<void> _deleteCamp(BuildContext context, String id) async {
@@ -18,20 +21,37 @@ class CampsManagementPage extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete Camp'),
-        content: const Text('Are you sure you want to delete this camp? This cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this camp? This cannot be undone.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
     if (confirmed == true) {
-      await FirebaseFirestore.instance.collection('camps').doc(id).delete(); // delete [1]
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Camp deleted')));
+      await FirebaseFirestore.instance.collection('camps').doc(id).delete();
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Camp deleted')));
     }
   }
 
-  Future<void> _showEditCampDialog(BuildContext context, String campId, Map<String, dynamic> data) async {
+  Future<void> _showEditCampDialog(
+    BuildContext context,
+    String campId,
+    Map<String, dynamic> data,
+  ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final placeCtrl = TextEditingController(text: data['place'] ?? '');
@@ -53,7 +73,9 @@ class CampsManagementPage extends StatelessWidget {
         lastDate: DateTime(now.year + 2),
         initialDate: selectedDate ?? now,
       );
-      if (picked != null) selectedDate = picked;
+      if (picked != null) {
+        selectedDate = picked;
+      }
     }
 
     await showDialog(
@@ -69,13 +91,17 @@ class CampsManagementPage extends StatelessWidget {
                 TextFormField(
                   controller: titleCtrl,
                   decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null, // validation [2]
+                  validator: (v) {
+                    return v == null || v.trim().isEmpty ? 'Required' : null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: placeCtrl,
                   decoration: const InputDecoration(labelText: 'Place'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null, // validation [2]
+                  validator: (v) {
+                    return v == null || v.trim().isEmpty ? 'Required' : null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 ListTile(
@@ -92,25 +118,40 @@ class CampsManagementPage extends StatelessWidget {
                   controller: descCtrl,
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null, // validation [2]
+                  validator: (v) {
+                    return v == null || v.trim().isEmpty ? 'Required' : null;
+                  },
                 ),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              if (!formKey.currentState!.validate() || selectedDate == null) return;
-              await FirebaseFirestore.instance.collection('camps').doc(campId).update({
-                'title': titleCtrl.text.trim(),
-                'place': placeCtrl.text.trim(),
-                'date': selectedDate!.toIso8601String(),
-                'description': descCtrl.text.trim(),
-              }); // update [1]
-              if (context.mounted) Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Camp updated')));
+              if (!formKey.currentState!.validate() || selectedDate == null) {
+                return; // braces fix
+              }
+              await FirebaseFirestore.instance
+                  .collection('camps')
+                  .doc(campId)
+                  .update({
+                    'title': titleCtrl.text.trim(),
+                    'place': placeCtrl.text.trim(),
+                    'date': selectedDate!.toIso8601String(),
+                    'description': descCtrl.text.trim(),
+                  });
+              if (!context.mounted) {
+                return; // guard both calls below
+              }
+              Navigator.pop(context);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Camp updated')));
             },
             child: const Text('Update'),
           ),
@@ -129,16 +170,23 @@ class CampsManagementPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('camps').orderBy('date').snapshots(), // realtime [1]
+        stream: FirebaseFirestore.instance
+            .collection('camps')
+            .orderBy('date')
+            .snapshots(), // realtime
         builder: (context, snap) {
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snap.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
           final camps = snap.data!.docs;
-          if (camps.isEmpty) return const Center(child: Text('No camps found'));
+          if (camps.isEmpty) {
+            return const Center(child: Text('No camps found'));
+          }
 
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: camps.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
               final camp = camps[index];
               final campId = camp.id;
@@ -146,7 +194,10 @@ class CampsManagementPage extends StatelessWidget {
               final title = data['title'] ?? 'Unnamed Camp';
               final dateIso = data['date'] ?? '';
               final dateShort = dateIso is String && dateIso.isNotEmpty
-                  ? (DateTime.tryParse(dateIso)?.toLocal().toString().split(' ').first ?? dateIso)
+                  ? (DateTime.tryParse(
+                          dateIso,
+                        )?.toLocal().toString().split(' ').first ??
+                        dateIso)
                   : '';
 
               return ListTile(
@@ -158,7 +209,8 @@ class CampsManagementPage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.orange),
                       tooltip: 'Edit Camp',
-                      onPressed: () => _showEditCampDialog(context, campId, data), // edit [1][2]
+                      onPressed: () =>
+                          _showEditCampDialog(context, campId, data),
                     ),
                     IconButton(
                       icon: const Icon(Icons.event, color: Colors.blue),
@@ -178,7 +230,7 @@ class CampsManagementPage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       tooltip: 'Delete Camp',
-                      onPressed: () => _deleteCamp(context, campId), // delete [1]
+                      onPressed: () => _deleteCamp(context, campId),
                     ),
                   ],
                 ),

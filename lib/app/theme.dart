@@ -89,7 +89,7 @@ class MethodistTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: darkGray.withOpacity(0.5)),
+          borderSide: BorderSide(color: darkGray.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         labelStyle: TextStyle(color: darkGray),

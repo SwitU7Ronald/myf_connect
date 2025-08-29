@@ -28,6 +28,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       'date': _selectedDate!.toIso8601String(),
       'description': _descriptionController.text.trim(),
     });
+    if (!mounted) return;
     Navigator.pop(context); // close form after saving
   }
 

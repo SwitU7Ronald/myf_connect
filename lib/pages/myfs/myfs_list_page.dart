@@ -27,7 +27,7 @@ class MyfsListPage extends StatelessWidget {
         return ListView.separated(
           padding: const EdgeInsets.all(12),
           itemCount: myfDocs.length,
-          separatorBuilder: (_, __) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             final myf = myfDocs[index];
 
@@ -38,16 +38,17 @@ class MyfsListPage extends StatelessWidget {
             return ListTile(
               title: Text(title),
               subtitle: Text(description),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          MyfsDetailPage(myfId: myf.id, myfTitle: data['title'] ?? ''),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MyfsDetailPage(
+                      myfId: myf.id,
+                      myfTitle: data['title'] ?? '',
                     ),
-                  );
-                }
-
+                  ),
+                );
+              },
             );
           },
         );

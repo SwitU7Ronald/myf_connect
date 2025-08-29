@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../app/app_router.dart';
 
 class CreditPage extends StatelessWidget {
   const CreditPage({super.key});
@@ -29,7 +28,9 @@ class CreditPage extends StatelessWidget {
                 const SizedBox(height: 28),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Just go back to previous page (ProfilePage)
+                    Navigator.pop(
+                      context,
+                    ); // Just go back to previous page (ProfilePage)
                   },
                   child: const Text('Continue'),
                 ),
