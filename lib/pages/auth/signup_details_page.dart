@@ -28,21 +28,16 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _auth = AuthService();
   bool _loading = false;
 
-  String toTitleCase(String text) {
-    if (text.isEmpty) {
-      return '';
-    }
+  // Helper: Capitalize each word in a string
+  static String toTitleCase(String? text) {
+    if (text == null || text.isEmpty) return '';
     return text
         .split(' ')
-        .map((word) {
-          if (word.isEmpty) {
-            return '';
-          }
-          return word.toUpperCase() + word.substring(1).toLowerCase();
-        })
+        .map((w) => w.isNotEmpty ? w[0].toUpperCase() + w.substring(1).toLowerCase() : '')
         .join(' ');
   }
 
+  // Apply title case to a text field as user types
   void _capitalizeText(TextEditingController controller, String val) {
     final newValue = toTitleCase(val);
     if (val != newValue) {
@@ -53,6 +48,23 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     }
   }
 
+  // Helper: Extract nickname from Google displayName
+  static String? extractNickname(String name) {
+    if (name.length < 3) return null;
+    final match = RegExp(r'\(([^)]+)\)$').firstMatch(name);
+    if (match != null) {
+      return toTitleCase(match.group(1));
+    }
+    return null;
+  }
+
+  // Helper: Format phone with +91 prefix
+  static String formatPhone(String phone) {
+    if (phone.startsWith('+91')) return phone;
+    return '+91$phone';
+  }
+
+  // Initialize state from Firebase Auth user (if any)
   @override
   void initState() {
     super.initState();
@@ -60,104 +72,81 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     if (user != null) {
       final displayName = user.displayName ?? '';
       if (displayName.isNotEmpty) {
-        final nicknameRegex = RegExp(r'\(([^)]+)\)$');
-        final nicknameMatch = nicknameRegex.firstMatch(displayName);
-        String nickname = '';
-        String nameWithoutNickname = displayName;
-        if (nicknameMatch != null) {
-          nickname = nicknameMatch.group(1)!;
-          nameWithoutNickname = displayName
-              .replaceAll(nicknameMatch.group(0)!, '')
-              .trim();
-        }
-        final parts = nameWithoutNickname.split(' ');
+        final parts = displayName.replaceAll(RegExp(r'\s*\([^)]+\)$'), '').trim().split(' ');
         _first.text = parts.isNotEmpty ? toTitleCase(parts.first) : '';
-        _last.text = parts.length > 1
-            ? toTitleCase(parts.sublist(1).join(' '))
-            : '';
-        _nickname.text = toTitleCase(nickname);
+        _last.text = parts.length > 1 ? toTitleCase(parts.sublist(1).join(' ')) : '';
+        _nickname.text = extractNickname(displayName) ?? '';
       }
       final phone = user.phoneNumber ?? '';
-      if (phone.startsWith('+91')) {
-        _phone.text = phone.substring(3);
-      } else {
-        _phone.text = phone;
-      }
+      _phone.text = phone.startsWith('+91') ? phone.substring(3) : phone;
     }
-  }
-
-  String capitalize(String input) {
-    if (input.isEmpty) {
-      return input;
-    }
-    return input.toUpperCase() + input.substring(1).toLowerCase();
   }
 
   Future<void> _submit() async {
+    if (_loading) return;
+
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Auth error. Please sign in again.')),
-      );
+      _showSnackBar(context, 'Auth error. Please sign in again.');
       return;
     }
 
+    // Validation
     if (_first.text.trim().isEmpty ||
         _last.text.trim().isEmpty ||
-        _phone.text.trim().isEmpty ||
-        _phone.text.trim().length != 10 ||
+        !_isValidPhone(_phone.text.trim()) ||
         _birthdate == null ||
         _gender == null ||
         _district.text.trim().isEmpty ||
         _church.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please fill all fields and enter valid 10-digit phone number',
-          ),
-        ),
+      _showSnackBar(
+        context,
+        'Please fill all fields and enter a valid 10-digit Indian phone number.',
       );
       return;
     }
 
     setState(() => _loading = true);
+
     try {
       final existing = await _users.getUser(user.uid);
       final appUser = AppUser(
         uid: user.uid,
-        phone: '+91${_phone.text.trim()}',
-        firstName: capitalize(_first.text.trim()),
-        lastName: capitalize(_last.text.trim()),
-        nickname: _nickname.text.trim().isEmpty ? null : _nickname.text.trim(),
+        phone: formatPhone(_phone.text.trim()),
+        firstName: toTitleCase(_first.text.trim()),
+        lastName: toTitleCase(_last.text.trim()),
+        nickname: _nickname.text.trim().isNotEmpty ? _nickname.text.trim() : null,
         birthdate: _birthdate,
         gender: _gender,
-        district: capitalize(_district.text.trim()),
-        church: capitalize(_church.text.trim()),
-        permissions: existing?.permissions ?? const ['general'],
+        district: toTitleCase(_district.text.trim()),
+        church: toTitleCase(_church.text.trim()),
+        // DO NOT assign any default permissions
+        permissions: existing?.permissions ?? const [],
         createdAt: existing?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
       await _users.createOrUpdateUser(appUser);
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.mainMenu,
-        (_) => false,
+            (_) => false,
       );
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error saving details: $e')));
+      _showSnackBar(context, 'Error saving details. Please try again.');
     } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+      if (mounted) setState(() => _loading = false);
     }
+  }
+
+  bool _isValidPhone(String s) {
+    return s.length == 10 && RegExp(r'^[0-9]+$').hasMatch(s);
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -196,23 +185,21 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     textCapitalization: TextCapitalization.words,
                     onChanged: (val) => _capitalizeText(_last, val),
                   ),
-
+                  const SizedBox(height: 12),
+                  AppTextField(
+                    controller: _nickname,
+                    label: 'Nickname (Optional)',
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          '+91',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: const Text('+91'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -226,7 +213,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                           decoration: const InputDecoration(
                             labelText: 'Phone number',
                             border: OutlineInputBorder(),
-                            hintText: 'Enter 10-digit number',
+                            hintText: '10-digit number',
                           ),
                         ),
                       ),
@@ -243,26 +230,16 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                               context: context,
                               firstDate: DateTime(1900),
                               lastDate: DateTime(now.year, now.month, now.day),
-                              initialDate: DateTime(
-                                now.year - 18,
-                                now.month,
-                                now.day,
-                              ),
+                              initialDate: DateTime(now.year - 18),
                             );
-                            if (picked != null) {
-                              if (!mounted) {
-                                return;
-                              }
+                            if (picked != null && mounted) {
                               setState(() => _birthdate = picked);
                             }
                           },
                           child: Text(
                             _birthdate == null
                                 ? 'Birthdate'
-                                : _birthdate!
-                                      .toIso8601String()
-                                      .split('T')
-                                      .first,
+                                : _birthdate!.toIso8601String().split('T').first,
                           ),
                         ),
                       ),
@@ -271,19 +248,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                         child: DropdownButtonFormField<String>(
                           initialValue: _gender,
                           items: const [
-                            DropdownMenuItem(
-                              value: 'Male',
-                              child: Text('Male'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Female',
-                              child: Text('Female'),
-                            ),
+                            DropdownMenuItem(value: 'Male', child: Text('Male')),
+                            DropdownMenuItem(value: 'Female', child: Text('Female')),
                           ],
                           onChanged: (v) => setState(() => _gender = v),
                           decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
                             labelText: 'Gender',
+                            border: OutlineInputBorder(),
                           ),
                         ),
                       ),
@@ -306,7 +277,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   const SizedBox(height: 16),
                   PrimaryButton(
                     label: 'Submit',
-                    onPressed: _loading ? () {} : () => _submit(),
+                    onPressed: _submit,
                     loading: _loading,
                   ),
                 ],

@@ -22,18 +22,18 @@ class AppUser {
     this.gender,
     this.district,
     this.church,
-    this.permissions = const ['general'],
+    this.permissions = const [], // No default permission
     this.createdAt,
     this.updatedAt,
   });
 
   bool get isProfileComplete =>
       firstName != null &&
-      lastName != null &&
-      birthdate != null &&
-      gender != null &&
-      district != null &&
-      church != null;
+          lastName != null &&
+          birthdate != null &&
+          gender != null &&
+          district != null &&
+          church != null;
 
   factory AppUser.fromMap(String uid, Map<String, dynamic> data) {
     return AppUser(
@@ -48,8 +48,7 @@ class AppUser {
       gender: data['gender'],
       district: data['district'],
       church: data['church'],
-      permissions:
-          (data['permissions'] as List?)?.cast<String>() ?? ['general'],
+      permissions: (data['permissions'] as List?)?.cast<String>() ?? [],
       createdAt: data['createdAt'] != null
           ? DateTime.tryParse(data['createdAt'])
           : null,
