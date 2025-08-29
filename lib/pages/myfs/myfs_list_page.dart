@@ -12,47 +12,52 @@ class MyfsListPage extends StatelessWidget {
         .orderBy('title')
         .snapshots();
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: myfStream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No MYF groups found'));
-        }
+    return Scaffold(
+      appBar: AppBar(title: const Text('MYF Groups')),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: myfStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No MYF groups found'));
+          }
 
-        final myfDocs = snapshot.data!.docs;
+          final myfDocs = snapshot.data!.docs;
 
-        return ListView.separated(
-          padding: const EdgeInsets.all(12),
-          itemCount: myfDocs.length,
-          separatorBuilder: (context, index) => const Divider(),
-          itemBuilder: (context, index) {
-            final myf = myfDocs[index];
+          return ListView.separated(
+            padding: const EdgeInsets.all(12),
+            itemCount: myfDocs.length,
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              final myf = myfDocs[index];
+              final data = myf.data() as Map<String, dynamic>;
+              final title = data['title'] ?? 'Untitled MYF';
+              final description = data['description'] ?? '';
 
-            final data = myf.data() as Map<String, dynamic>;
-            final title = data['title'] ?? 'Untitled MYF';
-            final description = data['description'] ?? '';
-
-            return ListTile(
-              title: Text(title),
-              subtitle: Text(description),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MyfsDetailPage(
-                      myfId: myf.id,
-                      myfTitle: data['title'] ?? '',
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: ListTile(
+                  title: Text(title),
+                  subtitle: Text(description),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MyfsDetailPage(
+                          myfId: myf.id,
+                          myfTitle: data['title'] ?? '',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
