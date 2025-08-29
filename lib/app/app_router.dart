@@ -8,9 +8,11 @@ import '../pages/myf/myf_list_page.dart';
 import '../pages/admin/admin_dashboard_page.dart';
 import '../pages/admin/myf_create_page.dart';
 import '../pages/admin/myf_management_page.dart';
+import '../pages/home/credit_page.dart'; // CreditPage import
 
 class AppRoutes {
   static const welcome = '/';
+  static const credit = '/credit';
   static const signupDetails = '/auth/details';
   static const mainMenu = '/home';
   static const profile = '/home/profile';
@@ -23,6 +25,8 @@ class AppRoutes {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case credit:
+        return MaterialPageRoute(builder: (_) => const CreditPage());
       case welcome:
         return MaterialPageRoute(builder: (_) => const WelcomePage());
       case signupDetails:
@@ -42,6 +46,7 @@ class AppRoutes {
       case myfCreate:
         return MaterialPageRoute(builder: (_) => const MyfCreatePage());
       default:
+      // Fallback safely to welcome
         return MaterialPageRoute(builder: (_) => const WelcomePage());
     }
   }

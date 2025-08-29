@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../pages/auth/welcome_page.dart';
 import '../pages/home/main_menu_page.dart';
+import '../pages/home/credit_page.dart'; // Credit page location
 import './firebase_options.dart';
 import 'app_router.dart';
-import 'theme.dart'; // MethodistTheme or your app theme
+import 'theme.dart';
 import '../services/auth_service.dart';
 
 void main() async {
@@ -29,22 +30,30 @@ class _MethodistConnectAppState extends State<MethodistConnectApp> {
       title: 'Methodist Connect',
       theme: MethodistTheme.themeData,
       onGenerateRoute: AppRoutes.onGenerateRoute,
-      // IMPORTANT: Remove initialRoute so it doesn't conflict with `home`
       home: StreamBuilder(
         stream: _auth.authStateChanges,
         builder: (context, snapshot) {
-          // Show loading indicator while waiting for auth
+          // Always return a widget for every branch
           if (snapshot.connectionState != ConnectionState.active) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
+          if (snapshot.hasError) {
+            return const Scaffold(
+              body: Center(child: Text('Something went wrong')),
+            );
+          }
+
           final user = snapshot.data;
           if (user == null) {
-            // User not signed in
-            return const WelcomePage();
+            // Unauthenticated: show a nested unauth navigator so Continue doesn't flicker to loading
+            return Navigator(
+              initialRoute: AppRoutes.credit,
+              onGenerateRoute: AppRoutes.onGenerateRoute,
+            );
           } else {
-            // User signed in
+            // Authenticated: direct to main menu
             return const MainMenuPage();
           }
         },
