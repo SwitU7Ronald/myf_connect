@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/event.dart';
 
-class CampEventsManagementPage extends StatefulWidget {
+class CampsEventsManagementPage extends StatefulWidget {
   final String campId;
   final String campTitle;
 
-  const CampEventsManagementPage({
+  const CampsEventsManagementPage({
     super.key,
     required this.campId,
     required this.campTitle,
   });
 
   @override
-  State<CampEventsManagementPage> createState() =>
-      _CampEventsManagementPageState();
+  State<CampsEventsManagementPage> createState() =>
+      _CampsEventsManagementPageState();
 }
 
-class _CampEventsManagementPageState extends State<CampEventsManagementPage> {
+class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
   Stream<List<CampEvent>> _getEvents() {
     return FirebaseFirestore.instance
         .collection('camps')

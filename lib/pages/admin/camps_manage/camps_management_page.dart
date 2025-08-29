@@ -9,7 +9,7 @@ class CampsManagementPage extends StatelessWidget {
   Future<void> _navigateToCreateCamp(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const CampCreatePage()),
+      MaterialPageRoute(builder: (_) => const CampsCreatePage()),
     );
     // Optionally, refresh state or UI here if needed after returning
   }
@@ -62,7 +62,7 @@ class CampsManagementPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => CampEventsManagementPage(
+                            builder: (_) => CampsEventsManagementPage(
                               campId: campId,
                               campTitle: title,
                             ),

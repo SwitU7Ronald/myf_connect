@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CampCreatePage extends StatefulWidget {
-  const CampCreatePage({super.key});
+class CampsCreatePage extends StatefulWidget {
+  const CampsCreatePage({super.key});
 
   @override
-  State<CampCreatePage> createState() => _CampCreatePageState();
+  State<CampsCreatePage> createState() => _CampsCreatePageState();
 }
 
-class _CampCreatePageState extends State<CampCreatePage> {
+class _CampsCreatePageState extends State<CampsCreatePage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _placeController = TextEditingController();
