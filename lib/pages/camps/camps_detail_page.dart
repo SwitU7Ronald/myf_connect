@@ -13,10 +13,10 @@ class CampsDetailPage extends StatefulWidget {
   });
 
   @override
-  State<CampsDetailPage> createState() => _CampDetailPageState();
+  State<CampsDetailPage> createState() => _CampsDetailPageState();
 }
 
-class _CampDetailPageState extends State<CampsDetailPage>
+class _CampsDetailPageState extends State<CampsDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final today = DateTime.now();
