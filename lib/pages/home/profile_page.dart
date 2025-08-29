@@ -36,20 +36,18 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
-    if (!mounted) return; // Check first
+    if (!mounted) return;
 
     setState(() => _loggingOut = true);
 
     await FirebaseAuth.instance.signOut();
 
-    if (!mounted) return; // Check again after async await
+    if (!mounted) return;
 
     setState(() => _loggingOut = false);
 
-    // Clear navigation stack and go to WelcomePage only once
     Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (route) => false);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +86,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 radius: 50,
                                 backgroundColor: primaryRed,
                                 child: Text(
-                                  (_userModel?.firstName != null && _userModel!.firstName!.isNotEmpty)
-                                      ? _userModel!.firstName![0].toUpperCase()
+                                  (_userModel?.firstName != null &&
+                                      _userModel!.firstName!
+                                          .isNotEmpty)
+                                      ? _userModel!.firstName![0]
+                                      .toUpperCase()
                                       : '',
                                   style: const TextStyle(
                                     fontSize: 44,
@@ -99,7 +100,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              if (_userModel?.nickname != null && _userModel!.nickname!.isNotEmpty)
+                              if (_userModel?.nickname != null &&
+                                  _userModel!.nickname!.isNotEmpty)
                                 Text(
                                   _userModel!.nickname!,
                                   style: TextStyle(
@@ -161,7 +163,11 @@ class _ProfilePageState extends State<ProfilePage> {
                               const Divider(height: 24, thickness: 1.2),
                               _buildDetailRow(
                                 'Birthdate',
-                                _userModel?.birthdate?.toIso8601String().split('T').first ?? '-',
+                                _userModel?.birthdate
+                                    ?.toIso8601String()
+                                    .split('T')
+                                    .first ??
+                                    '-',
                               ),
                               _buildDetailRow(
                                 'Gender',
@@ -190,7 +196,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         elevation: 2,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -206,7 +213,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               const Divider(height: 24, thickness: 1.2),
                               Builder(
                                 builder: (_) {
-                                  final filteredPermissions = (_userModel?.permissions ?? [])
+                                  final filteredPermissions = (_userModel
+                                      ?.permissions ??
+                                      [])
                                       .where((perm) => perm != 'general')
                                       .toList();
                                   if (filteredPermissions.isEmpty) {
@@ -216,20 +225,25 @@ class _ProfilePageState extends State<ProfilePage> {
                                     );
                                   }
                                   return Container(
-                                    constraints: const BoxConstraints(maxHeight: 100),
+                                    constraints:
+                                    const BoxConstraints(maxHeight: 100),
                                     child: SingleChildScrollView(
                                       child: Wrap(
                                         spacing: 10,
                                         runSpacing: 8,
                                         children: filteredPermissions
-                                            .map((perm) => Chip(
-                                          label: Text(
-                                            perm,
-                                            style: const TextStyle(color: Colors.white),
+                                            .map(
+                                              (perm) => Chip(
+                                            label: Text(
+                                              perm,
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            backgroundColor: primaryRed,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 4),
                                           ),
-                                          backgroundColor: primaryRed,
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                        ))
+                                        )
                                             .toList(),
                                       ),
                                     ),
@@ -238,6 +252,31 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Credits Card
+                      Card(
+                        color: cardGray,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
+                        child: ListTile(
+                          leading: Icon(Icons.info_outline, color: primaryRed),
+                          title: const Text(
+                            'Credits',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 18),
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.credit)
+                                .then((_) {
+                              // When credits page closes (continue pressed), control returns here.
+                            });
+                          },
                         ),
                       ),
                     ],
@@ -255,8 +294,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: primaryRed,
                           side: BorderSide(color: primaryRed),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                         onPressed: () {
                           showAboutDialog(
@@ -265,17 +306,20 @@ class _ProfilePageState extends State<ProfilePage> {
                             applicationVersion: '1.0.0',
                             applicationIcon: CircleAvatar(
                               backgroundColor: primaryRed,
-                              child: const Icon(Icons.church, color: Colors.white),
+                              child: const Icon(Icons.church,
+                                  color: Colors.white),
                             ),
                             children: const [
                               SizedBox(height: 10),
-                              Text('Methodist Connect is an app to connect and manage Methodist community camps, events, and member profiles.'),
+                              Text(
+                                  'Methodist Connect is an app to connect and manage Methodist community camps, events, and member profiles.'),
                             ],
                           );
                         },
                         child: const Text(
                           'About',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     ),
@@ -283,21 +327,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     Expanded(
                       child: FilledButton.tonal(
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(primaryRed.withOpacity(0.15)),
-                          foregroundColor: MaterialStateProperty.all(primaryRed),
-                          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                          padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 14)),
+                          backgroundColor: MaterialStateProperty.all(
+                              primaryRed.withOpacity(0.15)),
+                          foregroundColor:
+                          MaterialStateProperty.all(primaryRed),
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(8))),
+                          padding: MaterialStateProperty.all(
+                              const EdgeInsets.symmetric(vertical: 14)),
                         ),
                         onPressed: _loggingOut ? null : _logout,
                         child: _loggingOut
                             ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2),
                         )
                             : const Text(
                           'Logout',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
                         ),
                       ),
                     ),
@@ -318,11 +371,16 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Expanded(
             flex: 3,
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey.shade800, fontSize: 16)),
+            child: Text(label,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade800,
+                    fontSize: 16)),
           ),
           Expanded(
             flex: 5,
-            child: Text(value, style: const TextStyle(fontSize: 16, color: Colors.black87)),
+            child:
+            Text(value, style: const TextStyle(fontSize: 16, color: Colors.black87)),
           ),
         ],
       ),

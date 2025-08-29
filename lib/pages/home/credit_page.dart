@@ -29,8 +29,7 @@ class CreditPage extends StatelessWidget {
                 const SizedBox(height: 28),
                 ElevatedButton(
                   onPressed: () {
-                    // Replace CreditPage with WelcomePage inside the unauth navigator
-                    Navigator.pushReplacementNamed(context, AppRoutes.welcome);
+                    Navigator.pop(context); // Just go back to previous page (ProfilePage)
                   },
                   child: const Text('Continue'),
                 ),
