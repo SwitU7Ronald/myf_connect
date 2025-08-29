@@ -29,7 +29,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       'description': _descriptionController.text.trim(),
     });
     if (!mounted) return;
-    Navigator.pop(context); // close form after saving
+    Navigator.pop(context);
   }
 
   @override

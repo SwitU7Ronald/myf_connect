@@ -56,7 +56,7 @@ class CampsManagementPage extends StatelessWidget {
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final placeCtrl = TextEditingController(text: data['place'] ?? '');
     final descCtrl = TextEditingController(text: data['description'] ?? '');
-    // Stored as ISO string in this app
+
     DateTime? selectedDate = () {
       final raw = data['date'];
       if (raw is String) {
@@ -134,7 +134,7 @@ class CampsManagementPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               if (!formKey.currentState!.validate() || selectedDate == null) {
-                return; // braces fix
+                return;
               }
               await FirebaseFirestore.instance
                   .collection('camps')
@@ -146,7 +146,7 @@ class CampsManagementPage extends StatelessWidget {
                     'description': descCtrl.text.trim(),
                   });
               if (!context.mounted) {
-                return; // guard both calls below
+                return;
               }
               Navigator.pop(context);
               ScaffoldMessenger.of(
@@ -173,7 +173,7 @@ class CampsManagementPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('camps')
             .orderBy('date')
-            .snapshots(), // realtime
+            .snapshots(),
         builder: (context, snap) {
           if (!snap.hasData) {
             return const Center(child: CircularProgressIndicator());

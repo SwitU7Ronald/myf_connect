@@ -17,7 +17,7 @@ class SignupDetailsPage extends StatefulWidget {
 class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _first = TextEditingController();
   final _last = TextEditingController();
-  final _nickname = TextEditingController(); // Will hold nickname silently
+  final _nickname = TextEditingController();
   final _phone = TextEditingController();
   DateTime? _birthdate;
   String? _gender;
@@ -75,7 +75,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         _last.text = parts.length > 1
             ? toTitleCase(parts.sublist(1).join(' '))
             : '';
-        _nickname.text = toTitleCase(nickname); // stores silently, no UI
+        _nickname.text = toTitleCase(nickname);
       }
       final phone = user.phoneNumber ?? '';
       if (phone.startsWith('+91')) {
@@ -139,7 +139,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       );
       await _users.createOrUpdateUser(appUser);
       if (!mounted) {
-        return; // guard State.context after awaits
+        return;
       }
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -148,7 +148,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       );
     } catch (e) {
       if (!mounted) {
-        return; // guard State.context before showing snackbar after awaits
+        return;
       }
       ScaffoldMessenger.of(
         context,
@@ -196,7 +196,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     textCapitalization: TextCapitalization.words,
                     onChanged: (val) => _capitalizeText(_last, val),
                   ),
-                  // Nickname input removed intentionally
+
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -251,7 +251,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                             );
                             if (picked != null) {
                               if (!mounted) {
-                                return; // guard before setState after await
+                                return;
                               }
                               setState(() => _birthdate = picked);
                             }
@@ -269,7 +269,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          initialValue: _gender, // <- use this
+                          initialValue: _gender,
                           items: const [
                             DropdownMenuItem(
                               value: 'Male',

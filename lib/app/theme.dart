@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class MethodistTheme {
-  // Define colors inspired by the United Methodist Church logo
   static const Color primaryRed = Color(0xFFBF0A30);
   static const Color white = Colors.white;
   static const Color black = Colors.black;
@@ -61,9 +60,7 @@ class MethodistTheme {
         titleSmall: TextStyle(color: darkGray, fontSize: 12),
       ),
 
-      iconTheme: IconThemeData(
-        color: primaryRed, // use red for icons selectively
-      ),
+      iconTheme: IconThemeData(color: primaryRed),
 
       cardTheme: CardThemeData(
         color: lightGray,

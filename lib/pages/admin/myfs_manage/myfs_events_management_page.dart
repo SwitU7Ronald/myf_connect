@@ -17,7 +17,6 @@ class MyfsEventsManagementPage extends StatefulWidget {
 }
 
 class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
-  // Stream MYF events ordered by dateTime (ISO string or Timestamp both work)
   Stream<QuerySnapshot<Map<String, dynamic>>> _eventsStream() {
     return FirebaseFirestore.instance
         .collection('myfs')
@@ -30,8 +29,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   Future<void> _showEventDialog({
     DocumentSnapshot<Map<String, dynamic>>? doc,
   }) async {
-    // Cache navigator synchronously to avoid using context after awaits.
-    final navigator = Navigator.of(context); // safe to capture here [1][12]
+    final navigator = Navigator.of(context);
 
     final titleCtrl = TextEditingController(text: doc?.data()?['title'] ?? '');
     final descCtrl = TextEditingController(
@@ -51,7 +49,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
     Future<void> pickDateTime() async {
       final now = DateTime.now();
 
-      // First modal
       final date = await showDatePicker(
         context: context,
         firstDate: now.subtract(const Duration(days: 365)),
@@ -60,12 +57,10 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (date == null) return;
 
-      // Guard before using context again across the async gap
       if (!mounted) {
-        return; // satisfies the lint before next context use [1][18]
+        return;
       }
 
-      // Second modal
       final time = await showTimePicker(
         context: context,
         initialTime: selected != null
@@ -74,7 +69,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (time == null) return;
 
-      if (!mounted) return; // safe before setState [1]
+      if (!mounted) return;
       setState(() {
         selected = DateTime(
           date.year,
@@ -126,7 +121,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => navigator.pop(), // use cached navigator [1][12]
+            onPressed: () => navigator.pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -140,20 +135,11 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                   .doc(widget.myfId)
                   .collection('events');
 
-              // Choose storage format:
-              // A) ISO string (compatible with your Camps page)
               final payload = {
                 'title': titleCtrl.text.trim(),
                 'description': descCtrl.text.trim(),
                 'dateTime': selected!.toIso8601String(),
               };
-
-              // B) Or Firestore Timestamp (recommended for range queries)
-              // final payload = {
-              //   'title': titleCtrl.text.trim(),
-              //   'description': descCtrl.text.trim(),
-              //   'dateTime': Timestamp.fromDate(selected!),
-              // };
 
               if (doc == null) {
                 await col.add(payload);
@@ -161,9 +147,8 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                 await col.doc(doc.id).update(payload);
               }
 
-              // Guard after async work, then close with cached navigator
-              if (!mounted) return; // satisfies the lint [1][18]
-              navigator.pop(); // no context used here [1][12]
+              if (!mounted) return;
+              navigator.pop();
             },
             child: Text(doc == null ? 'Add' : 'Update'),
           ),

@@ -3,7 +3,7 @@ class AppUser {
   final String phone;
   final String? firstName;
   final String? lastName;
-  final String? nickname; // new field
+  final String? nickname;
   final DateTime? birthdate;
   final String? gender;
   final String? district;

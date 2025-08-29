@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../pages/home/main_menu_page.dart';
-// Credit page location
+
 import './firebase_options.dart';
 import 'app_router.dart';
 import 'theme.dart';
@@ -32,7 +32,6 @@ class _MethodistConnectAppState extends State<MethodistConnectApp> {
       home: StreamBuilder(
         stream: _auth.authStateChanges,
         builder: (context, snapshot) {
-          // Always return a widget for every branch
           if (snapshot.connectionState != ConnectionState.active) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
@@ -46,13 +45,11 @@ class _MethodistConnectAppState extends State<MethodistConnectApp> {
 
           final user = snapshot.data;
           if (user == null) {
-            // Unauthenticated: show a nested unauth navigator so Continue doesn't flicker to loading
             return Navigator(
               initialRoute: AppRoutes.credit,
               onGenerateRoute: AppRoutes.onGenerateRoute,
             );
           } else {
-            // Authenticated: direct to main menu
             return const MainMenuPage();
           }
         },

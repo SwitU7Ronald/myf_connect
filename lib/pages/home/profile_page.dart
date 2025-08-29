@@ -137,7 +137,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             const SizedBox(height: 20),
 
-                            // Personal Details Card
                             Card(
                               color: cardGray,
                               shape: RoundedRectangleBorder(
@@ -189,7 +188,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             const SizedBox(height: 20),
 
-                            // Permissions Card
                             Card(
                               color: cardGray,
                               shape: RoundedRectangleBorder(
@@ -269,7 +267,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             const SizedBox(height: 20),
 
-                            // Credits Card
                             Card(
                               color: cardGray,
                               shape: RoundedRectangleBorder(
@@ -292,9 +289,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Navigator.pushNamed(
                                     context,
                                     AppRoutes.credit,
-                                  ).then((_) {
-                                    // When credits page closes (continue pressed), control returns here.
-                                  });
+                                  ).then((_) {});
                                 },
                               ),
                             ),
@@ -303,7 +298,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
 
-                    // Buttons Row for About and Logout
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Row(

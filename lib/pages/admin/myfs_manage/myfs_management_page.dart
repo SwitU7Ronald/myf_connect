@@ -12,7 +12,7 @@ class MyfsManagementPage extends StatelessWidget {
       MaterialPageRoute(builder: (_) => const MyfsCreatePage()),
     );
     if (!context.mounted) {
-      return; // guard after async gap even if unused to satisfy lint
+      return;
     }
   }
 
@@ -35,15 +35,15 @@ class MyfsManagementPage extends StatelessWidget {
           ),
         ],
       ),
-    ); // confirm dialog
+    );
     if (confirmed == true) {
       await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
       if (!context.mounted) {
-        return; // guard before using ScaffoldMessenger after await
+        return;
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('MYF deleted'))); // snackbar
+      ).showSnackBar(const SnackBar(content: Text('MYF deleted')));
     }
   }
 
@@ -72,7 +72,7 @@ class MyfsManagementPage extends StatelessWidget {
                   validator: (v) {
                     return v == null || v.trim().isEmpty ? 'Required' : null;
                   },
-                ), // validation
+                ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: descCtrl,
@@ -81,7 +81,7 @@ class MyfsManagementPage extends StatelessWidget {
                   validator: (v) {
                     return v == null || v.trim().isEmpty ? 'Required' : null;
                   },
-                ), // validation
+                ),
               ],
             ),
           ),
@@ -94,7 +94,7 @@ class MyfsManagementPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               if (!formKey.currentState!.validate()) {
-                return; // braces for lint
+                return;
               }
               await FirebaseFirestore.instance
                   .collection('myfs')
@@ -102,23 +102,23 @@ class MyfsManagementPage extends StatelessWidget {
                   .update({
                     'title': titleCtrl.text.trim(),
                     'description': descCtrl.text.trim(),
-                  }); // update
+                  });
               if (!context.mounted) {
-                return; // guard before Navigator and ScaffoldMessenger
+                return;
               }
               Navigator.pop(context);
               if (!context.mounted) {
-                return; // guard again before snackbar
+                return;
               }
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('MYF updated')),
-              ); // snackbar
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('MYF updated')));
             },
             child: const Text('Update'),
           ),
         ],
       ),
-    ); // dialog
+    );
   }
 
   @override
@@ -131,9 +131,7 @@ class MyfsManagementPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('myfs')
-            .snapshots(), // realtime
+        stream: FirebaseFirestore.instance.collection('myfs').snapshots(),
         builder: (context, snap) {
           if (!snap.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -161,8 +159,7 @@ class MyfsManagementPage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.orange),
                       tooltip: 'Edit MYF',
-                      onPressed: () =>
-                          _showEditMyfDialog(context, myfId, data), // edit
+                      onPressed: () => _showEditMyfDialog(context, myfId, data),
                     ),
                     IconButton(
                       icon: const Icon(Icons.event, color: Colors.blue),
@@ -182,8 +179,7 @@ class MyfsManagementPage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       tooltip: 'Delete MYF',
-                      onPressed: () =>
-                          _deleteMyf(context, myfId), // confirm+delete
+                      onPressed: () => _deleteMyf(context, myfId),
                     ),
                   ],
                 ),

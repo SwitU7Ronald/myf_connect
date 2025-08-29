@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
 import '../camps/camps_list_page.dart';
 import '../myfs/myfs_list_page.dart';
-// Correct relative import
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -66,9 +65,9 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ),
           ],
           bottom: const TabBar(
-            labelColor: Colors.white, // Active tab text color
-            unselectedLabelColor: Colors.white70, // Inactive tab text color
-            indicatorColor: Colors.white, // Indicator underline color
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
             tabs: [
               Tab(text: 'Camps'),
               Tab(text: 'MYF'),

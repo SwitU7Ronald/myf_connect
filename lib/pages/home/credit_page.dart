@@ -28,9 +28,7 @@ class CreditPage extends StatelessWidget {
                 const SizedBox(height: 28),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(
-                      context,
-                    ); // Just go back to previous page (ProfilePage)
+                    Navigator.pop(context);
                   },
                   child: const Text('Continue'),
                 ),

@@ -20,10 +20,9 @@ class _WelcomePageState extends State<WelcomePage> {
     if (_loading) return;
     setState(() => _loading = true);
     try {
-      // Sign in with Google
       final cred = await _auth.signInWithGoogle();
       if (!mounted) {
-        return; // guard State.context and setState after await
+        return;
       }
       if (cred == null || cred.user == null) {
         setState(() => _loading = false);
@@ -31,14 +30,13 @@ class _WelcomePageState extends State<WelcomePage> {
       }
 
       final user = cred.user!;
-      // Check Firestore for existing profile
+
       final existingUser = await _userService.getUser(user.uid);
       if (!mounted) {
-        return; // guard before using State.context again
+        return;
       }
 
       if (existingUser == null) {
-        // Not in Firestore - message, then redirect to signup
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Account doesn't exist. Please sign up."),
@@ -63,7 +61,6 @@ class _WelcomePageState extends State<WelcomePage> {
         return;
       }
 
-      // Profile complete - main menu
       setState(() => _loading = false);
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -72,7 +69,7 @@ class _WelcomePageState extends State<WelcomePage> {
       );
     } catch (e) {
       if (!mounted) {
-        return; // widget might have been disposed during awaits
+        return;
       }
       ScaffoldMessenger.of(
         context,

@@ -33,7 +33,6 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
-    // Cache Navigator to avoid using BuildContext after awaits.
     final navigator = Navigator.of(context);
 
     final titleController = TextEditingController(text: event?.title ?? '');
@@ -55,7 +54,6 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         return;
       }
 
-      // Guard before using context again across async gap.
       if (!mounted) return;
 
       final initialTime = selectedDateTime != null

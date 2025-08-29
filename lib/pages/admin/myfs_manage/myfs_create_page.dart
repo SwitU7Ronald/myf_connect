@@ -35,7 +35,7 @@ class _MyfCreatePageState extends State<MyfsCreatePage> {
       messenger.showSnackBar(SnackBar(content: Text('Error creating MYF: $e')));
     } finally {
       if (mounted) {
-        setState(() => _loading = false); // no return here
+        setState(() => _loading = false);
       }
     }
   }
