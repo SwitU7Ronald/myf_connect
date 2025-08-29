@@ -27,9 +27,9 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         .snapshots()
         .map(
           (snap) => snap.docs
-              .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
-              .toList(),
-        );
+          .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
+          .toList(),
+    );
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
@@ -58,9 +58,9 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
 
       final initialTime = selectedDateTime != null
           ? TimeOfDay(
-              hour: selectedDateTime!.hour,
-              minute: selectedDateTime!.minute,
-            )
+        hour: selectedDateTime!.hour,
+        minute: selectedDateTime!.minute,
+      )
           : TimeOfDay.now();
 
       final time = await showTimePicker(
@@ -97,7 +97,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                   controller: titleController,
                   decoration: const InputDecoration(labelText: 'Event Title'),
                   validator: (val) =>
-                      val == null || val.trim().isEmpty ? 'Required' : null,
+                  val == null || val.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -105,7 +105,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
                   validator: (val) =>
-                      val == null || val.trim().isEmpty ? 'Required' : null,
+                  val == null || val.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(

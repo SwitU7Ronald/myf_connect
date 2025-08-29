@@ -46,21 +46,22 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _placeController,
                 decoration: const InputDecoration(labelText: 'Place'),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               ListTile(
                 title: Text(
                   _selectedDate == null
                       ? 'Select Date'
-                      : _selectedDate!.toLocal().toString().split(' ')[0],
+                      : _selectedDate!.toLocal().toString().split(' ').first,
+
                 ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
@@ -82,7 +83,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                 decoration: const InputDecoration(labelText: 'Description'),
                 maxLines: 3,
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(

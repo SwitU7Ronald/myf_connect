@@ -1,3 +1,5 @@
+// lib/pages/admin/camps_manage/camps_management_page.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'camps_create_page.dart';
@@ -16,13 +18,42 @@ class CampsManagementPage extends StatelessWidget {
     }
   }
 
+  // Stable, paged cascade delete of events with server-backed reads
+  Future<void> _deleteCampEventsCascade(String campId) async {
+    final eventsRef = FirebaseFirestore.instance
+        .collection('camps')
+        .doc(campId)
+        .collection('events');
+
+    const pageSize = 250; // under Firestore 500 writes/commit guidance
+    while (true) {
+      final page = await eventsRef
+          .orderBy(FieldPath.documentId)
+          .limit(pageSize)
+          .get(const GetOptions(source: Source.server)); // force server
+
+      if (page.docs.isEmpty) break;
+
+      final batch = FirebaseFirestore.instance.batch();
+      for (final d in page.docs) {
+        batch.delete(d.reference);
+      }
+      await batch.commit();
+      // repeat until empty
+    }
+  }
+
   Future<void> _deleteCamp(BuildContext context, String id) async {
+    // Capture everything needed BEFORE any awaits to avoid using context later
+    final messenger = ScaffoldMessenger.of(context);
+    final overlay = Overlay.of(context); // Non-null in MaterialApp trees
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete Camp'),
         content: const Text(
-          'Are you sure you want to delete this camp? This cannot be undone.',
+          'Are you sure you want to delete this camp and all its events? This cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -36,22 +67,55 @@ class CampsManagementPage extends StatelessWidget {
         ],
       ),
     );
+
+    // After async gap: verify still mounted before any potential UI actions
+    if (!context.mounted) return;
+
     if (confirmed == true) {
-      await FirebaseFirestore.instance.collection('camps').doc(id).delete();
-      if (!context.mounted) {
-        return;
+      // Show a loading HUD using OverlayEntry
+      final entry = OverlayEntry(
+        builder: (_) => const Stack(
+          children: [
+            ModalBarrier(dismissible: false, color: Colors.black38),
+            Center(child: CircularProgressIndicator()),
+          ],
+        ),
+      );
+      overlay.insert(entry); // no null-aware operator
+
+      String? error;
+      try {
+        await _deleteCampEventsCascade(id);
+        await FirebaseFirestore.instance.collection('camps').doc(id).delete();
+      } catch (e) {
+        error = e.toString();
+      } finally {
+        // Always remove loader
+        entry.remove();
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Camp deleted')));
+
+      // Use captured messenger (no BuildContext use after awaits)
+      if (error == null) {
+        if (messenger.mounted) {
+          messenger.showSnackBar(
+            const SnackBar(content: Text('Camp and events deleted')),
+          );
+        }
+      } else {
+        if (messenger.mounted) {
+          messenger.showSnackBar(
+            SnackBar(content: Text('Delete failed: $error')),
+          );
+        }
+      }
     }
   }
 
   Future<void> _showEditCampDialog(
-    BuildContext context,
-    String campId,
-    Map<String, dynamic> data,
-  ) async {
+      BuildContext context,
+      String campId,
+      Map<String, dynamic> data,
+      ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final placeCtrl = TextEditingController(text: data['place'] ?? '');
@@ -91,17 +155,15 @@ class CampsManagementPage extends StatelessWidget {
                 TextFormField(
                   controller: titleCtrl,
                   decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) {
-                    return v == null || v.trim().isEmpty ? 'Required' : null;
-                  },
+                  validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: placeCtrl,
                   decoration: const InputDecoration(labelText: 'Place'),
-                  validator: (v) {
-                    return v == null || v.trim().isEmpty ? 'Required' : null;
-                  },
+                  validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(
@@ -118,9 +180,8 @@ class CampsManagementPage extends StatelessWidget {
                   controller: descCtrl,
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
-                  validator: (v) {
-                    return v == null || v.trim().isEmpty ? 'Required' : null;
-                  },
+                  validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
               ],
             ),
@@ -140,18 +201,16 @@ class CampsManagementPage extends StatelessWidget {
                   .collection('camps')
                   .doc(campId)
                   .update({
-                    'title': titleCtrl.text.trim(),
-                    'place': placeCtrl.text.trim(),
-                    'date': selectedDate!.toIso8601String(),
-                    'description': descCtrl.text.trim(),
-                  });
-              if (!context.mounted) {
-                return;
-              }
+                'title': titleCtrl.text.trim(),
+                'place': placeCtrl.text.trim(),
+                'date': selectedDate!.toIso8601String(),
+                'description': descCtrl.text.trim(),
+              });
+              if (!context.mounted) return;
               Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Camp updated')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Camp updated')),
+              );
             },
             child: const Text('Update'),
           ),
@@ -194,10 +253,12 @@ class CampsManagementPage extends StatelessWidget {
               final title = data['title'] ?? 'Unnamed Camp';
               final dateIso = data['date'] ?? '';
               final dateShort = dateIso is String && dateIso.isNotEmpty
-                  ? (DateTime.tryParse(
-                          dateIso,
-                        )?.toLocal().toString().split(' ').first ??
-                        dateIso)
+                  ? (DateTime.tryParse(dateIso)
+                  ?.toLocal()
+                  .toString()
+                  .split(' ')
+                  .first ??
+                  dateIso)
                   : '';
 
               return ListTile(
