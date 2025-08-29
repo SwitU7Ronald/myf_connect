@@ -57,9 +57,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (date == null) return;
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       final time = await showTimePicker(
         context: context,
@@ -95,7 +93,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                   controller: titleCtrl,
                   decoration: const InputDecoration(labelText: 'Title'),
                   validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Required' : null,
+                  v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -103,7 +101,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
                   validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Required' : null,
+                  v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(
@@ -158,12 +156,18 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   }
 
   Future<void> _deleteEvent(String id) async {
-    await FirebaseFirestore.instance
-        .collection('myfs')
-        .doc(widget.myfId)
-        .collection('events')
-        .doc(id)
-        .delete();
+    try {
+      await FirebaseFirestore.instance
+          .collection('myfs')
+          .doc(widget.myfId)
+          .collection('events')
+          .doc(id)
+          .delete();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete event: ${e.toString()}')),
+      );
+    }
   }
 
   @override

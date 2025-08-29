@@ -11,18 +11,17 @@ class MyfsManagementPage extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (_) => const MyfsCreatePage()),
     );
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
   }
 
   Future<void> _deleteMyf(BuildContext context, String id) async {
+    debugPrint('[MYF Delete] Starting deletion of MYF: $id');
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Delete MYF'),
         content: const Text(
-          'Are you sure you want to delete this MYF? This cannot be undone.',
+          'Are you sure you want to delete this MYF and all its events? This cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -36,22 +35,72 @@ class MyfsManagementPage extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed == true) {
-      await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
-      if (!context.mounted) {
-        return;
+
+    if (confirmed != true) {
+      debugPrint('[MYF Delete] Deletion cancelled by user');
+      return;
+    }
+
+    // Show loading overlay
+    final overlay = Overlay.of(context);
+    final entry = OverlayEntry(
+      builder: (_) => const Stack(
+        children: [
+          ModalBarrier(dismissible: false, color: Colors.black38),
+          Center(child: CircularProgressIndicator()),
+        ],
+      ),
+    );
+    overlay.insert(entry);
+
+    try {
+      // 1. Fetch all events from the subcollection for this MYF
+      final eventsRef = FirebaseFirestore.instance
+          .collection('myfs')
+          .doc(id)
+          .collection('events');
+
+      const pageSize = 250; // Safe batch size
+      while (true) {
+        final page = await eventsRef
+            .orderBy(FieldPath.documentId)
+            .limit(pageSize)
+            .get(const GetOptions(source: Source.server)); // Force fresh read
+
+        if (page.docs.isEmpty) break;
+
+        final batch = FirebaseFirestore.instance.batch();
+        for (final doc in page.docs) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit();
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('MYF deleted')));
+
+      // 2. Delete the MYF itself
+      await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
+
+      // 3. Notify user
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('MYF and all events deleted')),
+      );
+    } catch (e, stack) {
+      debugPrint('[MYF Delete] FAILED to delete MYF: $e');
+      debugPrint('[MYF Delete] Stack trace: $stack');
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      entry.remove();
     }
   }
 
   Future<void> _showEditMyfDialog(
-    BuildContext context,
-    String myfId,
-    Map<String, dynamic> data,
-  ) async {
+      BuildContext context,
+      String myfId,
+      Map<String, dynamic> data,
+      ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final descCtrl = TextEditingController(text: data['description'] ?? '');
@@ -93,26 +142,27 @@ class MyfsManagementPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              if (!formKey.currentState!.validate()) {
-                return;
+              if (!formKey.currentState!.validate()) return;
+              try {
+                await FirebaseFirestore.instance
+                    .collection('myfs')
+                    .doc(myfId)
+                    .update({
+                  'title': titleCtrl.text.trim(),
+                  'description': descCtrl.text.trim(),
+                });
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('MYF updated')),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error: ${e.toString()}')),
+                );
               }
-              await FirebaseFirestore.instance
-                  .collection('myfs')
-                  .doc(myfId)
-                  .update({
-                    'title': titleCtrl.text.trim(),
-                    'description': descCtrl.text.trim(),
-                  });
-              if (!context.mounted) {
-                return;
-              }
-              Navigator.pop(context);
-              if (!context.mounted) {
-                return;
-              }
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('MYF updated')));
             },
             child: const Text('Update'),
           ),
