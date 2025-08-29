@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'myfs_detail_page.dart';
 
 class MyfsListPage extends StatelessWidget {
   const MyfsListPage({super.key});
@@ -37,9 +38,16 @@ class MyfsListPage extends StatelessWidget {
             return ListTile(
               title: Text(title),
               subtitle: Text(description),
-              onTap: () {
-                // TODO: Navigate to MYF detail if needed
-              },
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          MyfsDetailPage(myfId: myf.id, myfTitle: data['title'] ?? ''),
+                    ),
+                  );
+                }
+
             );
           },
         );

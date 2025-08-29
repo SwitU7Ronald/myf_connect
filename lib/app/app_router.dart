@@ -5,6 +5,7 @@ import '../pages/home/main_menu_page.dart';
 import '../pages/camps/camps_list_page.dart';
 import '../pages/camps/camps_detail_page.dart';
 import '../pages/myfs/myfs_list_page.dart';
+import '../pages/myfs/myfs_detail_page.dart';
 import '../pages/admin/admin_dashboard_page.dart';
 import '../pages/admin/camps_manage/camps_management_page.dart';
 import '../pages/admin/camps_manage/camps_create_page.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const campsList = '/home/camps';
   static const campsDetail = '/home/camps/detail';
   static const myfsList = '/home/myfs';
+  static const myfsDetail = '/home/myfs/detail';
   static const adminDashboard = '/admin';
   static const campsManagement = '/admin/camps/manage';
   static const campsCreate = '/admin/camps/create';
@@ -58,6 +60,22 @@ class AppRoutes {
         ));
       case myfsList:
         return MaterialPageRoute(builder: (_) => const MyfsListPage());
+      case myfsDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || !args.containsKey('myfId') || !args.containsKey('myfTitle')) {
+          return MaterialPageRoute(
+            builder: (_) => Scaffold(
+              body: Center(child: Text('Missing myfId or myfTitle')),
+            ),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => MyfsDetailPage(
+            myfId: args['myfId'],
+            myfTitle: args['myfTitle'],
+          ),
+        );
+
       case adminDashboard:
         return MaterialPageRoute(builder: (_) => const AdminDashboardPage());
       case campsManagement:
