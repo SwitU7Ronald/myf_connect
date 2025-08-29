@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'users_management_page.dart';
-import 'camps_management_page.dart';
-import 'myf_management_page.dart';
+import 'users_manage/users_management_page.dart';
+import 'camps_manage/camps_management_page.dart';
+import 'myfs_manage/myfs_management_page.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -77,7 +77,7 @@ class AdminDashboardPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const MyfManagementPage(),
+                      builder: (_) => const MyfsManagementPage(),
                     ),
                   );
                 },

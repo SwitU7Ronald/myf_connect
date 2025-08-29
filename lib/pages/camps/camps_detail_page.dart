@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/event.dart';
 
-class CampDetailPage extends StatefulWidget {
+class CampsDetailPage extends StatefulWidget {
   final String campId;
   final String campTitle;
 
-  const CampDetailPage({
+  const CampsDetailPage({
     super.key,
     required this.campId,
     required this.campTitle,
   });
 
   @override
-  State<CampDetailPage> createState() => _CampDetailPageState();
+  State<CampsDetailPage> createState() => _CampDetailPageState();
 }
 
-class _CampDetailPageState extends State<CampDetailPage>
+class _CampDetailPageState extends State<CampsDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final today = DateTime.now();

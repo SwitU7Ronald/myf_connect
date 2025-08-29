@@ -4,7 +4,8 @@ import '../../app/app_router.dart';
 import '../../services/user_service.dart';
 import '../../models/app_user.dart';
 import '../camps/camps_list_page.dart';
-import '../myf/myf_list_page.dart'; // Correct relative import
+import '../myfs/myfs_list_page.dart';
+import '../myfs/myfs_list_page.dart'; // Correct relative import
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
@@ -79,7 +80,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ],
           ),
         ),
-        body: const TabBarView(children: [CampsListPage(), MyfListPage()]),
+        body: const TabBarView(children: [CampsListPage(), MyfsListPage()]),
       ),
     );
   }

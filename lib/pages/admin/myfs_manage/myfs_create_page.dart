@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MyfCreatePage extends StatefulWidget {
-  const MyfCreatePage({super.key});
+class MyfsCreatePage extends StatefulWidget {
+  const MyfsCreatePage({super.key});
 
   @override
-  State<MyfCreatePage> createState() => _MyfCreatePageState();
+  State<MyfsCreatePage> createState() => _MyfCreatePageState();
 }
 
-class _MyfCreatePageState extends State<MyfCreatePage> {
+class _MyfCreatePageState extends State<MyfsCreatePage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -20,7 +20,7 @@ class _MyfCreatePageState extends State<MyfCreatePage> {
     setState(() => _loading = true);
 
     try {
-      await FirebaseFirestore.instance.collection('myf').add({
+      await FirebaseFirestore.instance.collection('myfs').add({
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
       });

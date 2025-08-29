@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../camps/camp_detail_page.dart';
+import '../camps/camps_detail_page.dart';
 
 class CampsListPage extends StatelessWidget {
   const CampsListPage({super.key});
@@ -41,7 +41,7 @@ class CampsListPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) =>
-                          CampDetailPage(campId: campId, campTitle: title),
+                          CampsDetailPage(campId: campId, campTitle: title),
                     ),
                   );
                 },

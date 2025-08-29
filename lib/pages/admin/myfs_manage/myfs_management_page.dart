@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'myf_create_page.dart';
+import 'myfs_create_page.dart';
 
-class MyfManagementPage extends StatelessWidget {
-  const MyfManagementPage({super.key});
+class MyfsManagementPage extends StatelessWidget {
+  const MyfsManagementPage({super.key});
 
   Future<void> _navigateToCreateMyf(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const MyfCreatePage()),
+      MaterialPageRoute(builder: (_) => const MyfsCreatePage()),
     );
     // Optionally refresh UI after return
   }
 
   Future<void> _deleteMyf(String id) async {
-    await FirebaseFirestore.instance.collection('myf').doc(id).delete();
+    await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
   }
 
   @override
@@ -27,7 +27,7 @@ class MyfManagementPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('myf').snapshots(),
+        stream: FirebaseFirestore.instance.collection('myfs').snapshots(),
         builder: (context, snap) {
           if (!snap.hasData)
             return const Center(child: CircularProgressIndicator());

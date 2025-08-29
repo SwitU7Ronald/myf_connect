@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'camp_create_page.dart'; // Ensure this file exists in the same folder
-import 'camp_events_management_page.dart'; // Import the new events management page
+import 'camps_create_page.dart';
+import './camps_events_management_page.dart';
 
 class CampsManagementPage extends StatelessWidget {
   const CampsManagementPage({super.key});

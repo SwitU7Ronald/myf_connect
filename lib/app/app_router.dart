@@ -3,10 +3,10 @@ import '../pages/auth/welcome_page.dart';
 import '../pages/auth/signup_details_page.dart';
 import '../pages/home/main_menu_page.dart';
 import '../pages/camps/camps_list_page.dart';
-import '../pages/myf/myf_list_page.dart';
+import '../pages/myfs/myfs_list_page.dart';
 import '../pages/admin/admin_dashboard_page.dart';
-import '../pages/admin/myf_management_page.dart';
-import '../pages/admin/myf_create_page.dart';
+import '../pages/admin/myfs_manage//myfs_management_page.dart';
+import '../pages/admin/myfs_manage/myfs_create_page.dart';
 import '../pages/home/credit_page.dart';
 import '../pages/home/profile_page.dart';
 
@@ -15,10 +15,10 @@ class AppRoutes {
   static const signupDetails = '/auth/details';
   static const mainMenu = '/home';
   static const campsList = '/home/camps';
-  static const myfList = '/home/myf';
+  static const myfsList = '/home/myfs';
   static const adminDashboard = '/admin';
-  static const myfManagement = '/admin/myf';
-  static const myfCreate = '/admin/myf/create';
+  static const myfsManagement = '/admin/myfs';
+  static const myfsCreate = '/admin/myfs/create';
   static const credit = '/credit';
   static const profile = '/home/profile';
 
@@ -33,14 +33,14 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const MainMenuPage());
       case campsList:
         return MaterialPageRoute(builder: (_) => const CampsListPage());
-      case myfList:
-        return MaterialPageRoute(builder: (_) => const MyfListPage());
+      case myfsList:
+        return MaterialPageRoute(builder: (_) => const MyfsListPage());
       case adminDashboard:
         return MaterialPageRoute(builder: (_) => const AdminDashboardPage());
-      case myfManagement:
-        return MaterialPageRoute(builder: (_) => const MyfManagementPage());
-      case myfCreate:
-        return MaterialPageRoute(builder: (_) => const MyfCreatePage());
+      case myfsManagement:
+        return MaterialPageRoute(builder: (_) => const MyfsManagementPage());
+      case myfsCreate:
+        return MaterialPageRoute(builder: (_) => const MyfsCreatePage());
       case credit:
         return MaterialPageRoute(builder: (_) => const CreditPage());
       case profile:

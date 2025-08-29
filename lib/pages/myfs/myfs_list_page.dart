@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MyfListPage extends StatelessWidget {
-  const MyfListPage({super.key});
+class MyfsListPage extends StatelessWidget {
+  const MyfsListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final myfStream = FirebaseFirestore.instance
-        .collection('myf')
+        .collection('myfs')
         .orderBy('title')
         .snapshots();
 
