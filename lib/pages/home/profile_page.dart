@@ -374,14 +374,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     Expanded(
                       child: FilledButton.tonal(
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(primaryRed.withOpacity(0.15)),
-                          foregroundColor: MaterialStateProperty.all(primaryRed),
-                          shape: MaterialStateProperty.all(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                            primaryRed.withValues(alpha: 0.15),
+                          ),
+                          foregroundColor: WidgetStateProperty.all<Color>(primaryRed),
+                          shape: WidgetStateProperty.all<OutlinedBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 14)),
+                          padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+                            const EdgeInsets.symmetric(vertical: 14),
+                          ),
                         ),
                         onPressed: _loggingOut ? null : _logout,
                         child: _loggingOut
@@ -399,6 +403,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ),

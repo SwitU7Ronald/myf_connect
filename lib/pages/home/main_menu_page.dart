@@ -10,7 +10,9 @@ class MainMenuPage extends StatefulWidget {
 }
 
 class _MainMenuPageState extends State<MainMenuPage> {
-  // ... [Auth and loading state logic from your code] ...
+  bool _loading = true;
+  bool _isAdmin = false;
+
   @override
   void initState() {
     super.initState();
@@ -42,12 +44,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
     }
   }
 
-  bool _loading = true;
-  bool _isAdmin = false;
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Methodist Connect'),
@@ -56,7 +54,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
             IconButton(
               icon: const Icon(Icons.admin_panel_settings),
               tooltip: 'Admin Dashboard',
-              onPressed: () => Navigator.pushNamed(context, AppRoutes.adminDashboard),
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRoutes.adminDashboard),
             ),
           IconButton(
             icon: const Icon(Icons.person),
@@ -74,7 +73,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
           mainAxisSpacing: 24,
           childAspectRatio: 1.5,
           shrinkWrap: true,
-          padding: EdgeInsets.zero, // Match your design
+          padding: EdgeInsets.zero,
           children: [
             _FeatureCard(
               title: 'Camps',
