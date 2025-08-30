@@ -20,43 +20,28 @@ class _WelcomePageState extends State<WelcomePage> {
     if (_loading) return;
     setState(() => _loading = true);
     try {
-      final cred = await _auth.signInWithGoogle();
-      if (!mounted) {
-        return;
-      }
+      final cred = await _auth.signInWithGoogle(); // must return UserCredential
+      if (!mounted) return;
+
       if (cred == null || cred.user == null) {
         setState(() => _loading = false);
         return;
       }
 
+      final isNew = cred.additionalUserInfo?.isNewUser ?? false; // key gate
+
       final user = cred.user!;
-
       final existingUser = await _userService.getUser(user.uid);
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
-      if (existingUser == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Account doesn't exist. Please sign up."),
-          ),
-        );
+      final profileComplete = existingUser?.isProfileComplete == true;
+
+      if (isNew || existingUser == null || !profileComplete) {
         setState(() => _loading = false);
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.signupDetails,
-          (_) => false,
-        );
-        return;
-      }
-
-      if (!existingUser.isProfileComplete) {
-        setState(() => _loading = false);
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.signupDetails,
-          (_) => false,
+              (_) => false,
         );
         return;
       }
@@ -65,18 +50,18 @@ class _WelcomePageState extends State<WelcomePage> {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.mainMenu,
-        (_) => false,
+            (_) => false,
       );
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Sign-in error: $e')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign-in error: $e')),
+      );
       setState(() => _loading = false);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
