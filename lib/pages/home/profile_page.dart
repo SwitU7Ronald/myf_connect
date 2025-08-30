@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../app/app_router.dart';
 import '../../services/user_service.dart';
 import '../../models/app_user.dart';
@@ -55,11 +56,29 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _logout() async {
     if (!mounted) return;
     setState(() => _loggingOut = true);
-    await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
-    setState(() => _loggingOut = false);
-    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.welcome, (route) => false);
+    try {
+      final google = GoogleSignIn();
+      if (await google.isSignedIn()) {
+        try { await google.disconnect(); } catch (_) {}
+        await google.signOut();
+      }
+      await FirebaseAuth.instance.signOut();
+      // Reveal the home route so StreamBuilder shows Welcome
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).popUntil((r) => r.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logout failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loggingOut = false);
+    }
   }
+
+
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(

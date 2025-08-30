@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:methodist_connect/pages/auth/welcome_page.dart';
 import 'pages/home/main_menu_page.dart';
 
 import 'app/firebase_options.dart';
@@ -31,28 +32,18 @@ class _MethodistConnectAppState extends State<MethodistConnectApp> {
       onGenerateRoute: AppRoutes.onGenerateRoute,
       home: StreamBuilder(
         stream: _auth.authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.active) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (snapshot.hasError) {
-            return const Scaffold(
-              body: Center(child: Text('Something went wrong')),
-            );
-          }
-
-          final user = snapshot.data;
-          if (user == null) {
-            return Navigator(
-              initialRoute: AppRoutes.credit,
-              onGenerateRoute: AppRoutes.onGenerateRoute,
-            );
-          } else {
+          // main.dart (replace the StreamBuilder builder body)
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            }
+            final user = snapshot.data;
+            if (user == null) {
+              // Show Welcome directly; do not wrap a Navigator here
+              return const WelcomePage();
+            }
             return const MainMenuPage();
           }
-        },
       ),
     );
   }
