@@ -125,7 +125,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                 final payload = {
                   'title': titleCtrl.text.trim(),
                   'description': descCtrl.text.trim(),
-                  'dateTime': selected!.toIso8601String(),
+                  'dateTime': Timestamp.fromDate(selected!),
                 };
 
                 if (doc == null) {

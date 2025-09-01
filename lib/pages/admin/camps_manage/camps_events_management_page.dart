@@ -140,7 +140,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
               final payload = {
                 'title': titleController.text.trim(),
                 'description': descriptionController.text.trim(),
-                'dateTime': selectedDateTime!.toIso8601String(),
+                'dateTime': Timestamp.fromDate(selectedDateTime!),
               };
 
               if (event == null) {

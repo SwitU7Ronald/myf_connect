@@ -1,4 +1,3 @@
-// lib/pages/admin/camps_manage/camps_management_page.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -123,9 +122,8 @@ class CampsManagementPage extends StatelessWidget {
 
     DateTime? selectedDate = () {
       final raw = data['date'];
-      if (raw is String) {
-        return DateTime.tryParse(raw);
-      }
+      if (raw is Timestamp) return raw.toDate();
+      if (raw is String) return DateTime.tryParse(raw);
       return null;
     }();
 
@@ -203,7 +201,7 @@ class CampsManagementPage extends StatelessWidget {
                   .update({
                 'title': titleCtrl.text.trim(),
                 'place': placeCtrl.text.trim(),
-                'date': selectedDate!.toIso8601String(),
+                'date': Timestamp.fromDate(selectedDate!),
                 'description': descCtrl.text.trim(),
               });
               if (!context.mounted) return;
@@ -251,15 +249,14 @@ class CampsManagementPage extends StatelessWidget {
               final campId = camp.id;
               final data = camp.data() as Map<String, dynamic>;
               final title = data['title'] ?? 'Unnamed Camp';
-              final dateIso = data['date'] ?? '';
-              final dateShort = dateIso is String && dateIso.isNotEmpty
-                  ? (DateTime.tryParse(dateIso)
-                  ?.toLocal()
-                  .toString()
-                  .split(' ')
-                  .first ??
-                  dateIso)
-                  : '';
+
+              // Handle both Timestamp and String date formats
+              final dateVal = data['date'];
+              final dateShort = dateVal is Timestamp
+                  ? dateVal.toDate().toLocal().toString().split(' ').first
+                  : (dateVal is String
+                  ? (DateTime.tryParse(dateVal)?.toLocal().toString().split(' ').first ?? '')
+                  : '');
 
               return ListTile(
                 title: Text(title),

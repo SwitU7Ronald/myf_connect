@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class CampEvent {
   final String id;
   final DateTime dateTime;
@@ -15,9 +17,12 @@ class CampEvent {
       ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dateTime.weekday - 1];
 
   factory CampEvent.fromMap(String id, Map<String, dynamic> data) {
+    final raw = data['dateTime'];
+    final dt = raw is Timestamp ? raw.toDate() : DateTime.parse(raw as String);
+
     return CampEvent(
       id: id,
-      dateTime: DateTime.parse(data['dateTime']),
+      dateTime: dt,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
     );
@@ -25,7 +30,7 @@ class CampEvent {
 
   Map<String, dynamic> toMap() {
     return {
-      'dateTime': dateTime.toIso8601String(),
+      'dateTime': Timestamp.fromDate(dateTime),  // Use Timestamp
       'title': title,
       'description': description,
     };

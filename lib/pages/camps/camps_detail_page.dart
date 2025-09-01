@@ -28,7 +28,7 @@ class _CampsDetailPageState extends State<CampsDetailPage>
   }
 
   Stream<List<CampEvent>> _getEvents({required bool upcoming}) {
-    final nowIso = DateTime.now().toIso8601String();
+    final nowTs = Timestamp.now();  // Use Timestamp instead of ISO string
     final collection = FirebaseFirestore.instance
         .collection('camps')
         .doc(widget.campId)
@@ -36,18 +36,19 @@ class _CampsDetailPageState extends State<CampsDetailPage>
 
     final query = upcoming
         ? collection
-              .where('dateTime', isGreaterThanOrEqualTo: nowIso)
-              .orderBy('dateTime')
+        .where('dateTime', isGreaterThanOrEqualTo: nowTs)
+        .orderBy('dateTime')
         : collection
-              .where('dateTime', isLessThan: nowIso)
-              .orderBy('dateTime', descending: true);
+        .where('dateTime', isLessThan: nowTs)
+        .orderBy('dateTime', descending: true);
 
     return query.snapshots().map(
-      (snap) => snap.docs
+          (snap) => snap.docs
           .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
           .toList(),
     );
   }
+
 
   Widget _buildEventList(bool upcoming) {
     return StreamBuilder<List<CampEvent>>(

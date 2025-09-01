@@ -25,7 +25,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
     await FirebaseFirestore.instance.collection('camps').add({
       'title': _titleController.text.trim(),
       'place': _placeController.text.trim(),
-      'date': _selectedDate!.toIso8601String(),
+      'date': Timestamp.fromDate(_selectedDate!),
       'description': _descriptionController.text.trim(),
     });
     if (!mounted) return;

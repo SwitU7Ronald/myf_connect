@@ -18,9 +18,12 @@ class MyfEvent {
       ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dateTime.weekday - 1];
 
   factory MyfEvent.fromMap(String id, Map<String, dynamic> data) {
+    final raw = data['dateTime'];
+    final dt = raw is Timestamp ? raw.toDate() : DateTime.parse(raw as String);
+
     return MyfEvent(
       id: id,
-      dateTime: DateTime.parse(data['dateTime']),
+      dateTime: dt,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
     );
