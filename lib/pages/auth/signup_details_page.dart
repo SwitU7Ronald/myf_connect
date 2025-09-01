@@ -112,6 +112,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       final existing = await _users.getUser(user.uid);
       final appUser = AppUser(
         uid: user.uid,
+        email: user.email,
         phone: formatPhone(_phone.text.trim()),
         firstName: toTitleCase(_first.text.trim()),
         lastName: toTitleCase(_last.text.trim()),
@@ -120,11 +121,11 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         gender: _gender,
         district: toTitleCase(_district.text.trim()),
         church: toTitleCase(_church.text.trim()),
-        // DO NOT assign any default permissions
         permissions: existing?.permissions ?? const [],
         createdAt: existing?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
+
       await _users.createOrUpdateUser(appUser);
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
