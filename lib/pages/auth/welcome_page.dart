@@ -1,8 +1,8 @@
+// lib/pages/auth/welcome_page.dart
 import 'package:flutter/material.dart';
 import '../../app/app_router.dart';
 import '../../widgets/primary_button.dart';
 import '../../services/auth_service.dart';
-import '../../services/user_service.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -14,54 +14,56 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   final _auth = AuthService();
   bool _loading = false;
-  final _userService = UserService();
 
   Future<void> _googleSignIn() async {
     if (_loading) return;
     setState(() => _loading = true);
+
     try {
-      final cred = await _auth.signInWithGoogle(); // must return UserCredential
+      final result = await _auth.signInWithGoogle();
+
       if (!mounted) return;
 
-      if (cred == null || cred.user == null) {
-        setState(() => _loading = false);
-        return;
+      switch (result.status) {
+        case AuthStatus.success:
+        // User has complete profile, go to main menu
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.mainMenu,
+                (_) => false,
+          );
+          break;
+
+        case AuthStatus.needsProfileCompletion:
+        // User needs to complete profile
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.signupDetails,
+                (_) => false,
+          );
+          break;
+
+        case AuthStatus.cancelled:
+        // User cancelled sign-in, do nothing
+          break;
+
+        case AuthStatus.error:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Sign-in error: ${result.error}')),
+          );
+          break;
       }
-
-      final isNew = cred.additionalUserInfo?.isNewUser ?? false; // key gate
-
-      final user = cred.user!;
-      final existingUser = await _userService.getUser(user.uid);
-      if (!mounted) return;
-
-      final profileComplete = existingUser?.isProfileComplete == true;
-
-      if (isNew || existingUser == null || !profileComplete) {
-        setState(() => _loading = false);
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.signupDetails,
-              (_) => false,
-        );
-        return;
-      }
-
-      setState(() => _loading = false);
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.mainMenu,
-            (_) => false,
-      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign-in error: $e')),
+        SnackBar(content: Text('Unexpected error: $e')),
       );
-      setState(() => _loading = false);
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {

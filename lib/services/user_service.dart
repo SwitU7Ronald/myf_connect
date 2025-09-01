@@ -11,17 +11,29 @@ class UserService {
   }
 
   Future<void> createOrUpdateUser(
-    AppUser user, {
-    bool createIfMissing = true,
-  }) async {
+      AppUser user, {
+        bool createIfMissing = true,
+      }) async {
     final ref = _col.doc(user.uid);
-    final doc = await ref.get();
-    final now = DateTime.now().toIso8601String();
-    if (!doc.exists) {
+    final snap = await ref.get();
+
+    // Only safe, self-writable fields (rules allow these for self)
+    final payload = {
+      ...user.toMap(),
+    }..remove('permissions'); // self cannot write 'permissions'
+
+    if (!snap.exists) {
       if (!createIfMissing) return;
-      await ref.set({...user.toMap(), 'createdAt': now, 'updatedAt': now});
+      await ref.set({
+        ...payload,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
     } else {
-      await ref.update({...user.toMap(), 'updatedAt': now});
+      await ref.update({
+        ...payload,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
     }
   }
 }

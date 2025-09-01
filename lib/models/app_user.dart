@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AppUser {
   final String uid;
   final String phone;
@@ -22,7 +24,7 @@ class AppUser {
     this.gender,
     this.district,
     this.church,
-    this.permissions = const [], // No default permission
+    this.permissions = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -35,6 +37,14 @@ class AppUser {
           district != null &&
           church != null;
 
+  static DateTime? _toDate(dynamic v) {
+    if (v == null) return null;
+    if (v is Timestamp) return v.toDate();
+    if (v is String) return DateTime.tryParse(v);
+    if (v is DateTime) return v;
+    return null;
+  }
+
   factory AppUser.fromMap(String uid, Map<String, dynamic> data) {
     return AppUser(
       uid: uid,
@@ -42,19 +52,13 @@ class AppUser {
       firstName: data['firstName'],
       lastName: data['lastName'],
       nickname: data['nickname'],
-      birthdate: data['birthdate'] != null
-          ? DateTime.tryParse(data['birthdate'])
-          : null,
+      birthdate: _toDate(data['birthdate']),
       gender: data['gender'],
       district: data['district'],
       church: data['church'],
       permissions: (data['permissions'] as List?)?.cast<String>() ?? [],
-      createdAt: data['createdAt'] != null
-          ? DateTime.tryParse(data['createdAt'])
-          : null,
-      updatedAt: data['updatedAt'] != null
-          ? DateTime.tryParse(data['updatedAt'])
-          : null,
+      createdAt: _toDate(data['createdAt']),
+      updatedAt: _toDate(data['updatedAt']),
     );
   }
 
@@ -64,13 +68,13 @@ class AppUser {
       'firstName': firstName,
       'lastName': lastName,
       'nickname': nickname,
-      'birthdate': birthdate?.toIso8601String(),
+      // Let Firestore serialize DateTime to Timestamp
+      'birthdate': birthdate,
       'gender': gender,
       'district': district,
       'church': church,
       'permissions': permissions,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
+      // omit createdAt/updatedAt; service supplies serverTimestamp
     };
   }
 }
