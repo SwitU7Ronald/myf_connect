@@ -1,10 +1,9 @@
-// ./lib/pages/admin/admin_dashboard_page.dart
+// lib/pages/admin/admin_dashboard_page.dart
 import 'package:flutter/material.dart';
 import '../../widgets/widgets.dart';
-// Fix the import paths - use absolute paths from lib/
-import '../../pages/admin/users_manage/users_management_page.dart';
-import '../../pages/admin/camps_manage/camps_management_page.dart';
-import '../../pages/admin/myfs_manage/myfs_management_page.dart';
+import 'users_manage/users_management_page.dart';
+import 'camps_manage/camps_management_page.dart';
+import 'myfs_manage/myfs_management_page.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -19,7 +18,7 @@ class AdminDashboardPage extends StatelessWidget {
         foregroundColor: MethodistTheme.white,
       ),
       body: SingleChildScrollView(
-        padding: MethodistTheme.paddingL,
+        padding: MethodistTheme.paddingM,
         child: Column(
           children: [
             // Header Card
@@ -58,39 +57,51 @@ class AdminDashboardPage extends StatelessWidget {
 
             SizedBox(height: MethodistTheme.spacingL),
 
-            // Management Cards
-            FeatureCard(
+            // Management Options
+            InfoCard(
               title: 'Users Management',
               description: 'Approve users and manage permissions',
               icon: Icons.people,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const UsersManagementPage()),
-              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const UsersManagementPage(),
+                  ),
+                );
+              },
             ),
 
             SizedBox(height: MethodistTheme.spacingM),
 
-            FeatureCard(
+            InfoCard(
               title: 'Camps Management',
               description: 'Create, edit, delete camps and events',
               icon: Icons.campaign,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CampsManagementPage()),
-              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CampsManagementPage(),
+                  ),
+                );
+              },
             ),
 
             SizedBox(height: MethodistTheme.spacingM),
 
-            FeatureCard(
+            InfoCard(
               title: 'MYF Management',
-              description: 'Manage MYF groups and activities',
+              description: 'Manage MYF groups and their events',
               icon: Icons.group,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const MyfsManagementPage()),
-              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MyfsManagementPage(),
+                  ),
+                );
+              },
             ),
           ],
         ),

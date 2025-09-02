@@ -16,6 +16,13 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
   final _descriptionController = TextEditingController();
   bool _loading = false;
 
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _saveMyf() async {
     if (_loading) return;
     if (_formKey.currentState?.validate() != true) return;
@@ -120,27 +127,22 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
 
                 SizedBox(height: MethodistTheme.spacingXL),
 
-                // Action Buttons Row
-                Row(
+                // Fixed: Action Buttons with Column layout to prevent overflow
+                Column(
                   children: [
-                    Expanded(
-                      child: PrimaryButton.secondary(
-                        label: 'Cancel',
-                        onPressed: _loading ? null : () => Navigator.pop(context),
-                        fullWidth: true,
-                        icon: Icons.cancel,
-                      ),
+                    PrimaryButton(
+                      label: 'Create MYF',
+                      onPressed: _saveMyf,
+                      loading: _loading,
+                      fullWidth: true,
+                      icon: Icons.add_circle,
                     ),
-                    SizedBox(width: MethodistTheme.spacingM),
-                    Expanded(
-                      flex: 2,
-                      child: PrimaryButton(
-                        label: 'Create MYF',
-                        onPressed: _saveMyf,
-                        loading: _loading,
-                        fullWidth: true,
-                        icon: Icons.add_circle,
-                      ),
+                    SizedBox(height: MethodistTheme.spacingM),
+                    PrimaryButton.secondary(
+                      label: 'Cancel',
+                      onPressed: _loading ? null : () => Navigator.pop(context),
+                      fullWidth: true,
+                      icon: Icons.cancel,
                     ),
                   ],
                 ),
@@ -152,12 +154,5 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 }

@@ -1,3 +1,4 @@
+// lib/widgets/primary_button.dart
 import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
@@ -60,30 +61,35 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget buttonChild = Row(
-      mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+    // Fixed: Use Flexible instead of MainAxisSize to prevent overflow
+    Widget buttonChild = loading
+        ? SizedBox(
+      width: 20,
+      height: 20,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation<Color>(
+          type == ButtonType.secondary || type == ButtonType.text
+              ? MethodistTheme.primaryRed
+              : MethodistTheme.white,
+        ),
+      ),
+    )
+        : Row(
+      mainAxisSize: MainAxisSize.min, // Fixed: Always use min to prevent overflow
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (loading)
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                type == ButtonType.secondary || type == ButtonType.text
-                    ? MethodistTheme.primaryRed
-                    : MethodistTheme.white,
-              ),
-            ),
-          )
-        else ...[
-          if (icon != null) ...[
-            Icon(icon, size: 18),
-            SizedBox(width: MethodistTheme.spacingS),
-          ],
-          Text(label),
+        if (icon != null) ...[
+          Icon(icon, size: 18),
+          SizedBox(width: MethodistTheme.spacingS),
         ],
+        Flexible( // Fixed: Use Flexible instead of direct Text
+          child: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ),
       ],
     );
 

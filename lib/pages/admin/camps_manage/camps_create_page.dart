@@ -1,4 +1,4 @@
-// ./lib/pages/admin/camps_manage/camps_create_page.dart
+// lib/pages/admin/camps_manage/camps_create_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
@@ -18,11 +18,19 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
   DateTime? _selectedDate;
   bool _loading = false;
 
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _placeController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _saveCamp() async {
     if (_loading) return;
-    if (_formKey.currentState?.validate() != true || _selectedDate == null) {
-      MethodistTheme.showErrorSnackBar(
-          context, 'Please fill all fields and select date');
+    if (!_formKey.currentState!.validate()) return;
+    if (_selectedDate == null) {
+      MethodistTheme.showErrorSnackBar(context, 'Please select a date');
       return;
     }
 
@@ -35,11 +43,11 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
         'place': _placeController.text.trim(),
         'date': Timestamp.fromDate(_selectedDate!),
         'description': _descriptionController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       if (mounted) {
-        MethodistTheme.showSuccessSnackBar(
-            context, 'Camp created successfully');
+        MethodistTheme.showSuccessSnackBar(context, 'Camp created successfully');
         navigator.pop();
       }
     } catch (e) {
@@ -82,7 +90,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                           borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                         ),
                         child: Icon(
-                          Icons.campaign_outlined,
+                          Icons.add_business,
                           size: 48,
                           color: MethodistTheme.primaryRed,
                         ),
@@ -107,7 +115,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: MethodistTheme.spacingL),
 
-                // Form Fields
                 AppTextField(
                   controller: _titleController,
                   label: 'Camp Title',
@@ -132,8 +139,8 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   selectedDate: _selectedDate,
                   label: 'Camp Date',
                   hint: 'Select camp date',
-                  firstDate: DateTime.now().subtract(const Duration(days: 30)),
-                  lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                  firstDate: DateTime(DateTime.now().year - 1),
+                  lastDate: DateTime(DateTime.now().year + 2),
                   onDateSelected: (date) => setState(() => _selectedDate = date),
                 ),
 
@@ -150,27 +157,22 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: MethodistTheme.spacingXL),
 
-                // Action Buttons
-                Row(
+                // Fixed: Action Buttons with better spacing and no overflow
+                Column(
                   children: [
-                    Expanded(
-                      child: PrimaryButton.secondary(
-                        label: 'Cancel',
-                        onPressed: _loading ? null : () => Navigator.pop(context),
-                        fullWidth: true,
-                        icon: Icons.cancel,
-                      ),
+                    PrimaryButton(
+                      label: 'Create Camp',
+                      onPressed: _saveCamp,
+                      loading: _loading,
+                      fullWidth: true,
+                      icon: Icons.add_circle,
                     ),
-                    SizedBox(width: MethodistTheme.spacingM),
-                    Expanded(
-                      flex: 2,
-                      child: PrimaryButton(
-                        label: 'Create Camp',
-                        onPressed: _saveCamp,
-                        loading: _loading,
-                        fullWidth: true,
-                        icon: Icons.add_circle,
-                      ),
+                    SizedBox(height: MethodistTheme.spacingM),
+                    PrimaryButton.secondary(
+                      label: 'Cancel',
+                      onPressed: _loading ? null : () => Navigator.pop(context),
+                      fullWidth: true,
+                      icon: Icons.cancel,
                     ),
                   ],
                 ),
@@ -182,13 +184,5 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _placeController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 }
