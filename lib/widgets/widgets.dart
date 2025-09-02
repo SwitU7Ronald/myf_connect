@@ -7,6 +7,7 @@ export 'cards.dart';
 export 'status_widgets.dart';
 export 'date_time_picker_field.dart';
 export 'dependent_dropdown.dart';
+export 'international_phone_field.dart'; // Add this line
 
 // Also export theme for convenience
 export '../app/theme.dart';

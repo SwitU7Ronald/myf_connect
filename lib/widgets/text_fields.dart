@@ -1,3 +1,4 @@
+// lib/widgets/text_fields.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/theme.dart';
@@ -19,6 +20,7 @@ class AppTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final List<TextInputFormatter>? inputFormatters;
+  final bool autoCapitalizeFirst; // New parameter
 
   const AppTextField({
     super.key,
@@ -38,10 +40,18 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.inputFormatters,
+    this.autoCapitalizeFirst = false, // Default false
   });
 
   @override
   Widget build(BuildContext context) {
+    List<TextInputFormatter> formatters = inputFormatters ?? [];
+
+    // Add first letter capitalization formatter if needed
+    if (autoCapitalizeFirst) {
+      formatters.add(_FirstLetterCapitalFormatter());
+    }
+
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -50,6 +60,26 @@ class AppTextField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         counterText: maxLength != null ? null : '',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: MethodistTheme.primaryRed,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: MethodistTheme.mediumGray.withOpacity(0.3),
+          ),
+          borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: MethodistTheme.spacingM,
+          vertical: MethodistTheme.spacingM,
+        ),
       ),
       textCapitalization: textCapitalization,
       onChanged: onChanged,
@@ -61,11 +91,41 @@ class AppTextField extends StatelessWidget {
       enabled: enabled,
       readOnly: readOnly,
       onTap: onTap,
-      inputFormatters: inputFormatters,
+      inputFormatters: formatters,
     );
   }
 }
 
+// Custom formatter for first letter capitalization
+class _FirstLetterCapitalFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    final String newText = newValue.text;
+    String capitalizedText = '';
+
+    for (int i = 0; i < newText.length; i++) {
+      if (i == 0 || (i > 0 && newText[i - 1] == ' ')) {
+        capitalizedText += newText[i].toUpperCase();
+      } else {
+        capitalizedText += newText[i].toLowerCase();
+      }
+    }
+
+    return TextEditingValue(
+      text: capitalizedText,
+      selection: newValue.selection,
+    );
+  }
+}
+
+// Keep existing PhoneTextField for backward compatibility
 class PhoneTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
@@ -117,6 +177,7 @@ class PhoneTextField extends StatelessWidget {
   }
 }
 
+// Keep existing DatePickerField and SearchTextField as they are
 class DatePickerField extends StatelessWidget {
   final DateTime? selectedDate;
   final String label;

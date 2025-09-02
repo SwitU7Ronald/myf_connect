@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/widgets.dart';
+import '../../widgets/international_phone_field.dart';
 import '../../models/district_data.dart';
 import '../../app/app_router.dart';
 
@@ -25,9 +26,36 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   String? _selectedDistrict;
   String? _selectedMyf;
   bool _loading = false;
+  CountryData? _selectedCountry;
 
   // Check if "Other" district is selected
   bool get _isOtherDistrictSelected => _selectedDistrict == 'Other';
+
+  @override
+  void initState() {
+    super.initState();
+    _autoFillFromArguments();
+  }
+
+  void _autoFillFromArguments() {
+    // Get the arguments passed from welcome page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+      if (args != null) {
+        setState(() {
+          // Auto-fill from Google account data
+          _firstNameCtrl.text = args['firstName'] ?? '';
+          _lastNameCtrl.text = args['lastName'] ?? '';
+
+          // Auto-generate nickname from first name if available
+          if (args['firstName'] != null && (args['firstName'] as String).isNotEmpty) {
+            _nicknameCtrl.text = args['firstName'];
+          }
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -41,15 +69,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   String? _validateRequired(String? value, String field) {
     if (value == null || value.trim().isEmpty) {
       return '$field is required';
-    }
-    return null;
-  }
-
-  String? _validatePhone(String? value) {
-    if (value == null ||
-        value.trim().length != 10 ||
-        !RegExp(r'^[0-9]+$').hasMatch(value.trim())) {
-      return 'Enter a valid 10-digit mobile number';
     }
     return null;
   }
@@ -100,6 +119,10 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       MethodistTheme.showErrorSnackBar(context, 'Please ${_isOtherDistrictSelected ? "enter" : "select"} your church/MYF');
       return;
     }
+    if (_selectedCountry == null) {
+      MethodistTheme.showErrorSnackBar(context, 'Please select country code');
+      return;
+    }
 
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) {
@@ -116,7 +139,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
       await userRef.set({
         'email': firebaseUser.email,
-        'phone': '+91${_phoneCtrl.text.trim()}',
+        'phone': '${_selectedCountry!.dialCode}${_phoneCtrl.text.trim()}', // Include country code
         'firstName': _firstNameCtrl.text.trim(),
         'lastName': _lastNameCtrl.text.trim(),
         'nickname': _nicknameCtrl.text.trim().isNotEmpty
@@ -126,6 +149,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         'gender': _gender,
         'district': _selectedDistrict,
         'church': _selectedMyf,
+        'countryCode': _selectedCountry!.code,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -188,7 +212,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       ),
                       SizedBox(height: MethodistTheme.spacingS),
                       Text(
-                        'Please fill in your details to continue',
+                        'We\'ve pre-filled some details from your Google account',
                         style: MethodistTheme.bodyMedium.copyWith(
                           color: MethodistTheme.mediumGray,
                         ),
@@ -200,42 +224,53 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingL),
 
-                // First Name Field
+                // First Name Field - with auto-capitalization
                 AppTextField(
                   controller: _firstNameCtrl,
                   label: 'First Name',
                   hint: 'Enter your first name',
                   textCapitalization: TextCapitalization.words,
+                  autoCapitalizeFirst: true,
                   validator: (v) => _validateRequired(v, 'First Name'),
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                // Last Name Field
+                // Last Name Field - with auto-capitalization
                 AppTextField(
                   controller: _lastNameCtrl,
                   label: 'Last Name',
                   hint: 'Enter your last name',
                   textCapitalization: TextCapitalization.words,
+                  autoCapitalizeFirst: true,
                   validator: (v) => _validateRequired(v, 'Last Name'),
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                // Nickname Field (Optional)
+                // Nickname Field - with auto-capitalization
                 AppTextField(
                   controller: _nicknameCtrl,
                   label: 'Nickname (Optional)',
                   hint: 'Enter your nickname',
                   textCapitalization: TextCapitalization.words,
+                  autoCapitalizeFirst: true,
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                // Phone Number Field
-                PhoneTextField(
+                // International Phone Number Field
+                InternationalPhoneField(
                   controller: _phoneCtrl,
-                  validator: _validatePhone,
+                  validator: (v) {
+                    if (_selectedCountry == null) return 'Please select country';
+                    return null;
+                  },
+                  onCountryChanged: (country) {
+                    setState(() {
+                      _selectedCountry = country;
+                    });
+                  },
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),

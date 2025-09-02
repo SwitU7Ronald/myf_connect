@@ -1,3 +1,4 @@
+// lib/pages/auth/welcome_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,12 +64,21 @@ class _WelcomePageState extends State<WelcomePage> {
         Navigator.pushReplacementNamed(context, AppRoutes.mainMenu);
       } else {
         debugPrint('WelcomePage: Navigating to signup details');
+
+        // Extract names from display name
+        final displayName = googleUser.displayName ?? '';
+        final nameParts = displayName.split(' ');
+        final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+        final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.signupDetails,
           arguments: {
             'email': googleUser.email,
-            'displayName': googleUser.displayName ?? '',
+            'displayName': displayName,
+            'firstName': firstName,
+            'lastName': lastName,
             'photoURL': googleUser.photoUrl,
             'isNewUser': appUser == null,
           },
