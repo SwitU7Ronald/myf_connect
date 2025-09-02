@@ -1,3 +1,4 @@
+// ./lib/pages/admin/camps_manage/camps_create_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
@@ -51,14 +52,15 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       }
     }
   }
-    @override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.backgroundColor,
+      backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
         title: const Text('Create New Camp'),
-        backgroundColor: context.primaryColor,
-        foregroundColor: context.surfaceColor,
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
       ),
       body: LoadingOverlay(
         isLoading: _loading,
@@ -76,28 +78,26 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                       Container(
                         padding: MethodistTheme.paddingM,
                         decoration: BoxDecoration(
-                          color: context.primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(context.radiusXL),
+                          color: MethodistTheme.primaryRed.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                         ),
                         child: Icon(
                           Icons.campaign_outlined,
                           size: 48,
-                          color: context.primaryColor,
+                          color: MethodistTheme.primaryRed,
                         ),
                       ),
-                      SizedBox(height: context.spacingM),
+                      SizedBox(height: MethodistTheme.spacingM),
                       Text(
                         'Create New Camp',
-                        style: context.headlineSmall.copyWith(
-                          color: context.textPrimary,
-                        ),
+                        style: MethodistTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: context.spacingS),
+                      SizedBox(height: MethodistTheme.spacingS),
                       Text(
                         'Fill in the details to create a new Methodist camp',
-                        style: context.bodyMedium.copyWith(
-                          color: context.textSecondary,
+                        style: MethodistTheme.bodyMedium.copyWith(
+                          color: MethodistTheme.mediumGray,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -105,7 +105,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   ),
                 ),
 
-                SizedBox(height: context.spacingL),
+                SizedBox(height: MethodistTheme.spacingL),
 
                 // Form Fields
                 AppTextField(
@@ -116,7 +116,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _placeController,
@@ -126,7 +126,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   validator: (v) => v == null || v.trim().isEmpty ? 'Place is required' : null,
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 DatePickerField(
                   selectedDate: _selectedDate,
@@ -137,7 +137,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   onDateSelected: (date) => setState(() => _selectedDate = date),
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _descriptionController,
@@ -148,7 +148,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
                 ),
 
-                SizedBox(height: context.spacingXL),
+                SizedBox(height: MethodistTheme.spacingXL),
 
                 // Action Buttons
                 Row(
@@ -161,7 +161,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                         icon: Icons.cancel,
                       ),
                     ),
-                    SizedBox(width: context.spacingM),
+                    SizedBox(width: MethodistTheme.spacingM),
                     Expanded(
                       flex: 2,
                       child: PrimaryButton(
@@ -175,7 +175,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   ],
                 ),
 
-                SizedBox(height: context.spacingL),
+                SizedBox(height: MethodistTheme.spacingL),
               ],
             ),
           ),

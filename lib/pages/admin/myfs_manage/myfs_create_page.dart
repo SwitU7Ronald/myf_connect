@@ -120,13 +120,32 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
 
                 SizedBox(height: MethodistTheme.spacingXL),
 
-                PrimaryButton(
-                  label: 'Create MYF',
-                  onPressed: _saveMyf,
-                  loading: _loading,
-                  fullWidth: true,
-                  icon: Icons.add_circle,
+                // Action Buttons Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton.secondary(
+                        label: 'Cancel',
+                        onPressed: _loading ? null : () => Navigator.pop(context),
+                        fullWidth: true,
+                        icon: Icons.cancel,
+                      ),
+                    ),
+                    SizedBox(width: MethodistTheme.spacingM),
+                    Expanded(
+                      flex: 2,
+                      child: PrimaryButton(
+                        label: 'Create MYF',
+                        onPressed: _saveMyf,
+                        loading: _loading,
+                        fullWidth: true,
+                        icon: Icons.add_circle,
+                      ),
+                    ),
+                  ],
                 ),
+
+                SizedBox(height: MethodistTheme.spacingL),
               ],
             ),
           ),
