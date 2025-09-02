@@ -1,7 +1,10 @@
+// lib/pages/auth/signup_details_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/widgets.dart';
+import '../../widgets/dependent_dropdown.dart';
+import '../../models/district_data.dart';
 import '../../app/app_router.dart';
 
 class SignupDetailsPage extends StatefulWidget {
@@ -17,10 +20,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _lastNameCtrl = TextEditingController();
   final _nicknameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _districtCtrl = TextEditingController();
-  final _churchCtrl = TextEditingController();
+
+  // Remove the district and church controllers since we'll use dropdowns
   DateTime? _birthdate;
   String? _gender;
+  String? _selectedDistrict;
+  String? _selectedMyf;
   bool _loading = false;
 
   @override
@@ -29,8 +34,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     _lastNameCtrl.dispose();
     _nicknameCtrl.dispose();
     _phoneCtrl.dispose();
-    _districtCtrl.dispose();
-    _churchCtrl.dispose();
     super.dispose();
   }
 
@@ -50,6 +53,27 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     return null;
   }
 
+  String? _validateDistrict(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your district';
+    }
+    if (!DistrictData.isValidDistrict(value)) {
+      return 'Please select a valid district';
+    }
+    return null;
+  }
+
+  String? _validateMyf(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your church/MYF';
+    }
+    if (_selectedDistrict != null &&
+        !DistrictData.isValidMyfForDistrict(_selectedDistrict!, value)) {
+      return 'Please select a valid church/MYF for your district';
+    }
+    return null;
+  }
+
   Future<void> _submit() async {
     if (_loading) return;
     if (!_formKey.currentState!.validate()) return;
@@ -59,6 +83,14 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     }
     if (_gender == null) {
       MethodistTheme.showErrorSnackBar(context, 'Please select gender');
+      return;
+    }
+    if (_selectedDistrict == null) {
+      MethodistTheme.showErrorSnackBar(context, 'Please select your district');
+      return;
+    }
+    if (_selectedMyf == null) {
+      MethodistTheme.showErrorSnackBar(context, 'Please select your church/MYF');
       return;
     }
 
@@ -85,8 +117,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
             : null,
         'birthdate': Timestamp.fromDate(_birthdate!),
         'gender': _gender,
-        'district': _districtCtrl.text.trim(),
-        'church': _churchCtrl.text.trim(),
+        'district': _selectedDistrict,
+        'church': _selectedMyf, // This now stores the full MYF name
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -223,20 +255,19 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                AppTextField(
-                  controller: _districtCtrl,
-                  label: 'District',
-                  textCapitalization: TextCapitalization.words,
-                  validator: (v) => _validateRequired(v, 'District'),
-                ),
-
-                SizedBox(height: MethodistTheme.spacingM),
-
-                AppTextField(
-                  controller: _churchCtrl,
-                  label: 'Church',
-                  textCapitalization: TextCapitalization.words,
-                  validator: (v) => _validateRequired(v, 'Church'),
+                // District and MYF Dependent Dropdowns
+                DistrictMyfDropdowns(
+                  selectedDistrict: _selectedDistrict,
+                  selectedMyf: _selectedMyf,
+                  onDistrictChanged: (district) => setState(() {
+                    _selectedDistrict = district;
+                    _selectedMyf = null; // Clear MYF when district changes
+                  }),
+                  onMyfChanged: (myf) => setState(() => _selectedMyf = myf),
+                  districtValidator: _validateDistrict,
+                  myfValidator: _validateMyf,
+                  districts: DistrictData.districts,
+                  districtMyfMap: DistrictData.districtMyfMap,
                 ),
 
                 SizedBox(height: MethodistTheme.spacingXL),
@@ -247,6 +278,35 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   loading: _loading,
                   fullWidth: true,
                   icon: Icons.check,
+                ),
+
+                SizedBox(height: MethodistTheme.spacingM),
+
+                // Helper text
+                Container(
+                  padding: MethodistTheme.paddingS,
+                  decoration: BoxDecoration(
+                    color: MethodistTheme.infoBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: MethodistTheme.infoBlue,
+                        size: 16,
+                      ),
+                      SizedBox(width: MethodistTheme.spacingS),
+                      Expanded(
+                        child: Text(
+                          'Select your district first, then choose your church/MYF from the available options.',
+                          style: MethodistTheme.bodySmall.copyWith(
+                            color: MethodistTheme.infoBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
