@@ -20,7 +20,7 @@ class AppTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final List<TextInputFormatter>? inputFormatters;
-  final bool autoCapitalizeFirst; // New parameter
+  final bool autoCapitalizeFirst;
 
   const AppTextField({
     super.key,
@@ -40,7 +40,7 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.inputFormatters,
-    this.autoCapitalizeFirst = false, // Default false
+    this.autoCapitalizeFirst = false,
   });
 
   @override
@@ -174,57 +174,6 @@ class PhoneTextField extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-// Keep existing DatePickerField and SearchTextField as they are
-class DatePickerField extends StatelessWidget {
-  final DateTime? selectedDate;
-  final String label;
-  final String? hint;
-  final ValueChanged<DateTime?>? onDateSelected;
-  final bool enabled;
-  final DateTime? firstDate;
-  final DateTime? lastDate;
-
-  const DatePickerField({
-    super.key,
-    this.selectedDate,
-    required this.label,
-    this.hint,
-    this.onDateSelected,
-    this.enabled = true,
-    this.firstDate,
-    this.lastDate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppTextField(
-      controller: TextEditingController(
-        text: selectedDate?.toLocal().toString().split(' ').first ?? '',
-      ),
-      label: label,
-      hint: hint ?? 'Select date',
-      enabled: enabled,
-      readOnly: true,
-      suffixIcon: const Icon(Icons.calendar_today),
-      onTap: enabled ? () => _showDatePicker(context) : null,
-    );
-  }
-
-  Future<void> _showDatePicker(BuildContext context) async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? now,
-      firstDate: firstDate ?? DateTime(1900),
-      lastDate: lastDate ?? DateTime(now.year + 100),
-    );
-
-    if (picked != null && onDateSelected != null) {
-      onDateSelected!(picked);
-    }
   }
 }
 

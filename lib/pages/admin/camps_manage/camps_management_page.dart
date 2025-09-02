@@ -132,13 +132,13 @@ class CampsManagementPage extends StatelessWidget {
                       validator: (v) => v == null || v.trim().isEmpty ? 'Place is required' : null,
                     ),
                     SizedBox(height: MethodistTheme.spacingM),
-                    DatePickerField(
-                      selectedDate: selectedDate,
+                    DatePickerField.dateOnly(
+                      selectedDateTime: selectedDate,
                       label: 'Camp Date',
                       hint: 'Select camp date',
-                      onDateSelected: (date) => setDialogState(() => selectedDate = date),
                       firstDate: DateTime.now().subtract(const Duration(days: 365)),
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      onDateTimeSelected: (date) => setDialogState(() => selectedDate = date),
                     ),
                     SizedBox(height: MethodistTheme.spacingM),
                     AppTextField(

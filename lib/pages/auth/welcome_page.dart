@@ -22,6 +22,71 @@ class _WelcomePageState extends State<WelcomePage> {
     debugPrint('WelcomePage: Initialized');
   }
 
+  // Helper function to capitalize first letter of each word, rest lowercase
+  String _capitalizeEachWord(String input) {
+    if (input.isEmpty) return input;
+    return input
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.isNotEmpty
+        ? word[0].toUpperCase() + word.substring(1)
+        : '')
+        .join(' ');
+  }
+
+  // Extract and format names from Google display name
+  Map<String, String> _extractNamesFromDisplayName(String displayName) {
+    String firstName = '';
+    String lastName = '';
+    String nickname = '';
+
+    if (displayName.isEmpty) {
+      return {'firstName': firstName, 'lastName': lastName, 'nickname': nickname};
+    }
+
+    debugPrint('WelcomePage: Original display name: $displayName');
+
+    // Check if there's a nickname in parentheses using RegExp
+    final RegExp nicknameRegExp = RegExp(r'\(([^)]+)\)');
+    final Match? nicknameMatch = nicknameRegExp.firstMatch(displayName);
+
+    if (nicknameMatch != null) {
+      // Extract nickname from parentheses
+      nickname = _capitalizeEachWord(nicknameMatch.group(1)?.trim() ?? '');
+      debugPrint('WelcomePage: Extracted nickname: $nickname');
+    }
+
+    // Remove nickname part from display name to get clean name
+    String cleanedName = displayName.replaceAll(nicknameRegExp, '').trim();
+    debugPrint('WelcomePage: Cleaned name: $cleanedName');
+
+    // Split names and capitalize properly
+    final List<String> nameParts = cleanedName.split(' ')
+        .where((part) => part.isNotEmpty)
+        .toList();
+
+    if (nameParts.isNotEmpty) {
+      firstName = _capitalizeEachWord(nameParts.first);
+
+      if (nameParts.length > 1) {
+        lastName = _capitalizeEachWord(nameParts.sublist(1).join(' '));
+      }
+    }
+
+    // If no nickname was found in parentheses, use first name as nickname
+    if (nickname.isEmpty && firstName.isNotEmpty) {
+      nickname = firstName;
+    }
+
+    debugPrint('WelcomePage: Final names - First: $firstName, Last: $lastName, Nickname: $nickname');
+
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'nickname': nickname,
+    };
+  }
+
   Future<void> _continueWithGoogle() async {
     if (_loading) return;
 
@@ -37,6 +102,7 @@ class _WelcomePageState extends State<WelcomePage> {
       }
 
       debugPrint('WelcomePage: Google user obtained: ${googleUser.email}');
+      debugPrint('WelcomePage: Google display name: ${googleUser.displayName}');
 
       final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
@@ -65,11 +131,9 @@ class _WelcomePageState extends State<WelcomePage> {
       } else {
         debugPrint('WelcomePage: Navigating to signup details');
 
-        // Extract names from display name
+        // Extract and format names properly from Google display name
         final displayName = googleUser.displayName ?? '';
-        final nameParts = displayName.split(' ');
-        final firstName = nameParts.isNotEmpty ? nameParts.first : '';
-        final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+        final extractedNames = _extractNamesFromDisplayName(displayName);
 
         Navigator.pushReplacementNamed(
           context,
@@ -77,8 +141,9 @@ class _WelcomePageState extends State<WelcomePage> {
           arguments: {
             'email': googleUser.email,
             'displayName': displayName,
-            'firstName': firstName,
-            'lastName': lastName,
+            'firstName': extractedNames['firstName'],
+            'lastName': extractedNames['lastName'],
+            'nickname': extractedNames['nickname'],
             'photoURL': googleUser.photoUrl,
             'isNewUser': appUser == null,
           },

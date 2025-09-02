@@ -79,10 +79,14 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                       validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
                     ),
                     SizedBox(height: MethodistTheme.spacingM),
-                    DateTimePickerField(
+
+                    // UPDATED: Use new DatePickerField.dateTime
+                    DatePickerField.dateTime(
                       selectedDateTime: selectedDateTime,
                       label: 'Event Date & Time',
                       hint: 'Select date and time',
+                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
                       onDateTimeSelected: (dateTime) {
                         setDialogState(() => selectedDateTime = dateTime);
                       },

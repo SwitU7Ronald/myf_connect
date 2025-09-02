@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/widgets.dart';
-import '../../widgets/international_phone_field.dart';
 import '../../models/district_data.dart';
 import '../../app/app_router.dart';
 
@@ -26,7 +25,15 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   String? _selectedDistrict;
   String? _selectedMyf;
   bool _loading = false;
-  CountryData? _selectedCountry;
+
+  // FIXED: Initialize with India as default (matching InternationalPhoneField default)
+  CountryData? _selectedCountry = const CountryData(
+    name: 'India',
+    code: 'IN',
+    dialCode: '+91',
+    minLength: 10,
+    maxLength: 10,
+  );
 
   // Check if "Other" district is selected
   bool get _isOtherDistrictSelected => _selectedDistrict == 'Other';
@@ -44,14 +51,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
       if (args != null) {
         setState(() {
-          // Auto-fill from Google account data
+          // Auto-fill from Google account data with proper formatting
           _firstNameCtrl.text = args['firstName'] ?? '';
           _lastNameCtrl.text = args['lastName'] ?? '';
+          _nicknameCtrl.text = args['nickname'] ?? '';
 
-          // Auto-generate nickname from first name if available
-          if (args['firstName'] != null && (args['firstName'] as String).isNotEmpty) {
-            _nicknameCtrl.text = args['firstName'];
-          }
+          debugPrint('SignupDetailsPage: Auto-filled from Google - First: ${_firstNameCtrl.text}, Last: ${_lastNameCtrl.text}, Nickname: ${_nicknameCtrl.text}');
         });
       }
     });
@@ -276,13 +281,14 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                 SizedBox(height: MethodistTheme.spacingM),
 
                 // Birthdate Picker
-                DatePickerField(
-                  selectedDate: _birthdate,
+                DatePickerField.dateOnly(
+                  selectedDateTime: _birthdate,
                   label: 'Birthdate',
                   hint: 'Select your birthdate',
                   firstDate: DateTime(1900),
                   lastDate: DateTime.now(),
-                  onDateSelected: (date) => setState(() => _birthdate = date),
+                  minimumAgeYears: 12, // 12-year minimum age
+                  onDateTimeSelected: (date) => setState(() => _birthdate = date),
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),

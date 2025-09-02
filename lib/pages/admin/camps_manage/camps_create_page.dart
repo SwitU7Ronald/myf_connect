@@ -135,13 +135,14 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                DatePickerField(
-                  selectedDate: _selectedDate,
+                // UPDATED: Use new DatePickerField.dateOnly
+                DatePickerField.dateOnly(
+                  selectedDateTime: _selectedDate,
                   label: 'Camp Date',
                   hint: 'Select camp date',
                   firstDate: DateTime(DateTime.now().year - 1),
                   lastDate: DateTime(DateTime.now().year + 2),
-                  onDateSelected: (date) => setState(() => _selectedDate = date),
+                  onDateTimeSelected: (date) => setState(() => _selectedDate = date),
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
@@ -157,7 +158,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: MethodistTheme.spacingXL),
 
-                // Fixed: Action Buttons with better spacing and no overflow
                 Column(
                   children: [
                     PrimaryButton(
