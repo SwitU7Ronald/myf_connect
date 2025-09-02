@@ -1,3 +1,4 @@
+// ./lib/pages/admin/camps_manage/camps_management_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
@@ -74,22 +75,12 @@ class CampsManagementPage extends StatelessWidget {
 
       if (context.mounted) {
         Navigator.pop(context); // Close loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Camp and all events deleted successfully'),
-            backgroundColor: MethodistTheme.successGreen,
-          ),
-        );
+        MethodistTheme.showSuccessSnackBar(context, 'Camp and all events deleted successfully');
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context); // Close loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Delete failed: $e'),
-            backgroundColor: MethodistTheme.errorRed,
-          ),
-        );
+        MethodistTheme.showErrorSnackBar(context, 'Delete failed: $e');
       }
     }
   }
@@ -230,12 +221,7 @@ class CampsManagementPage extends StatelessWidget {
               onPressed: () async {
                 if (!formKey.currentState!.validate() || selectedDate == null) {
                   if (selectedDate == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select a date'),
-                        backgroundColor: MethodistTheme.errorRed,
-                      ),
-                    );
+                    MethodistTheme.showErrorSnackBar(context, 'Please select a date');
                   }
                   return;
                 }
@@ -255,20 +241,10 @@ class CampsManagementPage extends StatelessWidget {
 
                   if (dialogContext.mounted) {
                     Navigator.pop(dialogContext);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Camp updated successfully'),
-                        backgroundColor: MethodistTheme.successGreen,
-                      ),
-                    );
+                    MethodistTheme.showSuccessSnackBar(context, 'Camp updated successfully');
                   }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error updating camp: $e'),
-                      backgroundColor: MethodistTheme.errorRed,
-                    ),
-                  );
+                  MethodistTheme.showErrorSnackBar(context, 'Error updating camp: $e');
                 } finally {
                   setDialogState(() => loading = false);
                 }
@@ -311,7 +287,6 @@ class CampsManagementPage extends StatelessWidget {
               title: 'Error Loading Camps',
               description: 'Error: ${snap.error}',
               onRetry: () {
-                // Trigger rebuild
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const CampsManagementPage()),

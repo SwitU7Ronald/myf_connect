@@ -1,3 +1,4 @@
+// ./lib/pages/home/profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -93,7 +94,6 @@ class _ProfilePageState extends State<ProfilePage> {
       debugPrint('Logout error: $e');
       if (mounted) {
         MethodistTheme.showErrorSnackBar(context, 'Logout failed: $e');
-
       }
     } finally {
       if (mounted) {
@@ -104,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: context.spacingM),
+      padding: EdgeInsets.only(bottom: MethodistTheme.spacingM),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -112,8 +112,8 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 3,
             child: Text(
               label,
-              style: context.titleSmall.copyWith(
-                color: context.textSecondary,
+              style: MethodistTheme.titleSmall.copyWith(
+                color: MethodistTheme.mediumGray,
               ),
             ),
           ),
@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 5,
             child: Text(
               value,
-              style: context.bodyMedium,
+              style: MethodistTheme.bodyMedium,
             ),
           ),
         ],
@@ -137,48 +137,48 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: context.primaryColor,
+            backgroundColor: MethodistTheme.primaryRed,
             child: Text(
               (_userModel?.firstName?.isNotEmpty ?? false)
                   ? _userModel!.firstName!.substring(0, 1).toUpperCase()
                   : '?',
-              style: context.displaySmall.copyWith(
+              style: MethodistTheme.displaySmall.copyWith(
                 color: MethodistTheme.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          SizedBox(height: context.spacingM),
+          SizedBox(height: MethodistTheme.spacingM),
           if (_userModel?.nickname?.isNotEmpty ?? false) ...[
             Text(
               _userModel!.nickname!,
-              style: context.titleLarge.copyWith(
+              style: MethodistTheme.titleLarge.copyWith(
                 fontStyle: FontStyle.italic,
-                color: context.primaryColor,
+                color: MethodistTheme.primaryRed,
                 fontWeight: FontWeight.w700,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: context.spacingS),
+            SizedBox(height: MethodistTheme.spacingS),
           ],
           Text(
             '${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}',
-            style: context.headlineSmall,
+            style: MethodistTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: context.spacingS),
+          SizedBox(height: MethodistTheme.spacingS),
           Text(
             _userModel?.phone ?? '',
-            style: context.bodyLarge.copyWith(
-              color: context.textSecondary,
+            style: MethodistTheme.bodyLarge.copyWith(
+              color: MethodistTheme.mediumGray,
             ),
           ),
           if (_userModel?.email?.isNotEmpty ?? false) ...[
-            SizedBox(height: context.spacingXS),
+            SizedBox(height: MethodistTheme.spacingXS),
             Text(
               _userModel!.email!,
-              style: context.bodySmall.copyWith(
-                color: context.textSecondary,
+              style: MethodistTheme.bodySmall.copyWith(
+                color: MethodistTheme.mediumGray,
               ),
             ),
           ],
@@ -195,12 +195,12 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Text(
             'Personal Details',
-            style: context.titleLarge,
+            style: MethodistTheme.titleLarge,
           ),
           Divider(
-            height: context.spacingL,
+            height: MethodistTheme.spacingL,
             thickness: 1.2,
-            color: context.textSecondary.withOpacity(0.3),
+            color: MethodistTheme.mediumGray.withOpacity(0.3),
           ),
           _buildDetailRow(
             'Birthdate',
@@ -222,18 +222,18 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Text(
             'Approvals / Permissions',
-            style: context.titleLarge,
+            style: MethodistTheme.titleLarge,
           ),
           Divider(
-            height: context.spacingL,
+            height: MethodistTheme.spacingL,
             thickness: 1.2,
-            color: context.textSecondary.withOpacity(0.3),
+            color: MethodistTheme.mediumGray.withOpacity(0.3),
           ),
           Builder(
             builder: (context) {
               final permissions = _userModel?.permissions ?? [];
               if (permissions.isEmpty) {
-                return EmptyStateWidget(
+                return const EmptyStateWidget(
                   icon: Icons.lock_outline,
                   title: 'No Permissions',
                   description: 'No permissions assigned yet',
@@ -254,8 +254,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   }
                   final titles = snapshot.data ?? [];
                   return Wrap(
-                    spacing: context.spacingS,
-                    runSpacing: context.spacingS,
+                    spacing: MethodistTheme.spacingS,
+                    runSpacing: MethodistTheme.spacingS,
                     children: titles
                         .map(
                           (title) => StatusBadge(
@@ -277,9 +277,11 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.backgroundColor,
+      backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
         title: const Text('Profile'),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
       ),
       body: _loading
           ? const LoadingWidget(message: 'Loading profile...')
@@ -292,9 +294,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     _buildProfileCard(),
-                    SizedBox(height: context.spacingL),
+                    SizedBox(height: MethodistTheme.spacingL),
                     _buildPersonalDetailsCard(),
-                    SizedBox(height: context.spacingL),
+                    SizedBox(height: MethodistTheme.spacingL),
                     _buildPermissionsCard(),
                   ],
                 ),
@@ -314,7 +316,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.info_outline,
                     ),
                   ),
-                  SizedBox(width: context.spacingM),
+                  SizedBox(width: MethodistTheme.spacingM),
                   Expanded(
                     child: PrimaryButton.danger(
                       label: 'Logout',
