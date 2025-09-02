@@ -5,7 +5,6 @@ import 'myfs_create_page.dart';
 
 class MyfsManagementPage extends StatelessWidget {
   const MyfsManagementPage({super.key});
-
   Future<void> _navigateToCreateMyf(BuildContext context) async {
     await Navigator.push(
       context,
@@ -35,13 +34,11 @@ class MyfsManagementPage extends StatelessWidget {
         ],
       ),
     );
-
     if (confirmed != true) {
       debugPrint('[MYF Delete] Deletion cancelled by user');
       return;
     }
-
-    // Show loading overlay
+    if (!context.mounted) return;
     final overlay = Overlay.of(context);
     final entry = OverlayEntry(
       builder: (_) => const Stack(
@@ -52,34 +49,25 @@ class MyfsManagementPage extends StatelessWidget {
       ),
     );
     overlay.insert(entry);
-
     try {
-      // 1. Fetch all events from the subcollection for this MYF
       final eventsRef = FirebaseFirestore.instance
           .collection('myfs')
           .doc(id)
           .collection('events');
-
-      const pageSize = 250; // Safe batch size
+      const pageSize = 250;
       while (true) {
         final page = await eventsRef
             .orderBy(FieldPath.documentId)
             .limit(pageSize)
-            .get(const GetOptions(source: Source.server)); // Force fresh read
-
+            .get(const GetOptions(source: Source.server));
         if (page.docs.isEmpty) break;
-
         final batch = FirebaseFirestore.instance.batch();
         for (final doc in page.docs) {
           batch.delete(doc.reference);
         }
         await batch.commit();
       }
-
-      // 2. Delete the MYF itself
       await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
-
-      // 3. Notify user
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('MYF and all events deleted')),
@@ -88,23 +76,22 @@ class MyfsManagementPage extends StatelessWidget {
       debugPrint('[MYF Delete] FAILED to delete MYF: $e');
       debugPrint('[MYF Delete] Stack trace: $stack');
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     } finally {
       entry.remove();
     }
   }
 
   Future<void> _showEditMyfDialog(
-      BuildContext context,
-      String myfId,
-      Map<String, dynamic> data,
-      ) async {
+    BuildContext context,
+    String myfId,
+    Map<String, dynamic> data,
+  ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final descCtrl = TextEditingController(text: data['description'] ?? '');
-
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -148,15 +135,15 @@ class MyfsManagementPage extends StatelessWidget {
                     .collection('myfs')
                     .doc(myfId)
                     .update({
-                  'title': titleCtrl.text.trim(),
-                  'description': descCtrl.text.trim(),
-                });
+                      'title': titleCtrl.text.trim(),
+                      'description': descCtrl.text.trim(),
+                    });
                 if (!context.mounted) return;
                 Navigator.pop(context);
                 if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('MYF updated')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('MYF updated')));
               } catch (e) {
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +177,6 @@ class MyfsManagementPage extends StatelessWidget {
           if (myfDocs.isEmpty) {
             return const Center(child: Text('No MYF entries found'));
           }
-
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: myfDocs.length,
@@ -199,7 +185,6 @@ class MyfsManagementPage extends StatelessWidget {
               final myf = myfDocs[index];
               final data = myf.data() as Map<String, dynamic>;
               final myfId = myf.id;
-
               return ListTile(
                 title: Text(data['title'] ?? ''),
                 subtitle: Text(data['description'] ?? ''),

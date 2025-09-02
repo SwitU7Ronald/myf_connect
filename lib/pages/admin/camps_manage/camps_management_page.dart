@@ -6,7 +6,6 @@ import './camps_events_management_page.dart';
 
 class CampsManagementPage extends StatelessWidget {
   const CampsManagementPage({super.key});
-
   Future<void> _navigateToCreateCamp(BuildContext context) async {
     await Navigator.push(
       context,
@@ -17,36 +16,29 @@ class CampsManagementPage extends StatelessWidget {
     }
   }
 
-  // Stable, paged cascade delete of events with server-backed reads
   Future<void> _deleteCampEventsCascade(String campId) async {
     final eventsRef = FirebaseFirestore.instance
         .collection('camps')
         .doc(campId)
         .collection('events');
-
-    const pageSize = 250; // under Firestore 500 writes/commit guidance
+    const pageSize = 250;
     while (true) {
       final page = await eventsRef
           .orderBy(FieldPath.documentId)
           .limit(pageSize)
-          .get(const GetOptions(source: Source.server)); // force server
-
+          .get(const GetOptions(source: Source.server));
       if (page.docs.isEmpty) break;
-
       final batch = FirebaseFirestore.instance.batch();
       for (final d in page.docs) {
         batch.delete(d.reference);
       }
       await batch.commit();
-      // repeat until empty
     }
   }
 
   Future<void> _deleteCamp(BuildContext context, String id) async {
-    // Capture everything needed BEFORE any awaits to avoid using context later
     final messenger = ScaffoldMessenger.of(context);
-    final overlay = Overlay.of(context); // Non-null in MaterialApp trees
-
+    final overlay = Overlay.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -66,12 +58,8 @@ class CampsManagementPage extends StatelessWidget {
         ],
       ),
     );
-
-    // After async gap: verify still mounted before any potential UI actions
     if (!context.mounted) return;
-
     if (confirmed == true) {
-      // Show a loading HUD using OverlayEntry
       final entry = OverlayEntry(
         builder: (_) => const Stack(
           children: [
@@ -80,8 +68,7 @@ class CampsManagementPage extends StatelessWidget {
           ],
         ),
       );
-      overlay.insert(entry); // no null-aware operator
-
+      overlay.insert(entry);
       String? error;
       try {
         await _deleteCampEventsCascade(id);
@@ -89,11 +76,8 @@ class CampsManagementPage extends StatelessWidget {
       } catch (e) {
         error = e.toString();
       } finally {
-        // Always remove loader
         entry.remove();
       }
-
-      // Use captured messenger (no BuildContext use after awaits)
       if (error == null) {
         if (messenger.mounted) {
           messenger.showSnackBar(
@@ -111,22 +95,20 @@ class CampsManagementPage extends StatelessWidget {
   }
 
   Future<void> _showEditCampDialog(
-      BuildContext context,
-      String campId,
-      Map<String, dynamic> data,
-      ) async {
+    BuildContext context,
+    String campId,
+    Map<String, dynamic> data,
+  ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final placeCtrl = TextEditingController(text: data['place'] ?? '');
     final descCtrl = TextEditingController(text: data['description'] ?? '');
-
     DateTime? selectedDate = () {
       final raw = data['date'];
       if (raw is Timestamp) return raw.toDate();
       if (raw is String) return DateTime.tryParse(raw);
       return null;
     }();
-
     Future<void> pickDate() async {
       final now = DateTime.now();
       final picked = await showDatePicker(
@@ -154,14 +136,14 @@ class CampsManagementPage extends StatelessWidget {
                   controller: titleCtrl,
                   decoration: const InputDecoration(labelText: 'Title'),
                   validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+                      v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: placeCtrl,
                   decoration: const InputDecoration(labelText: 'Place'),
                   validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+                      v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(
@@ -179,7 +161,7 @@ class CampsManagementPage extends StatelessWidget {
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
                   validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+                      v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
               ],
             ),
@@ -199,16 +181,16 @@ class CampsManagementPage extends StatelessWidget {
                   .collection('camps')
                   .doc(campId)
                   .update({
-                'title': titleCtrl.text.trim(),
-                'place': placeCtrl.text.trim(),
-                'date': Timestamp.fromDate(selectedDate!),
-                'description': descCtrl.text.trim(),
-              });
+                    'title': titleCtrl.text.trim(),
+                    'place': placeCtrl.text.trim(),
+                    'date': Timestamp.fromDate(selectedDate!),
+                    'description': descCtrl.text.trim(),
+                  });
               if (!context.mounted) return;
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Camp updated')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Camp updated')));
             },
             child: const Text('Update'),
           ),
@@ -239,7 +221,6 @@ class CampsManagementPage extends StatelessWidget {
           if (camps.isEmpty) {
             return const Center(child: Text('No camps found'));
           }
-
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: camps.length,
@@ -249,15 +230,15 @@ class CampsManagementPage extends StatelessWidget {
               final campId = camp.id;
               final data = camp.data() as Map<String, dynamic>;
               final title = data['title'] ?? 'Unnamed Camp';
-
-              // Handle both Timestamp and String date formats
               final dateVal = data['date'];
               final dateShort = dateVal is Timestamp
                   ? dateVal.toDate().toLocal().toString().split(' ').first
                   : (dateVal is String
-                  ? (DateTime.tryParse(dateVal)?.toLocal().toString().split(' ').first ?? '')
-                  : '');
-
+                        ? (DateTime.tryParse(
+                                dateVal,
+                              )?.toLocal().toString().split(' ').first ??
+                              '')
+                        : '');
               return ListTile(
                 title: Text(title),
                 subtitle: Text(dateShort),

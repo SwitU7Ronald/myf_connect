@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CampsCreatePage extends StatefulWidget {
   const CampsCreatePage({super.key});
-
   @override
   State<CampsCreatePage> createState() => _CampsCreatePageState();
 }
@@ -14,7 +13,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
   final _placeController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
-
   Future<void> _saveCamp() async {
     if (_formKey.currentState?.validate() != true || _selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -22,14 +20,23 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       );
       return;
     }
-    await FirebaseFirestore.instance.collection('camps').add({
-      'title': _titleController.text.trim(),
-      'place': _placeController.text.trim(),
-      'date': Timestamp.fromDate(_selectedDate!),
-      'description': _descriptionController.text.trim(),
-    });
-    if (!mounted) return;
-    Navigator.pop(context);
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await FirebaseFirestore.instance.collection('camps').add({
+        'title': _titleController.text.trim(),
+        'place': _placeController.text.trim(),
+        'date': Timestamp.fromDate(_selectedDate!),
+        'description': _descriptionController.text.trim(),
+      });
+      if (mounted) {
+        navigator.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 
   @override
@@ -46,14 +53,14 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
                 validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Required' : null,
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _placeController,
                 decoration: const InputDecoration(labelText: 'Place'),
                 validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Required' : null,
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               ListTile(
@@ -61,7 +68,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                   _selectedDate == null
                       ? 'Select Date'
                       : _selectedDate!.toLocal().toString().split(' ').first,
-
                 ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
@@ -72,7 +78,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                     lastDate: DateTime(now.year + 2),
                     initialDate: now,
                   );
-                  if (picked != null) {
+                  if (picked != null && mounted) {
                     setState(() => _selectedDate = picked);
                   }
                 },
@@ -83,7 +89,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                 decoration: const InputDecoration(labelText: 'Description'),
                 maxLines: 3,
                 validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Required' : null,
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(

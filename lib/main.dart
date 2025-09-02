@@ -1,18 +1,9 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:methodist_connect/pages/auth/welcome_page.dart';
-import 'pages/home/main_menu_page.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'app/firebase_options.dart';
 import 'app/app_router.dart';
 import 'app/theme.dart';
-import 'services/auth_service.dart';
-
-// NEW imports
-import 'services/user_service.dart';
-import 'models/app_user.dart';
-import 'pages/auth/signup_details_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,48 +11,102 @@ void main() async {
   runApp(const MethodistConnectApp());
 }
 
-class MethodistConnectApp extends StatefulWidget {
+class MethodistConnectApp extends StatelessWidget {
   const MethodistConnectApp({super.key});
-
-  @override
-  State<MethodistConnectApp> createState() => _MethodistConnectAppState();
-}
-
-class _MethodistConnectAppState extends State<MethodistConnectApp> {
-  final _auth = AuthService();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Methodist Connect',
       theme: MethodistTheme.themeData,
       onGenerateRoute: AppRoutes.onGenerateRoute,
-      home: StreamBuilder(
-        stream: _auth.authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          }
-          final user = snapshot.data;
-          if (user == null) {
-            return const WelcomePage();
-          }
-          // Gate by profile completeness
-          return FutureBuilder<AppUser?>(
-            future: UserService().getUser(user.uid),
-            builder: (context, fsSnap) {
-              if (fsSnap.connectionState == ConnectionState.waiting) {
-                return const Scaffold(body: Center(child: CircularProgressIndicator()));
-              }
-              final appUser = fsSnap.data;
-              if (appUser == null || !appUser.isProfileComplete) {
-                return const SignupDetailsPage();
-              }
-              return const MainMenuPage();
-            },
+      initialRoute: '/',
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class AuthGateWrapper extends StatelessWidget {
+  const AuthGateWrapper({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading...'),
+                ],
+              ),
+            ),
           );
-        },
-      ),
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text('Error: ${snapshot.error}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(
+                        context,
+                      ).pushNamedAndRemoveUntil('/', (route) => false);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        if (snapshot.data != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
+            }
+          });
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Signing in...'),
+                ],
+              ),
+            ),
+          );
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.credit);
+          }
+        });
+        return const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading...'),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

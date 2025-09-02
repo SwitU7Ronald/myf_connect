@@ -6,14 +6,12 @@ class MethodistTheme {
   static const Color black = Colors.black;
   static const Color darkGray = Color(0xFF333333);
   static const Color lightGray = Color(0xFFF0F0F0);
-
   static ThemeData get themeData {
     return ThemeData(
       brightness: Brightness.light,
       primaryColor: primaryRed,
       scaffoldBackgroundColor: white,
       fontFamily: 'Roboto',
-
       appBarTheme: AppBarTheme(
         backgroundColor: primaryRed,
         foregroundColor: white,
@@ -26,7 +24,6 @@ class MethodistTheme {
           fontWeight: FontWeight.bold,
         ),
       ),
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryRed,
@@ -35,14 +32,12 @@ class MethodistTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryRed,
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-
       textTheme: TextTheme(
         displayLarge: TextStyle(
           color: black,
@@ -59,16 +54,13 @@ class MethodistTheme {
         titleMedium: TextStyle(color: primaryRed, fontWeight: FontWeight.w600),
         titleSmall: TextStyle(color: darkGray, fontSize: 12),
       ),
-
       iconTheme: IconThemeData(color: primaryRed),
-
       cardTheme: CardThemeData(
         color: lightGray,
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
-
       tabBarTheme: TabBarThemeData(
         labelColor: primaryRed,
         unselectedLabelColor: darkGray,
@@ -78,7 +70,6 @@ class MethodistTheme {
         labelStyle: const TextStyle(fontWeight: FontWeight.bold),
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         focusedBorder: OutlineInputBorder(

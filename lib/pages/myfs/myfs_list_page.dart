@@ -4,14 +4,12 @@ import 'myfs_detail_page.dart';
 
 class MyfsListPage extends StatelessWidget {
   const MyfsListPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final myfStream = FirebaseFirestore.instance
         .collection('myfs')
         .orderBy('title')
         .snapshots();
-
     return Scaffold(
       appBar: AppBar(title: const Text('MYF Groups')),
       body: StreamBuilder<QuerySnapshot>(
@@ -23,9 +21,7 @@ class MyfsListPage extends StatelessWidget {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No MYF groups found'));
           }
-
           final myfDocs = snapshot.data!.docs;
-
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: myfDocs.length,
@@ -35,7 +31,6 @@ class MyfsListPage extends StatelessWidget {
               final data = myf.data() as Map<String, dynamic>;
               final title = data['title'] ?? 'Untitled MYF';
               final description = data['description'] ?? '';
-
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(

@@ -4,15 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MyfsEventsManagementPage extends StatefulWidget {
   final String myfId;
   final String myfTitle;
-
   const MyfsEventsManagementPage({
     super.key,
     required this.myfId,
     required this.myfTitle,
   });
-
   @override
-  State<MyfsEventsManagementPage> createState() => _MyfsEventsManagementPageState();
+  State<MyfsEventsManagementPage> createState() =>
+      _MyfsEventsManagementPageState();
 }
 
 class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
@@ -26,21 +25,19 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   }
 
   Future<void> _showEventDialog(
-      BuildContext parentContext, {
-        DocumentSnapshot<Map<String, dynamic>>? doc,
-      }) async {
+    BuildContext parentContext, {
+    DocumentSnapshot<Map<String, dynamic>>? doc,
+  }) async {
     final titleCtrl = TextEditingController(text: doc?.data()?['title'] ?? '');
-    final descCtrl = TextEditingController(text: doc?.data()?['description'] ?? '');
-
+    final descCtrl = TextEditingController(
+      text: doc?.data()?['description'] ?? '',
+    );
     DateTime? selected;
     final raw = doc?.data()?['dateTime'];
     if (raw is String) selected = DateTime.tryParse(raw);
     if (raw is Timestamp) selected = raw.toDate();
-
-    // Use the dialog builder's context and guard with context.mounted after awaits
     Future<void> pickDateTime(BuildContext dialogContext) async {
       final now = DateTime.now();
-
       final date = await showDatePicker(
         context: dialogContext,
         firstDate: now.subtract(const Duration(days: 365)),
@@ -49,7 +46,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (date == null) return;
       if (!dialogContext.mounted) return;
-
       final time = await showTimePicker(
         context: dialogContext,
         initialTime: (selected != null)
@@ -58,8 +54,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       );
       if (time == null) return;
       if (!dialogContext.mounted) return;
-
-      if (!mounted) return; // safe for setState on this State
+      if (!context.mounted) return;
       setState(() {
         selected = DateTime(
           date.year,
@@ -72,7 +67,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
     }
 
     final formKey = GlobalKey<FormState>();
-
     await showDialog(
       context: parentContext,
       builder: (BuildContext dialogContext) {
@@ -87,19 +81,23 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                   TextFormField(
                     controller: titleCtrl,
                     decoration: const InputDecoration(labelText: 'Title'),
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: descCtrl,
                     decoration: const InputDecoration(labelText: 'Description'),
                     maxLines: 3,
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
                   ),
                   const SizedBox(height: 12),
                   ListTile(
                     title: Text(
-                      selected == null ? 'Select date & time' : selected!.toLocal().toString(),
+                      selected == null
+                          ? 'Select date & time'
+                          : selected!.toLocal().toString(),
                     ),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: () => pickDateTime(dialogContext),
@@ -115,25 +113,23 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (!formKey.currentState!.validate() || selected == null) return;
-
+                if (!formKey.currentState!.validate() || selected == null) {
+                  return;
+                }
                 final col = FirebaseFirestore.instance
                     .collection('myfs')
                     .doc(widget.myfId)
                     .collection('events');
-
                 final payload = {
                   'title': titleCtrl.text.trim(),
                   'description': descCtrl.text.trim(),
                   'dateTime': Timestamp.fromDate(selected!),
                 };
-
                 if (doc == null) {
                   await col.add(payload);
                 } else {
                   await col.doc(doc.id).update(payload);
                 }
-
                 if (!dialogContext.mounted) return;
                 Navigator.of(dialogContext).pop();
               },
@@ -145,8 +141,10 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
     );
   }
 
-  // Delete handler takes a messenger instead of context to avoid context across awaits
-  Future<void> _handleDeleteEvent(String id, ScaffoldMessengerState messenger) async {
+  Future<void> _handleDeleteEvent(
+    String id,
+    ScaffoldMessengerState messenger,
+  ) async {
     try {
       await FirebaseFirestore.instance
           .collection('myfs')
@@ -180,7 +178,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
           if (docs.isEmpty) {
             return const Center(child: Text('No events found'));
           }
-
           return ListView.separated(
             itemCount: docs.length,
             separatorBuilder: (context, index) => const Divider(),
@@ -191,7 +188,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
               DateTime? dt;
               if (raw is String) dt = DateTime.tryParse(raw);
               if (raw is Timestamp) dt = raw.toDate();
-
               return ListTile(
                 title: Text(data['title'] ?? ''),
                 subtitle: Text(

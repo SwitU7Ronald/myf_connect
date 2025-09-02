@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/app_user.dart';
 
 enum SortBy { name, phone, district, permissions }
+
 enum SortOrder { asc, desc }
+
 enum PermissionFilter { all, has, not }
 
 class UsersManagementPage extends StatefulWidget {
@@ -13,19 +15,13 @@ class UsersManagementPage extends StatefulWidget {
 }
 
 class _UsersManagementPageState extends State<UsersManagementPage> {
-  // Search and sort
   String _search = '';
   SortBy _sortBy = SortBy.name;
   SortOrder _sortOrder = SortOrder.asc;
-
-  // Attribute filters
-  String? _selectedGender;   // null = all
-  String? _selectedDistrict; // null = all
-
-  // Camp permission filter
-  String? _selectedCampId; // null = all camps
+  String? _selectedGender;
+  String? _selectedDistrict;
+  String? _selectedCampId;
   PermissionFilter _permFilter = PermissionFilter.all;
-
   Future<void> _setCampPermission({
     required String uid,
     required String campId,
@@ -39,13 +35,10 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     });
   }
 
-  // Inclusive streams: no orderBy so docs without fields aren’t hidden
   Stream<QuerySnapshot> get _campsStream =>
       FirebaseFirestore.instance.collection('camps').snapshots();
-
   Stream<QuerySnapshot> get _usersStream =>
       FirebaseFirestore.instance.collection('users').snapshots();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,21 +52,20 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
           if (campsSnap.hasError) {
             return const Center(child: Text('Failed to load camps'));
           }
-
           final campDocs = campsSnap.data?.docs ?? const [];
-          final camps = campDocs
-              .map((d) {
-            final data = d.data() as Map<String, dynamic>? ?? {};
-            final title = (data['title'] as String?)?.trim();
-            return {
-              'id': d.id,
-              'title': (title == null || title.isEmpty) ? d.id : title,
-            };
-          })
-              .toList()
-            ..sort((a, b) =>
-                (a['title'] as String).toLowerCase().compareTo((b['title'] as String).toLowerCase()));
-
+          final camps =
+              campDocs.map((d) {
+                final data = d.data() as Map<String, dynamic>? ?? {};
+                final title = (data['title'] as String?)?.trim();
+                return {
+                  'id': d.id,
+                  'title': (title == null || title.isEmpty) ? d.id : title,
+                };
+              }).toList()..sort(
+                (a, b) => (a['title'] as String).toLowerCase().compareTo(
+                  (b['title'] as String).toLowerCase(),
+                ),
+              );
           return StreamBuilder<QuerySnapshot>(
             stream: _usersStream,
             builder: (context, usersSnap) {
@@ -83,16 +75,16 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
               if (usersSnap.hasError) {
                 return const Center(child: Text('Failed to load users'));
               }
-
-              final allUsers = usersSnap.data?.docs
-                  .map((d) => AppUser.fromMap(
-                d.id,
-                d.data() as Map<String, dynamic>,
-              ))
-                  .toList() ??
+              final allUsers =
+                  usersSnap.data?.docs
+                      .map(
+                        (d) => AppUser.fromMap(
+                          d.id,
+                          d.data() as Map<String, dynamic>,
+                        ),
+                      )
+                      .toList() ??
                   [];
-
-              // Build dynamic filter lists from current data
               final districts = <String>{};
               final genders = <String>{};
               for (final u in allUsers) {
@@ -107,11 +99,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                 ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
               final genderList = genders.toList()
                 ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-
               String fullName(AppUser u) =>
                   ('${u.firstName ?? ''} ${u.lastName ?? ''}').trim();
-
-              // Search and filters
               bool matchesSearch(AppUser u) {
                 if (_search.isEmpty) return true;
                 final q = _search.toLowerCase();
@@ -126,10 +115,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
               bool matchesGender(AppUser u) =>
                   _selectedGender == null || u.gender == _selectedGender;
-
               bool matchesDistrict(AppUser u) =>
                   _selectedDistrict == null || u.district == _selectedDistrict;
-
               bool matchesCampPermission(AppUser u) {
                 if (_selectedCampId == null ||
                     _permFilter == PermissionFilter.all) {
@@ -147,10 +134,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                     matchesDistrict(u) &&
                     matchesCampPermission(u);
               }).toList();
-
               int cmpStr(String a, String b) =>
                   a.toLowerCase().compareTo(b.toLowerCase());
-
               int comparator(AppUser a, AppUser b) {
                 int r = 0;
                 switch (_sortBy) {
@@ -171,7 +156,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
               }
 
               filtered.sort(comparator);
-
               return Column(
                 children: [
                   _FilterBar(
@@ -213,15 +197,16 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                         padding: const EdgeInsets.all(12),
                         itemCount: filtered.length,
                         separatorBuilder: (context, index) =>
-                        const Divider(height: 1),
+                            const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final user = filtered[index];
                           final name = fullName(user);
                           final perms = user.permissions;
-
                           return ExpansionTile(
                             title: Text(name.isEmpty ? 'Unnamed user' : name),
-                            subtitle: Text(user.phone.isEmpty ? '-' : user.phone),
+                            subtitle: Text(
+                              user.phone.isEmpty ? '-' : user.phone,
+                            ),
                             trailing: Text('${perms.length}'),
                             children: [
                               if (camps.isEmpty)
@@ -231,30 +216,35 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                                 )
                               else
                                 Padding(
-                                  padding:
-                                  const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    0,
+                                    16,
+                                    16,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Padding(
                                         padding: EdgeInsets.only(bottom: 8),
                                         child: Text(
                                           'Camp permissions',
                                           style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                       Wrap(
                                         spacing: 8,
                                         runSpacing: 8,
                                         children: camps.map((camp) {
-                                          final campId =
-                                          camp['id'] as String;
+                                          final campId = camp['id'] as String;
                                           final campTitle =
-                                          camp['title'] as String;
-                                          final selected =
-                                          perms.contains(campId);
+                                              camp['title'] as String;
+                                          final selected = perms.contains(
+                                            campId,
+                                          );
                                           return FilterChip(
                                             label: Text(campTitle),
                                             selected: selected,
@@ -289,30 +279,22 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 class _FilterBar extends StatelessWidget {
   final String search;
   final ValueChanged<String> onSearchChanged;
-
   final SortBy sortBy;
   final ValueChanged<SortBy> onSortByChanged;
-
   final SortOrder sortOrder;
   final ValueChanged<SortOrder> onSortOrderChanged;
-
   final List<Map<String, Object>> camps;
   final String? selectedCampId;
   final ValueChanged<String?> onCampChanged;
-
   final PermissionFilter permFilter;
   final ValueChanged<PermissionFilter> onPermFilterChanged;
-
   final List<String> genders;
   final String? selectedGender;
   final ValueChanged<String?> onGenderChanged;
-
   final List<String> districts;
   final String? selectedDistrict;
   final ValueChanged<String?> onDistrictChanged;
-
   final VoidCallback onClear;
-
   const _FilterBar({
     required this.search,
     required this.onSearchChanged,
@@ -333,7 +315,6 @@ class _FilterBar extends StatelessWidget {
     required this.onDistrictChanged,
     required this.onClear,
   });
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -349,9 +330,9 @@ class _FilterBar extends StatelessWidget {
                 suffixIcon: search.isEmpty
                     ? null
                     : IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: onClear,
-                ),
+                        icon: const Icon(Icons.clear),
+                        onPressed: onClear,
+                      ),
                 border: const OutlineInputBorder(),
                 isDense: true,
               ),
@@ -411,7 +392,7 @@ class _FilterBar extends StatelessWidget {
                         isExpanded: true,
                         value: sortOrder,
                         onChanged: (v) =>
-                        v == null ? null : onSortOrderChanged(v),
+                            v == null ? null : onSortOrderChanged(v),
                         items: const [
                           DropdownMenuItem(
                             value: SortOrder.asc,
@@ -444,10 +425,12 @@ class _FilterBar extends StatelessWidget {
                             value: null,
                             child: Text('All camps'),
                           ),
-                          ...camps.map((c) => DropdownMenuItem<String?>(
-                            value: c['id'] as String,
-                            child: Text(c['title'] as String),
-                          )),
+                          ...camps.map(
+                            (c) => DropdownMenuItem<String?>(
+                              value: c['id'] as String,
+                              child: Text(c['title'] as String),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -466,7 +449,7 @@ class _FilterBar extends StatelessWidget {
                         isExpanded: true,
                         value: permFilter,
                         onChanged: (v) =>
-                        v == null ? null : onPermFilterChanged(v),
+                            v == null ? null : onPermFilterChanged(v),
                         items: const [
                           DropdownMenuItem(
                             value: PermissionFilter.all,
@@ -503,10 +486,12 @@ class _FilterBar extends StatelessWidget {
                             value: null,
                             child: Text('All'),
                           ),
-                          ...genders.map((g) => DropdownMenuItem<String?>(
-                            value: g,
-                            child: Text(g),
-                          )),
+                          ...genders.map(
+                            (g) => DropdownMenuItem<String?>(
+                              value: g,
+                              child: Text(g),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -530,10 +515,12 @@ class _FilterBar extends StatelessWidget {
                             value: null,
                             child: Text('All'),
                           ),
-                          ...districts.map((d) => DropdownMenuItem<String?>(
-                            value: d,
-                            child: Text(d),
-                          )),
+                          ...districts.map(
+                            (d) => DropdownMenuItem<String?>(
+                              value: d,
+                              child: Text(d),
+                            ),
+                          ),
                         ],
                       ),
                     ),

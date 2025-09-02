@@ -3,7 +3,6 @@ import '../models/app_user.dart';
 
 class UserService {
   final _col = FirebaseFirestore.instance.collection('users');
-
   Future<AppUser?> getUser(String uid) async {
     final doc = await _col.doc(uid).get();
     if (!doc.exists) return null;
@@ -11,17 +10,12 @@ class UserService {
   }
 
   Future<void> createOrUpdateUser(
-      AppUser user, {
-        bool createIfMissing = true,
-      }) async {
+    AppUser user, {
+    bool createIfMissing = true,
+  }) async {
     final ref = _col.doc(user.uid);
     final snap = await ref.get();
-
-    // Only safe, self-writable fields (rules allow these for self)
-    final payload = {
-      ...user.toMap(),
-    }..remove('permissions'); // self cannot write 'permissions'
-
+    final payload = {...user.toMap()}..remove('permissions');
     if (!snap.exists) {
       if (!createIfMissing) return;
       await ref.set({
@@ -30,10 +24,7 @@ class UserService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } else {
-      await ref.update({
-        ...payload,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await ref.update({...payload, 'updatedAt': FieldValue.serverTimestamp()});
     }
   }
 }

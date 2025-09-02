@@ -1,63 +1,66 @@
-// lib/pages/auth/welcome_page.dart
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
 import '../../widgets/primary_button.dart';
-import '../../services/auth_service.dart';
+import '../../services/user_service.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
-
   @override
   State<WelcomePage> createState() => _WelcomePageState();
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  final _auth = AuthService();
   bool _loading = false;
-
-  Future<void> _googleSignIn() async {
+  Future<void> _continueWithGoogle() async {
     if (_loading) return;
     setState(() => _loading = true);
-
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     try {
-      final result = await _auth.signInWithGoogle();
-
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        if (mounted) {
+          setState(() => _loading = false);
+        }
+        return;
+      }
+      final googleAuth = await googleUser.authentication;
+      final email = googleUser.email;
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      final firebaseUser = userCredential.user!;
       if (!mounted) return;
-
-      switch (result.status) {
-        case AuthStatus.success:
-        // User has complete profile, go to main menu
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.mainMenu,
-                (_) => false,
-          );
-          break;
-
-        case AuthStatus.needsProfileCompletion:
-        // User needs to complete profile
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.signupDetails,
-                (_) => false,
-          );
-          break;
-
-        case AuthStatus.cancelled:
-        // User cancelled sign-in, do nothing
-          break;
-
-        case AuthStatus.error:
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign-in error: ${result.error}')),
-          );
-          break;
+      final userService = UserService();
+      final appUser = await userService.getUser(firebaseUser.uid);
+      if (!mounted) return;
+      if (appUser != null && appUser.isProfileComplete) {
+        navigator.pushReplacementNamed(AppRoutes.mainMenu);
+      } else {
+        navigator.pushReplacementNamed(
+          AppRoutes.signupDetails,
+          arguments: {
+            'email': email,
+            'displayName': googleUser.displayName ?? '',
+            'photoURL': googleUser.photoUrl,
+            'isNewUser': appUser == null,
+          },
+        );
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unexpected error: $e')),
-      );
+      try {
+        await FirebaseAuth.instance.signOut();
+        await GoogleSignIn().signOut();
+      } catch (_) {}
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text('Sign-in error: $e')));
+      }
     } finally {
       if (mounted) {
         setState(() => _loading = false);
@@ -83,8 +86,8 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 const SizedBox(height: 24),
                 PrimaryButton(
-                  label: _loading ? 'Signing in...' : 'Sign in with Google',
-                  onPressed: _loading ? () {} : _googleSignIn,
+                  label: _loading ? 'Signing in...' : 'Continue with Google',
+                  onPressed: _loading ? null : _continueWithGoogle,
                   loading: _loading,
                 ),
               ],

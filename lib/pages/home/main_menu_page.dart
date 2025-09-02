@@ -4,7 +4,6 @@ import '../../app/app_router.dart';
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
-
   @override
   State<MainMenuPage> createState() => _MainMenuPageState();
 }
@@ -12,7 +11,6 @@ class MainMenuPage extends StatefulWidget {
 class _MainMenuPageState extends State<MainMenuPage> {
   bool _loading = true;
   bool _isAdmin = false;
-
   @override
   void initState() {
     super.initState();
@@ -67,27 +65,29 @@ class _MainMenuPageState extends State<MainMenuPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(24),
-        child: GridView.count(
-          crossAxisCount: 1,
-          mainAxisSpacing: 24,
-          childAspectRatio: 1.5,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          children: [
-            _FeatureCard(
-              title: 'Camps',
-              icon: Icons.campaign,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.campsList),
+              padding: const EdgeInsets.all(24),
+              child: GridView.count(
+                crossAxisCount: 1,
+                mainAxisSpacing: 24,
+                childAspectRatio: 1.5,
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                children: [
+                  _FeatureCard(
+                    title: 'Camps',
+                    icon: Icons.campaign,
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.campsList),
+                  ),
+                  _FeatureCard(
+                    title: 'MYF',
+                    icon: Icons.people,
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.myfsList),
+                  ),
+                ],
+              ),
             ),
-            _FeatureCard(
-              title: 'MYF',
-              icon: Icons.people,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.myfsList),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -96,13 +96,11 @@ class _FeatureCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final VoidCallback onTap;
-
   const _FeatureCard({
     required this.title,
     required this.icon,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

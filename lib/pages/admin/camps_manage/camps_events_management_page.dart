@@ -5,13 +5,11 @@ import '../../../models/event.dart';
 class CampsEventsManagementPage extends StatefulWidget {
   final String campId;
   final String campTitle;
-
   const CampsEventsManagementPage({
     super.key,
     required this.campId,
     required this.campTitle,
   });
-
   @override
   State<CampsEventsManagementPage> createState() =>
       _CampsEventsManagementPageState();
@@ -27,145 +25,158 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         .snapshots()
         .map(
           (snap) => snap.docs
-          .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
-          .toList(),
-    );
+              .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
-    final navigator = Navigator.of(context);
-
+    if (!mounted) return;
     final titleController = TextEditingController(text: event?.title ?? '');
     final descriptionController = TextEditingController(
       text: event?.description ?? '',
     );
     DateTime? selectedDateTime = event?.dateTime;
-
     final formKey = GlobalKey<FormState>();
-
-    Future<void> pickDateTime() async {
+    final messenger = ScaffoldMessenger.of(context);
+    Future<void> pickDateTime(BuildContext dialogContext) async {
       final date = await showDatePicker(
-        context: context,
+        context: dialogContext,
         initialDate: selectedDateTime ?? DateTime.now(),
         firstDate: DateTime.now().subtract(const Duration(days: 365)),
         lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
       );
-      if (date == null) {
-        return;
-      }
-
-      if (!mounted) return;
-
+      if (date == null || !dialogContext.mounted) return;
       final initialTime = selectedDateTime != null
           ? TimeOfDay(
-        hour: selectedDateTime!.hour,
-        minute: selectedDateTime!.minute,
-      )
+              hour: selectedDateTime!.hour,
+              minute: selectedDateTime!.minute,
+            )
           : TimeOfDay.now();
-
+      if (!dialogContext.mounted) return;
       final time = await showTimePicker(
-        context: context,
+        context: dialogContext,
         initialTime: initialTime,
       );
-      if (time == null) {
-        return;
+      if (time == null || !dialogContext.mounted) return;
+      if (mounted) {
+        setState(() {
+          selectedDateTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
+        });
       }
-
-      if (!mounted) return;
-      setState(() {
-        selectedDateTime = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
-      });
     }
 
+    if (!mounted) return;
     await showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(event == null ? 'Add Event' : 'Edit Event'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Event Title'),
-                  validator: (val) =>
-                  val == null || val.trim().isEmpty ? 'Required' : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  maxLines: 3,
-                  validator: (val) =>
-                  val == null || val.trim().isEmpty ? 'Required' : null,
-                ),
-                const SizedBox(height: 12),
-                ListTile(
-                  title: Text(
-                    selectedDateTime == null
-                        ? 'Select Date & Time'
-                        : selectedDateTime!.toLocal().toString(),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(event == null ? 'Add Event' : 'Edit Event'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Event Title'),
+                    validator: (val) =>
+                        val == null || val.trim().isEmpty ? 'Required' : null,
                   ),
-                  trailing: const Icon(Icons.calendar_today),
-                  onTap: pickDateTime,
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(labelText: 'Description'),
+                    maxLines: 3,
+                    validator: (val) =>
+                        val == null || val.trim().isEmpty ? 'Required' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    title: Text(
+                      selectedDateTime == null
+                          ? 'Select Date & Time'
+                          : selectedDateTime!.toLocal().toString(),
+                    ),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      await pickDateTime(dialogContext);
+                      setDialogState(() {});
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (!formKey.currentState!.validate() ||
+                    selectedDateTime == null) {
+                  return;
+                }
+                final navigator = Navigator.of(dialogContext);
+                try {
+                  final eventsCollection = FirebaseFirestore.instance
+                      .collection('camps')
+                      .doc(widget.campId)
+                      .collection('events');
+                  final payload = {
+                    'title': titleController.text.trim(),
+                    'description': descriptionController.text.trim(),
+                    'dateTime': Timestamp.fromDate(selectedDateTime!),
+                  };
+                  if (event == null) {
+                    await eventsCollection.add(payload);
+                  } else {
+                    await eventsCollection.doc(event.id).update(payload);
+                  }
+                  if (dialogContext.mounted) {
+                    navigator.pop();
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
+                }
+              },
+              child: Text(event == null ? 'Add' : 'Update'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => navigator.pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (!formKey.currentState!.validate() ||
-                  selectedDateTime == null) {
-                return;
-              }
-              final eventsCollection = FirebaseFirestore.instance
-                  .collection('camps')
-                  .doc(widget.campId)
-                  .collection('events');
-
-              final payload = {
-                'title': titleController.text.trim(),
-                'description': descriptionController.text.trim(),
-                'dateTime': Timestamp.fromDate(selectedDateTime!),
-              };
-
-              if (event == null) {
-                await eventsCollection.add(payload);
-              } else {
-                await eventsCollection.doc(event.id).update(payload);
-              }
-
-              if (!mounted) return;
-              navigator.pop();
-            },
-            child: Text(event == null ? 'Add' : 'Update'),
-          ),
-        ],
       ),
     );
   }
 
   Future<void> _deleteEvent(String eventId) async {
-    await FirebaseFirestore.instance
-        .collection('camps')
-        .doc(widget.campId)
-        .collection('events')
-        .doc(eventId)
-        .delete();
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await FirebaseFirestore.instance
+          .collection('camps')
+          .doc(widget.campId)
+          .collection('events')
+          .doc(eventId)
+          .delete();
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Error deleting event: $e')),
+        );
+      }
+    }
   }
 
   @override

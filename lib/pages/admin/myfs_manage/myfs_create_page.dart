@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyfsCreatePage extends StatefulWidget {
   const MyfsCreatePage({super.key});
-
   @override
   State<MyfsCreatePage> createState() => _MyfCreatePageState();
 }
@@ -13,25 +12,20 @@ class _MyfCreatePageState extends State<MyfsCreatePage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   bool _loading = false;
-
   Future<void> _saveMyf() async {
     if (_formKey.currentState?.validate() != true) return;
-
     setState(() => _loading = true);
-
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
-
     try {
       await FirebaseFirestore.instance.collection('myfs').add({
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
       });
-
-      if (!mounted) return;
+      if (!context.mounted) return;
       navigator.pop();
     } catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       messenger.showSnackBar(SnackBar(content: Text('Error creating MYF: $e')));
     } finally {
       if (mounted) {

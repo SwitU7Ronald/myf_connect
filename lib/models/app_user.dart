@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppUser {
   final String uid;
-  final String? email; // NEW: stored from FirebaseAuth.user.email
+  final String? email;
   final String phone;
   final String? firstName;
   final String? lastName;
@@ -14,7 +14,6 @@ class AppUser {
   final List<String> permissions;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
   const AppUser({
     required this.uid,
     required this.phone,
@@ -30,15 +29,13 @@ class AppUser {
     this.createdAt,
     this.updatedAt,
   });
-
   bool get isProfileComplete =>
       firstName != null &&
-          lastName != null &&
-          birthdate != null &&
-          gender != null &&
-          district != null &&
-          church != null;
-
+      lastName != null &&
+      birthdate != null &&
+      gender != null &&
+      district != null &&
+      church != null;
   static DateTime? _toDate(dynamic v) {
     if (v == null) return null;
     if (v is Timestamp) return v.toDate();
@@ -64,7 +61,6 @@ class AppUser {
       updatedAt: _toDate(data['updatedAt']),
     );
   }
-
   Map<String, dynamic> toMap() {
     return {
       'email': email,
@@ -72,13 +68,11 @@ class AppUser {
       'firstName': firstName,
       'lastName': lastName,
       'nickname': nickname,
-      // Let Firestore serialize DateTime to Timestamp
       'birthdate': birthdate,
       'gender': gender,
       'district': district,
       'church': church,
       'permissions': permissions,
-      // omit createdAt/updatedAt; service supplies serverTimestamp
     };
   }
 }

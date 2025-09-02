@@ -4,7 +4,6 @@ import '../camps/camps_detail_page.dart';
 
 class CampsListPage extends StatelessWidget {
   const CampsListPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,12 +17,10 @@ class CampsListPage extends StatelessWidget {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-
           final camps = snapshot.data!.docs;
           if (camps.isEmpty) {
             return const Center(child: Text('No camps available'));
           }
-
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: camps.length,
@@ -32,7 +29,6 @@ class CampsListPage extends StatelessWidget {
               final camp = camps[index];
               final campId = camp.id;
               final title = camp['title'] ?? 'Unnamed Camp';
-
               return ListTile(
                 title: Text(title),
                 subtitle: Text(
