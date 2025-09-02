@@ -14,8 +14,7 @@ class CampsEventsManagementPage extends StatefulWidget {
   });
 
   @override
-  State<CampsEventsManagementPage> createState() =>
-      _CampsEventsManagementPageState();
+  State<CampsEventsManagementPage> createState() => _CampsEventsManagementPageState();
 }
 
 class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
@@ -26,61 +25,20 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         .collection('events')
         .orderBy('dateTime')
         .snapshots()
-        .map(
-          (snap) => snap.docs
-          .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
-          .toList(),
-    );
+        .map((snapshot) => snapshot.docs
+        .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
+        .toList());
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
-    if (!mounted) return;
-
-    final titleController = TextEditingController(text: event?.title ?? '');
-    final descriptionController = TextEditingController(
-      text: event?.description ?? '',
-    );
-    DateTime? selectedDateTime = event?.dateTime;
     final formKey = GlobalKey<FormState>();
+    final titleController = TextEditingController(text: event?.title ?? '');
+    final descriptionController = TextEditingController(text: event?.description ?? '');
+    final venueController = TextEditingController(text: event?.venue ?? '');
+
+    DateTime? selectedDateTime = event?.dateTime;
     bool loading = false;
 
-    Future<void> pickDateTime(BuildContext dialogContext) async {
-      final date = await showDatePicker(
-        context: dialogContext,
-        initialDate: selectedDateTime ?? DateTime.now(),
-        firstDate: DateTime.now().subtract(const Duration(days: 365)),
-        lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-      );
-      if (date == null || !dialogContext.mounted) return;
-
-      final initialTime = selectedDateTime != null
-          ? TimeOfDay(
-        hour: selectedDateTime!.hour,
-        minute: selectedDateTime!.minute,
-      )
-          : TimeOfDay.now();
-
-      if (!dialogContext.mounted) return;
-      final time = await showTimePicker(
-        context: dialogContext,
-        initialTime: initialTime,
-      );
-      if (time == null || !dialogContext.mounted) return;
-
-      if (mounted) {
-        setState(() {
-          selectedDateTime = DateTime(
-            date.year,
-            date.month,
-            date.day,
-            time.hour,
-            time.minute,
-          );
-        });
-      }
-    }
-
-    if (!mounted) return;
     await showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -102,71 +60,32 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                       label: 'Event Title',
                       hint: 'Enter event title',
                       textCapitalization: TextCapitalization.words,
-                      validator: (val) =>
-                      val == null || val.trim().isEmpty ? 'Title is required' : null,
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
                     ),
-
                     SizedBox(height: MethodistTheme.spacingM),
-
+                    AppTextField(
+                      controller: venueController,
+                      label: 'Venue',
+                      hint: 'Enter event venue',
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    SizedBox(height: MethodistTheme.spacingM),
                     AppTextField(
                       controller: descriptionController,
                       label: 'Description',
                       hint: 'Enter event description',
                       textCapitalization: TextCapitalization.sentences,
                       maxLines: 3,
-                      validator: (val) =>
-                      val == null || val.trim().isEmpty ? 'Description is required' : null,
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
                     ),
-
                     SizedBox(height: MethodistTheme.spacingM),
-
-                    InkWell(
-                      onTap: () async {
-                        await pickDateTime(dialogContext);
-                        setDialogState(() {});
+                    DateTimePickerField(
+                      selectedDateTime: selectedDateTime,
+                      label: 'Event Date & Time',
+                      hint: 'Select date and time',
+                      onDateTimeSelected: (dateTime) {
+                        setDialogState(() => selectedDateTime = dateTime);
                       },
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-                      child: Container(
-                        padding: MethodistTheme.paddingM,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: MethodistTheme.mediumGray.withOpacity(0.3)),
-                          borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              color: MethodistTheme.primaryRed,
-                              size: 20,
-                            ),
-                            SizedBox(width: MethodistTheme.spacingM),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Date & Time',
-                                    style: MethodistTheme.labelMedium.copyWith(
-                                      color: MethodistTheme.mediumGray,
-                                    ),
-                                  ),
-                                  SizedBox(height: MethodistTheme.spacingXS),
-                                  Text(
-                                    selectedDateTime == null
-                                        ? 'Select Date & Time'
-                                        : selectedDateTime!.toLocal().toString().split('.').first,
-                                    style: MethodistTheme.bodyMedium.copyWith(
-                                      color: selectedDateTime == null
-                                          ? MethodistTheme.mediumGray
-                                          : MethodistTheme.darkGray,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -185,56 +104,47 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
               onPressed: () async {
                 if (!formKey.currentState!.validate() || selectedDateTime == null) {
                   if (selectedDateTime == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select date and time'),
-                        backgroundColor: MethodistTheme.errorRed,
-                      ),
-                    );
+                    MethodistTheme.showErrorSnackBar(context, 'Please select date and time');
                   }
                   return;
                 }
 
                 setDialogState(() => loading = true);
-                final navigator = Navigator.of(dialogContext);
+                final navigator = Navigator.of(context);
 
                 try {
-                  final eventsCollection = FirebaseFirestore.instance
-                      .collection('camps')
-                      .doc(widget.campId)
-                      .collection('events');
-
-                  final payload = {
+                  final eventData = {
                     'title': titleController.text.trim(),
                     'description': descriptionController.text.trim(),
+                    'venue': venueController.text.trim(),
                     'dateTime': Timestamp.fromDate(selectedDateTime!),
                   };
 
                   if (event == null) {
-                    await eventsCollection.add(payload);
+                    await FirebaseFirestore.instance
+                        .collection('camps')
+                        .doc(widget.campId)
+                        .collection('events')
+                        .add(eventData);
                   } else {
-                    await eventsCollection.doc(event.id).update(payload);
+                    await FirebaseFirestore.instance
+                        .collection('camps')
+                        .doc(widget.campId)
+                        .collection('events')
+                        .doc(event.id)
+                        .update(eventData);
                   }
 
                   if (dialogContext.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            event == null ? 'Event added successfully' : 'Event updated successfully'
-                        ),
-                        backgroundColor: MethodistTheme.successGreen,
-                      ),
+                    MethodistTheme.showSuccessSnackBar(
+                        context,
+                        event == null ? 'Event added successfully' : 'Event updated successfully'
                     );
                     navigator.pop();
                   }
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: $e'),
-                        backgroundColor: MethodistTheme.errorRed,
-                      ),
-                    );
+                    MethodistTheme.showErrorSnackBar(context, 'Error: $e');
                   }
                 } finally {
                   if (mounted) {
@@ -283,21 +193,11 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
           .delete();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Event deleted successfully'),
-            backgroundColor: MethodistTheme.successGreen,
-          ),
-        );
+        MethodistTheme.showSuccessSnackBar(context, 'Event deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error deleting event: $e'),
-            backgroundColor: MethodistTheme.errorRed,
-          ),
-        );
+        MethodistTheme.showErrorSnackBar(context, 'Error deleting event: $e');
       }
     }
   }

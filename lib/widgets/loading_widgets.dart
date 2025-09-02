@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:methodist_connect/widgets/primary_button.dart';
 import '../app/theme.dart';
 
 class LoadingWidget extends StatelessWidget {
@@ -24,10 +25,13 @@ class LoadingWidget extends StatelessWidget {
           ),
           if (message != null) ...[
             SizedBox(height: MethodistTheme.spacingM),
-            Text(
-              message!,
-              style: MethodistTheme.bodyMedium,
-              textAlign: TextAlign.center,
+            Padding(
+              padding: MethodistTheme.paddingM,
+              child: Text(
+                message!,
+                style: MethodistTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ],
@@ -55,7 +59,7 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: MethodistTheme.black.withOpacity(0.3),
             child: LoadingWidget(message: loadingMessage),
           ),
       ],
@@ -119,9 +123,9 @@ class EmptyStateWidget extends StatelessWidget {
             ],
             if (actionLabel != null && onActionPressed != null) ...[
               SizedBox(height: MethodistTheme.spacingXL),
-              ElevatedButton(
+              PrimaryButton(
+                label: actionLabel!,
                 onPressed: onActionPressed,
-                child: Text(actionLabel!),
               ),
             ],
           ],
@@ -185,10 +189,10 @@ class ErrorStateWidget extends StatelessWidget {
             ],
             if (onRetry != null && retryLabel != null) ...[
               SizedBox(height: MethodistTheme.spacingXL),
-              ElevatedButton.icon(
+              PrimaryButton(
+                label: retryLabel!,
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: Text(retryLabel!),
+                icon: Icons.refresh,
               ),
             ],
           ],

@@ -1,4 +1,3 @@
-// ./lib/pages/admin/camps_manage/camps_management_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
@@ -124,9 +123,7 @@ class CampsManagementPage extends StatelessWidget {
                       textCapitalization: TextCapitalization.words,
                       validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
                     ),
-
                     SizedBox(height: MethodistTheme.spacingM),
-
                     AppTextField(
                       controller: placeCtrl,
                       label: 'Place',
@@ -134,68 +131,16 @@ class CampsManagementPage extends StatelessWidget {
                       textCapitalization: TextCapitalization.words,
                       validator: (v) => v == null || v.trim().isEmpty ? 'Place is required' : null,
                     ),
-
                     SizedBox(height: MethodistTheme.spacingM),
-
-                    InkWell(
-                      onTap: () async {
-                        final now = DateTime.now();
-                        final picked = await showDatePicker(
-                          context: dialogContext,
-                          firstDate: DateTime(now.year - 1),
-                          lastDate: DateTime(now.year + 2),
-                          initialDate: selectedDate ?? now,
-                        );
-                        if (picked != null) {
-                          setDialogState(() => selectedDate = picked);
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-                      child: Container(
-                        padding: MethodistTheme.paddingM,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: MethodistTheme.mediumGray.withOpacity(0.3)),
-                          borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              color: MethodistTheme.primaryRed,
-                              size: 20,
-                            ),
-                            SizedBox(width: MethodistTheme.spacingM),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Camp Date',
-                                    style: MethodistTheme.labelMedium.copyWith(
-                                      color: MethodistTheme.mediumGray,
-                                    ),
-                                  ),
-                                  SizedBox(height: MethodistTheme.spacingXS),
-                                  Text(
-                                    selectedDate == null
-                                        ? 'Select Date'
-                                        : selectedDate!.toLocal().toString().split(' ').first,
-                                    style: MethodistTheme.bodyMedium.copyWith(
-                                      color: selectedDate == null
-                                          ? MethodistTheme.mediumGray
-                                          : MethodistTheme.darkGray,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    DatePickerField(
+                      selectedDate: selectedDate,
+                      label: 'Camp Date',
+                      hint: 'Select camp date',
+                      onDateSelected: (date) => setDialogState(() => selectedDate = date),
+                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
                     ),
-
                     SizedBox(height: MethodistTheme.spacingM),
-
                     AppTextField(
                       controller: descCtrl,
                       label: 'Description',

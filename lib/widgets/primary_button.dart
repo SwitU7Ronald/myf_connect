@@ -1,4 +1,3 @@
-// lib/widgets/primary_button.dart
 import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
@@ -61,7 +60,6 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Fixed: Use Flexible instead of MainAxisSize to prevent overflow
     Widget buttonChild = loading
         ? SizedBox(
       width: 20,
@@ -76,14 +74,14 @@ class PrimaryButton extends StatelessWidget {
       ),
     )
         : Row(
-      mainAxisSize: MainAxisSize.min, // Fixed: Always use min to prevent overflow
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (icon != null) ...[
           Icon(icon, size: 18),
           SizedBox(width: MethodistTheme.spacingS),
         ],
-        Flexible( // Fixed: Use Flexible instead of direct Text
+        Flexible(
           child: Text(
             label,
             overflow: TextOverflow.ellipsis,
