@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:methodist_connect/app/theme.dart';
+import '../../../widgets/cards.dart';
+import '../../../widgets/loading_widgets.dart';
+import '../../../widgets/primary_button.dart';
+import '../../../widgets/text_fields.dart';
 
 class CampsCreatePage extends StatefulWidget {
   const CampsCreatePage({super.key});
+
   @override
   State<CampsCreatePage> createState() => _CampsCreatePageState();
 }
@@ -13,15 +19,18 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
   final _placeController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
+  bool _loading = false;
+
   Future<void> _saveCamp() async {
+    if (_loading) return;
     if (_formKey.currentState?.validate() != true || _selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select date')),
-      );
+      context.showErrorSnackBar('Please fill all fields and select date');
       return;
     }
+
+    setState(() => _loading = true);
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await FirebaseFirestore.instance.collection('camps').add({
         'title': _titleController.text.trim(),
@@ -29,12 +38,18 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
         'date': Timestamp.fromDate(_selectedDate!),
         'description': _descriptionController.text.trim(),
       });
+
       if (mounted) {
+        context.showSuccessSnackBar('Camp created successfully');
         navigator.pop();
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(SnackBar(content: Text('Error: $e')));
+        context.showErrorSnackBar('Error creating camp: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
       }
     }
   }
@@ -43,60 +58,102 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Create New Camp')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _placeController,
-                decoration: const InputDecoration(labelText: 'Place'),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                title: Text(
-                  _selectedDate == null
-                      ? 'Select Date'
-                      : _selectedDate!.toLocal().toString().split(' ').first,
+      body: LoadingOverlay(
+        isLoading: _loading,
+        loadingMessage: 'Creating camp...',
+        child: SingleChildScrollView(
+          padding: MethodistTheme.paddingL,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                // Header card
+                MethodistCard(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: MethodistTheme.paddingM,
+                        decoration: BoxDecoration(
+                          color: context.primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(context.radiusXL),
+                        ),
+                        child: Icon(
+                          Icons.campaign_outlined,
+                          size: 48,
+                          color: context.primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: context.spacingM),
+                      Text(
+                        'Create New Camp',
+                        style: context.headlineSmall,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: context.spacingS),
+                      Text(
+                        'Fill in the details to create a new Methodist camp',
+                        style: context.bodyMedium.copyWith(
+                          color: context.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final now = DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(now.year - 1),
-                    lastDate: DateTime(now.year + 2),
-                    initialDate: now,
-                  );
-                  if (picked != null && mounted) {
-                    setState(() => _selectedDate = picked);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _saveCamp,
-                child: const Text('Create Camp'),
-              ),
-            ],
+
+                SizedBox(height: context.spacingL),
+
+                AppTextField(
+                  controller: _titleController,
+                  label: 'Camp Title',
+                  hint: 'Enter camp title',
+                  textCapitalization: TextCapitalization.words,
+                  validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
+                ),
+
+                SizedBox(height: context.spacingM),
+
+                AppTextField(
+                  controller: _placeController,
+                  label: 'Place',
+                  hint: 'Enter camp location',
+                  textCapitalization: TextCapitalization.words,
+                  validator: (v) => v == null || v.trim().isEmpty ? 'Place is required' : null,
+                ),
+
+                SizedBox(height: context.spacingM),
+
+                DatePickerField(
+                  selectedDate: _selectedDate,
+                  label: 'Camp Date',
+                  hint: 'Select camp date',
+                  firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                  lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                  onDateSelected: (date) => setState(() => _selectedDate = date),
+                ),
+
+                SizedBox(height: context.spacingM),
+
+                AppTextField(
+                  controller: _descriptionController,
+                  label: 'Description',
+                  hint: 'Enter camp description',
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 3,
+                  validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
+                ),
+
+                SizedBox(height: context.spacingXL),
+
+                PrimaryButton(
+                  label: 'Create Camp',
+                  onPressed: _saveCamp,
+                  loading: _loading,
+                  fullWidth: true,
+                  icon: Icons.add_circle,
+                ),
+              ],
+            ),
           ),
         ),
       ),

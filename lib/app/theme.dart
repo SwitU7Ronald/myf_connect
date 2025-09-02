@@ -55,6 +55,14 @@ class MethodistTheme {
     height: 1.2,
   );
 
+  static const TextStyle displaySmall = TextStyle(
+    color: black,
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    letterSpacing: 0,
+    height: 1.2,
+  );
+
   static const TextStyle headlineLarge = TextStyle(
     color: black,
     fontSize: 24,
@@ -256,7 +264,7 @@ class MethodistTheme {
         actionsIconTheme: IconThemeData(color: white, size: 24),
       ),
 
-      // Card theme - FIXED
+      // Card theme
       cardTheme: CardThemeData(
         color: white,
         shadowColor: Colors.black12,
@@ -307,6 +315,7 @@ class MethodistTheme {
       textTheme: const TextTheme(
         displayLarge: displayLarge,
         displayMedium: displayMedium,
+        displaySmall: displaySmall,
         headlineLarge: headlineLarge,
         headlineMedium: headlineMedium,
         headlineSmall: headlineSmall,
@@ -377,7 +386,7 @@ class MethodistTheme {
         ),
       ),
 
-      // Dialog theme - FIXED
+      // Dialog theme
       dialogTheme: DialogThemeData(
         backgroundColor: white,
         elevation: 8,
@@ -506,6 +515,7 @@ extension MethodistThemeExtensions on BuildContext {
   // Text styles
   TextStyle get displayLarge => MethodistTheme.displayLarge;
   TextStyle get displayMedium => MethodistTheme.displayMedium;
+  TextStyle get displaySmall => MethodistTheme.displaySmall;
   TextStyle get headlineLarge => MethodistTheme.headlineLarge;
   TextStyle get headlineMedium => MethodistTheme.headlineMedium;
   TextStyle get headlineSmall => MethodistTheme.headlineSmall;
@@ -527,14 +537,14 @@ extension MethodistThemeExtensions on BuildContext {
   double get spacingXL => MethodistTheme.spacingXL;
   double get spacingXXL => MethodistTheme.spacingXXL;
 
-  // Border radius - FIXED: Added missing radiusXXL
+  // Border radius
   double get radiusS => MethodistTheme.radiusS;
   double get radiusM => MethodistTheme.radiusM;
   double get radiusL => MethodistTheme.radiusL;
   double get radiusXL => MethodistTheme.radiusXL;
-  double get radiusXXL => MethodistTheme.radiusXXL; // FIXED: This was missing!
+  double get radiusXXL => MethodistTheme.radiusXXL;
 
-  // Helper methods
+  // Basic helper methods
   void showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
@@ -543,12 +553,35 @@ extension MethodistThemeExtensions on BuildContext {
       ),
     );
   }
+}
 
+// Enhanced Snackbar Extensions
+extension MethodistSnackBarExtensions on BuildContext {
   void showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: successColor,
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -556,8 +589,93 @@ extension MethodistThemeExtensions on BuildContext {
   void showErrorSnackBar(String message) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: errorColor,
+        content: Row(
+          children: [
+            const Icon(
+              Icons.error,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(this).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
+  void showInfoSnackBar(String message) {
+    ScaffoldMessenger.of(this).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.info,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.blue.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void showWarningSnackBar(String message) {
+    ScaffoldMessenger.of(this).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.warning,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.orange.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

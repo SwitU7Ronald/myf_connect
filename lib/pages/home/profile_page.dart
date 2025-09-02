@@ -5,9 +5,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../app/app_router.dart';
 import '../../services/user_service.dart';
 import '../../models/app_user.dart';
+import '../../widgets/widgets.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -17,9 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   AppUser? _userModel;
   bool _loading = true;
   bool _loggingOut = false;
-  static const Color primaryRed = Color(0xFFB71C1C);
-  static const Color backgroundGray = Color(0xFFF5F5F5);
-  static const Color cardGray = Color(0xFFFAFAFA);
+
   @override
   void initState() {
     super.initState();
@@ -37,9 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       debugPrint('Error loading user: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
+        context.showErrorSnackBar('Error loading profile: $e');
       }
     }
     if (mounted) {
@@ -94,9 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       debugPrint('Logout error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Logout failed: $e')));
+        context.showErrorSnackBar('Logout failed: $e');
       }
     } finally {
       if (mounted) {
@@ -107,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: context.spacingM),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -115,10 +111,8 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 3,
             child: Text(
               label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
-                fontSize: 16,
+              style: context.titleSmall.copyWith(
+                color: context.textSecondary,
               ),
             ),
           ),
@@ -126,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 5,
             child: Text(
               value,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: context.bodyMedium,
             ),
           ),
         ],
@@ -135,180 +129,146 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileCard() {
-    return Card(
-      color: cardGray,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: primaryRed,
-              child: Text(
-                (_userModel?.firstName?.isNotEmpty ?? false)
-                    ? _userModel!.firstName!.substring(0, 1).toUpperCase()
-                    : '?',
-                style: const TextStyle(
-                  fontSize: 44,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+    return MethodistCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: context.primaryColor,
+            child: Text(
+              (_userModel?.firstName?.isNotEmpty ?? false)
+                  ? _userModel!.firstName!.substring(0, 1).toUpperCase()
+                  : '?',
+              style: context.displaySmall.copyWith(
+                color: MethodistTheme.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 16),
-            if (_userModel?.nickname?.isNotEmpty ?? false)
-              Text(
-                _userModel!.nickname!,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontStyle: FontStyle.italic,
-                  color: primaryRed,
-                  fontWeight: FontWeight.w700,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            if (_userModel?.nickname?.isNotEmpty ?? false)
-              const SizedBox(height: 8),
+          ),
+          SizedBox(height: context.spacingM),
+          if (_userModel?.nickname?.isNotEmpty ?? false) ...[
             Text(
-              '${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}',
-              style: const TextStyle(
-                fontSize: 24,
+              _userModel!.nickname!,
+              style: context.titleLarge.copyWith(
+                fontStyle: FontStyle.italic,
+                color: context.primaryColor,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(
-              _userModel?.phone ?? '',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-            ),
-            if (_userModel?.email?.isNotEmpty ?? false) ...[
-              const SizedBox(height: 4),
-              Text(
-                _userModel!.email!,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-              ),
-            ],
+            SizedBox(height: context.spacingS),
           ],
-        ),
+          Text(
+            '${_userModel?.firstName ?? '-'} ${_userModel?.lastName ?? ''}',
+            style: context.headlineSmall,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: context.spacingS),
+          Text(
+            _userModel?.phone ?? '',
+            style: context.bodyLarge.copyWith(
+              color: context.textSecondary,
+            ),
+          ),
+          if (_userModel?.email?.isNotEmpty ?? false) ...[
+            SizedBox(height: context.spacingXS),
+            Text(
+              _userModel!.email!,
+              style: context.bodySmall.copyWith(
+                color: context.textSecondary,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
   Widget _buildPersonalDetailsCard() {
-    return Card(
-      color: cardGray,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Personal Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            const Divider(height: 24, thickness: 1.2),
-            _buildDetailRow(
-              'Birthdate',
-              _userModel?.birthdate?.toIso8601String().split('T').first ?? '-',
-            ),
-            _buildDetailRow('Gender', _userModel?.gender ?? '-'),
-            _buildDetailRow('District', _userModel?.district ?? '-'),
-            _buildDetailRow('Church', _userModel?.church ?? '-'),
-          ],
-        ),
+    return MethodistCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Personal Details',
+            style: context.titleLarge,
+          ),
+          Divider(
+            height: context.spacingL,
+            thickness: 1.2,
+            color: context.textSecondary.withOpacity(0.3),
+          ),
+          _buildDetailRow(
+            'Birthdate',
+            _userModel?.birthdate?.toIso8601String().split('T').first ?? '-',
+          ),
+          _buildDetailRow('Gender', _userModel?.gender ?? '-'),
+          _buildDetailRow('District', _userModel?.district ?? '-'),
+          _buildDetailRow('Church', _userModel?.church ?? '-'),
+        ],
       ),
     );
   }
 
   Widget _buildPermissionsCard() {
-    return Card(
-      color: cardGray,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Approvals / Permissions',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            const Divider(height: 24, thickness: 1.2),
-            Builder(
-              builder: (context) {
-                final permissions = _userModel?.permissions ?? [];
-                if (permissions.isEmpty) {
-                  return const Text(
-                    'No permissions assigned',
-                    style: TextStyle(color: Colors.grey),
-                  );
-                }
-                return FutureBuilder<List<String>>(
-                  future: _getPermissionTitles(permissions),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Text(
-                        'Error loading permissions: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.red),
-                      );
-                    }
-                    final titles = snapshot.data ?? [];
-                    return Container(
-                      constraints: const BoxConstraints(maxHeight: 120),
-                      child: SingleChildScrollView(
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 8,
-                          children: titles
-                              .map(
-                                (title) => Chip(
-                                  label: Text(
-                                    title,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  backgroundColor: primaryRed,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    );
-                  },
+    return MethodistCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Approvals / Permissions',
+            style: context.titleLarge,
+          ),
+          Divider(
+            height: context.spacingL,
+            thickness: 1.2,
+            color: context.textSecondary.withOpacity(0.3),
+          ),
+          Builder(
+            builder: (context) {
+              final permissions = _userModel?.permissions ?? [];
+              if (permissions.isEmpty) {
+                return EmptyStateWidget(
+                  icon: Icons.lock_outline,
+                  title: 'No Permissions',
+                  description: 'No permissions assigned yet',
                 );
-              },
-            ),
-          ],
-        ),
+              }
+              return FutureBuilder<List<String>>(
+                future: _getPermissionTitles(permissions),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const LoadingWidget(message: 'Loading permissions...');
+                  }
+                  if (snapshot.hasError) {
+                    return ErrorStateWidget(
+                      title: 'Error Loading Permissions',
+                      description: 'Error: ${snapshot.error}',
+                      onRetry: () => setState(() {}),
+                    );
+                  }
+                  final titles = snapshot.data ?? [];
+                  return Wrap(
+                    spacing: context.spacingS,
+                    runSpacing: context.spacingS,
+                    children: titles
+                        .map(
+                          (title) => StatusBadge(
+                        text: title,
+                        type: StatusType.info,
+                      ),
+                    )
+                        .toList(),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -316,119 +276,59 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundGray,
+      backgroundColor: context.backgroundColor,
       appBar: AppBar(
         title: const Text('Profile'),
-        backgroundColor: primaryRed,
-        elevation: 0,
       ),
       body: _loading
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading profile...'),
-                ],
-              ),
-            )
+          ? const LoadingWidget(message: 'Loading profile...')
           : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: MethodistTheme.paddingL,
                 child: Column(
                   children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Column(
-                          children: [
-                            _buildProfileCard(),
-                            const SizedBox(height: 20),
-                            _buildPersonalDetailsCard(),
-                            const SizedBox(height: 20),
-                            _buildPermissionsCard(),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: primaryRed,
-                                side: const BorderSide(color: primaryRed),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.pushNamed(context, AppRoutes.credit);
-                              },
-                              child: const Text(
-                                'Credits',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: FilledButton(
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all<Color>(
-                                  primaryRed,
-                                ),
-                                foregroundColor: WidgetStateProperty.all<Color>(
-                                  Colors.white,
-                                ),
-                                shape: WidgetStateProperty.all<OutlinedBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                padding:
-                                    WidgetStateProperty.all<EdgeInsetsGeometry>(
-                                      const EdgeInsets.symmetric(vertical: 14),
-                                    ),
-                              ),
-                              onPressed: _loggingOut ? null : _logout,
-                              child: _loggingOut
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Logout',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildProfileCard(),
+                    SizedBox(height: context.spacingL),
+                    _buildPersonalDetailsCard(),
+                    SizedBox(height: context.spacingL),
+                    _buildPermissionsCard(),
                   ],
                 ),
               ),
             ),
+            Container(
+              padding: MethodistTheme.paddingM,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PrimaryButton.secondary(
+                      label: 'Credits',
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.credit);
+                      },
+                      fullWidth: true,
+                      icon: Icons.info_outline,
+                    ),
+                  ),
+                  SizedBox(width: context.spacingM),
+                  Expanded(
+                    child: PrimaryButton.danger(
+                      label: 'Logout',
+                      onPressed: _loggingOut ? null : _logout,
+                      loading: _loggingOut,
+                      fullWidth: true,
+                      icon: Icons.logout,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
