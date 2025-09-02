@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/widgets.dart';
-import '../../widgets/dependent_dropdown.dart';
 import '../../models/district_data.dart';
 import '../../app/app_router.dart';
 
@@ -21,12 +20,14 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _nicknameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
 
-  // Remove the district and church controllers since we'll use dropdowns
   DateTime? _birthdate;
   String? _gender;
   String? _selectedDistrict;
   String? _selectedMyf;
   bool _loading = false;
+
+  // Check if "Other" district is selected
+  bool get _isOtherDistrictSelected => _selectedDistrict == 'Other';
 
   @override
   void dispose() {
@@ -64,13 +65,19 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   }
 
   String? _validateMyf(String? value) {
+    if (_selectedDistrict == null) return null;
+
     if (value == null || value.isEmpty) {
-      return 'Please select your church/MYF';
+      return _isOtherDistrictSelected
+          ? 'Please enter your church/MYF'
+          : 'Please select your church/MYF';
     }
-    if (_selectedDistrict != null &&
+
+    if (!_isOtherDistrictSelected &&
         !DistrictData.isValidMyfForDistrict(_selectedDistrict!, value)) {
       return 'Please select a valid church/MYF for your district';
     }
+
     return null;
   }
 
@@ -89,8 +96,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       MethodistTheme.showErrorSnackBar(context, 'Please select your district');
       return;
     }
-    if (_selectedMyf == null) {
-      MethodistTheme.showErrorSnackBar(context, 'Please select your church/MYF');
+    if (_selectedMyf == null || _selectedMyf!.isEmpty) {
+      MethodistTheme.showErrorSnackBar(context, 'Please ${_isOtherDistrictSelected ? "enter" : "select"} your church/MYF');
       return;
     }
 
@@ -118,7 +125,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         'birthdate': Timestamp.fromDate(_birthdate!),
         'gender': _gender,
         'district': _selectedDistrict,
-        'church': _selectedMyf, // This now stores the full MYF name
+        'church': _selectedMyf,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -193,32 +200,39 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingL),
 
+                // First Name Field
                 AppTextField(
                   controller: _firstNameCtrl,
                   label: 'First Name',
+                  hint: 'Enter your first name',
                   textCapitalization: TextCapitalization.words,
                   validator: (v) => _validateRequired(v, 'First Name'),
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
+                // Last Name Field
                 AppTextField(
                   controller: _lastNameCtrl,
                   label: 'Last Name',
+                  hint: 'Enter your last name',
                   textCapitalization: TextCapitalization.words,
                   validator: (v) => _validateRequired(v, 'Last Name'),
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
+                // Nickname Field (Optional)
                 AppTextField(
                   controller: _nicknameCtrl,
                   label: 'Nickname (Optional)',
+                  hint: 'Enter your nickname',
                   textCapitalization: TextCapitalization.words,
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
+                // Phone Number Field
                 PhoneTextField(
                   controller: _phoneCtrl,
                   validator: _validatePhone,
@@ -226,6 +240,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingM),
 
+                // Birthdate Picker
                 DatePickerField(
                   selectedDate: _birthdate,
                   label: 'Birthdate',
@@ -237,6 +252,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingM),
 
+                // Gender Dropdown using custom styling
                 DropdownButtonFormField<String>(
                   value: _gender,
                   items: const [
@@ -246,16 +262,40 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   onChanged: (v) => setState(() => _gender = v),
                   decoration: InputDecoration(
                     labelText: 'Gender',
+                    hintText: 'Select your gender',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: MethodistTheme.primaryRed,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: MethodistTheme.mediumGray.withOpacity(0.3),
+                      ),
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: MethodistTheme.spacingM,
+                      vertical: MethodistTheme.spacingM,
+                    ),
                   ),
-                  validator: (v) => v == null ? 'Select gender' : null,
+                  style: MethodistTheme.bodyMedium,
+                  dropdownColor: MethodistTheme.white,
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: MethodistTheme.primaryRed,
+                  ),
+                  validator: (v) => v == null ? 'Please select gender' : null,
                 ),
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                // District and MYF Dependent Dropdowns
+                // District and MYF Selection with "Other" support
                 DistrictMyfDropdowns(
                   selectedDistrict: _selectedDistrict,
                   selectedMyf: _selectedMyf,
@@ -272,6 +312,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingXL),
 
+                // Submit Button
                 PrimaryButton(
                   label: 'Complete Profile',
                   onPressed: _submit,
@@ -282,14 +323,19 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: MethodistTheme.spacingM),
 
-                // Helper text
+                // Dynamic Helper Text Card
                 Container(
                   padding: MethodistTheme.paddingS,
                   decoration: BoxDecoration(
                     color: MethodistTheme.infoBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                    border: Border.all(
+                      color: MethodistTheme.infoBlue.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
                         Icons.info_outline,
@@ -299,7 +345,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       SizedBox(width: MethodistTheme.spacingS),
                       Expanded(
                         child: Text(
-                          'Select your district first, then choose your church/MYF from the available options.',
+                          _isOtherDistrictSelected
+                              ? 'You selected "Other" district. Please manually enter your church/MYF name.'
+                              : 'Select your district first, then choose your church/MYF from the available options.',
                           style: MethodistTheme.bodySmall.copyWith(
                             color: MethodistTheme.infoBlue,
                           ),
@@ -308,6 +356,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     ],
                   ),
                 ),
+
+                SizedBox(height: MethodistTheme.spacingL),
               ],
             ),
           ),

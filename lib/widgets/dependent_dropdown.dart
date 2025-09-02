@@ -89,15 +89,37 @@ class DistrictMyfDropdowns extends StatefulWidget {
 }
 
 class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
+  final TextEditingController _customMyfController = TextEditingController();
+
   List<String> get availableMyfs {
-    if (widget.selectedDistrict == null) return [];
+    if (widget.selectedDistrict == null || widget.selectedDistrict == 'Other') {
+      return [];
+    }
     return widget.districtMyfMap[widget.selectedDistrict] ?? [];
   }
+
+  bool get isOtherDistrictSelected => widget.selectedDistrict == 'Other';
 
   void _handleDistrictChange(String? newDistrict) {
     // Clear MYF selection when district changes
     widget.onMyfChanged?.call(null);
+    _customMyfController.clear();
     widget.onDistrictChanged?.call(newDistrict);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize custom MYF controller if "Other" is selected
+    if (isOtherDistrictSelected && widget.selectedMyf != null) {
+      _customMyfController.text = widget.selectedMyf!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _customMyfController.dispose();
+    super.dispose();
   }
 
   @override
@@ -122,26 +144,51 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
 
         SizedBox(height: MethodistTheme.spacingM),
 
-        // MYF Dropdown
-        DependentDropdownField<String>(
-          value: availableMyfs.contains(widget.selectedMyf)
-              ? widget.selectedMyf
-              : null,
-          items: availableMyfs,
-          label: 'Church/MYF',
-          hint: widget.selectedDistrict == null
-              ? 'First select a district'
-              : 'Select your church/MYF',
-          onChanged: widget.onMyfChanged,
-          validator: widget.myfValidator,
-          enabled: widget.selectedDistrict != null && availableMyfs.isNotEmpty,
-          itemBuilder: (myf) => Text(
-            myf,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            style: MethodistTheme.bodyMedium,
+        // MYF Field - Dropdown or Text Input based on district selection
+        if (isOtherDistrictSelected)
+        // Manual text input for "Other" district
+          TextFormField(
+            controller: _customMyfController,
+            decoration: InputDecoration(
+              labelText: 'Church/MYF',
+              hintText: 'Enter your church/MYF name',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: MethodistTheme.spacingM,
+                vertical: MethodistTheme.spacingM,
+              ),
+            ),
+            textCapitalization: TextCapitalization.words,
+            onChanged: (value) {
+              widget.onMyfChanged?.call(value.trim());
+            },
+            validator: widget.myfValidator,
+          )
+        else
+        // Dropdown for predefined districts
+          DependentDropdownField<String>(
+            value: availableMyfs.contains(widget.selectedMyf)
+                ? widget.selectedMyf
+                : null,
+            items: availableMyfs,
+            label: 'Church/MYF',
+            hint: widget.selectedDistrict == null
+                ? 'First select a district'
+                : 'Select your church/MYF',
+            onChanged: widget.onMyfChanged,
+            validator: widget.myfValidator,
+            enabled: widget.selectedDistrict != null &&
+                widget.selectedDistrict != 'Other' &&
+                availableMyfs.isNotEmpty,
+            itemBuilder: (myf) => Text(
+              myf,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              style: MethodistTheme.bodyMedium,
+            ),
           ),
-        ),
       ],
     );
   }
