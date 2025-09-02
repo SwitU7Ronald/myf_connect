@@ -54,17 +54,17 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     if (_loading) return;
     if (!_formKey.currentState!.validate()) return;
     if (_birthdate == null) {
-      context.showErrorSnackBar('Please select your birthdate');
+      MethodistTheme.showErrorSnackBar(context, 'Please select your birthdate');
       return;
     }
     if (_gender == null) {
-      context.showErrorSnackBar('Please select gender');
+      MethodistTheme.showErrorSnackBar(context, 'Please select gender');
       return;
     }
 
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) {
-      context.showErrorSnackBar('Authentication error. Please restart app.');
+      MethodistTheme.showErrorSnackBar(context, 'Authentication error. Please restart app.');
       return;
     }
 
@@ -100,7 +100,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackBar('Error saving profile: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Error saving profile: $e');
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -110,7 +110,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Complete Your Profile')),
+      backgroundColor: MethodistTheme.lightGray,
+      appBar: AppBar(
+        title: const Text('Complete Your Profile'),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
+      ),
       body: LoadingOverlay(
         isLoading: _loading,
         loadingMessage: 'Saving profile...',
@@ -120,6 +125,42 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
             key: _formKey,
             child: Column(
               children: [
+                // Header Card
+                MethodistCard(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: MethodistTheme.paddingM,
+                        decoration: BoxDecoration(
+                          color: MethodistTheme.primaryRed.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
+                        ),
+                        child: Icon(
+                          Icons.person_add,
+                          size: 48,
+                          color: MethodistTheme.primaryRed,
+                        ),
+                      ),
+                      SizedBox(height: MethodistTheme.spacingM),
+                      Text(
+                        'Complete Your Profile',
+                        style: MethodistTheme.headlineSmall,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: MethodistTheme.spacingS),
+                      Text(
+                        'Please fill in your details to continue',
+                        style: MethodistTheme.bodyMedium.copyWith(
+                          color: MethodistTheme.mediumGray,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: MethodistTheme.spacingL),
+
                 AppTextField(
                   controller: _firstNameCtrl,
                   label: 'First Name',
@@ -127,7 +168,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => _validateRequired(v, 'First Name'),
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _lastNameCtrl,
@@ -136,7 +177,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => _validateRequired(v, 'Last Name'),
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _nicknameCtrl,
@@ -144,14 +185,14 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   textCapitalization: TextCapitalization.words,
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 PhoneTextField(
                   controller: _phoneCtrl,
                   validator: _validatePhone,
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 DatePickerField(
                   selectedDate: _birthdate,
@@ -162,7 +203,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   onDateSelected: (date) => setState(() => _birthdate = date),
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 DropdownButtonFormField<String>(
                   value: _gender,
@@ -171,13 +212,16 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     DropdownMenuItem(value: 'Female', child: Text('Female')),
                   ],
                   onChanged: (v) => setState(() => _gender = v),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Gender',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                    ),
                   ),
                   validator: (v) => v == null ? 'Select gender' : null,
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _districtCtrl,
@@ -186,7 +230,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => _validateRequired(v, 'District'),
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _churchCtrl,
@@ -195,10 +239,10 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => _validateRequired(v, 'Church'),
                 ),
 
-                SizedBox(height: context.spacingXL),
+                SizedBox(height: MethodistTheme.spacingXL),
 
                 PrimaryButton(
-                  label: 'Submit',
+                  label: 'Complete Profile',
                   onPressed: _submit,
                   loading: _loading,
                   fullWidth: true,

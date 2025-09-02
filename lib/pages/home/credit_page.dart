@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
-import '../../app/theme.dart';
+import '../../widgets/widgets.dart';
 
 class CreditPage extends StatefulWidget {
   const CreditPage({super.key});
@@ -26,7 +26,7 @@ class _CreditPageState extends State<CreditPage> {
     setState(() => _loading = true);
 
     try {
-      await Future.delayed(const Duration(milliseconds: 300)); // Small delay to show loading state
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
 
@@ -36,11 +36,9 @@ class _CreditPageState extends State<CreditPage> {
       debugPrint('CreditPage: canPop=$canPop, user=${user?.uid}');
 
       if (canPop) {
-        // If we came from another page, just go back
         debugPrint('CreditPage: Going back');
         Navigator.pop(context);
       } else {
-        // We're at the root level, check authentication
         if (user != null) {
           debugPrint('CreditPage: User authenticated, going to main menu');
           await Navigator.pushReplacementNamed(context, AppRoutes.mainMenu);
@@ -52,10 +50,7 @@ class _CreditPageState extends State<CreditPage> {
     } catch (e) {
       debugPrint('CreditPage: Navigation error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Navigation error: $e')),
-        );
-        // Fallback navigation
+        MethodistTheme.showErrorSnackBar(context, 'Navigation error: $e');
         Navigator.pushReplacementNamed(context, AppRoutes.welcome);
       }
     } finally {
@@ -81,13 +76,13 @@ class _CreditPageState extends State<CreditPage> {
               Container(
                 padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: MethodistTheme.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.church,
                   size: 80,
-                  color: Colors.white,
+                  color: MethodistTheme.white,
                 ),
               ),
 
@@ -97,7 +92,7 @@ class _CreditPageState extends State<CreditPage> {
               Text(
                 'Methodist Connect',
                 style: MethodistTheme.displayMedium.copyWith(
-                  color: Colors.white,
+                  color: MethodistTheme.white,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -108,7 +103,7 @@ class _CreditPageState extends State<CreditPage> {
               Text(
                 'Connect with Methodist Camps & MYF',
                 style: MethodistTheme.bodyLarge.copyWith(
-                  color: Colors.white.withOpacity(0.8),
+                  color: MethodistTheme.white.withOpacity(0.8),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -116,26 +111,21 @@ class _CreditPageState extends State<CreditPage> {
               const Spacer(),
 
               // Credits section
-              Container(
-                padding: MethodistTheme.paddingL,
-                margin: EdgeInsets.only(bottom: MethodistTheme.spacingXL),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
-                ),
+              MethodistCard(
+                color: MethodistTheme.white.withOpacity(0.1),
                 child: Column(
                   children: [
                     Text(
                       'Developed by',
                       style: MethodistTheme.bodyMedium.copyWith(
-                        color: Colors.white.withOpacity(0.7),
+                        color: MethodistTheme.white.withOpacity(0.7),
                       ),
                     ),
                     SizedBox(height: MethodistTheme.spacingS),
                     Text(
                       'Methodist Connect Team',
                       style: MethodistTheme.titleLarge.copyWith(
-                        color: Colors.white,
+                        color: MethodistTheme.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -143,55 +133,29 @@ class _CreditPageState extends State<CreditPage> {
                     Text(
                       'Version 1.0.0',
                       style: MethodistTheme.bodySmall.copyWith(
-                        color: Colors.white.withOpacity(0.7),
+                        color: MethodistTheme.white.withOpacity(0.7),
                       ),
                     ),
                   ],
                 ),
               ),
 
+              SizedBox(height: MethodistTheme.spacingL),
+
               // Continue button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: _loading ? null : _navigateNext,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: MethodistTheme.primaryRed,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-                    ),
-                    elevation: 2,
-                  ),
-                  icon: _loading
-                      ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        MethodistTheme.primaryRed,
-                      ),
-                    ),
-                  )
-                      : Icon(
-                    Navigator.of(context).canPop()
-                        ? Icons.arrow_back
-                        : Icons.arrow_forward,
-                    size: 20,
-                  ),
-                  label: Text(
-                    _loading
-                        ? 'Loading...'
-                        : (Navigator.of(context).canPop() ? 'Back' : 'Continue'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              PrimaryButton.secondary(
+                label: _loading
+                    ? 'Loading...'
+                    : (Navigator.of(context).canPop() ? 'Back' : 'Continue'),
+                onPressed: _loading ? null : _navigateNext,
+                loading: _loading,
+                fullWidth: true,
+                icon: Navigator.of(context).canPop()
+                    ? Icons.arrow_back
+                    : Icons.arrow_forward,
               ),
+
+              SizedBox(height: MethodistTheme.spacingXL),
             ],
           ),
         ),

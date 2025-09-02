@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:methodist_connect/app/theme.dart';
-import '../../../widgets/cards.dart';
-import '../../../widgets/loading_widgets.dart';
-import '../../../widgets/primary_button.dart';
-import '../../../widgets/text_fields.dart';
+import '../../../widgets/widgets.dart';
 
 class MyfsCreatePage extends StatefulWidget {
   const MyfsCreatePage({super.key});
@@ -34,12 +30,12 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
       });
 
       if (mounted) {
-        context.showSuccessSnackBar('MYF created successfully');
+        MethodistTheme.showSuccessSnackBar(context, 'MYF created successfully');
         navigator.pop();
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackBar('Error creating MYF: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Error creating MYF: $e');
       }
     } finally {
       if (mounted) {
@@ -51,7 +47,12 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New MYF')),
+      backgroundColor: MethodistTheme.lightGray,
+      appBar: AppBar(
+        title: const Text('Create New MYF'),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
+      ),
       body: LoadingOverlay(
         isLoading: _loading,
         loadingMessage: 'Creating MYF...',
@@ -68,26 +69,26 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                       Container(
                         padding: MethodistTheme.paddingM,
                         decoration: BoxDecoration(
-                          color: context.primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(context.radiusXL),
+                          color: MethodistTheme.primaryRed.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                         ),
                         child: Icon(
                           Icons.group_add,
                           size: 48,
-                          color: context.primaryColor,
+                          color: MethodistTheme.primaryRed,
                         ),
                       ),
-                      SizedBox(height: context.spacingM),
+                      SizedBox(height: MethodistTheme.spacingM),
                       Text(
                         'Create New MYF Group',
-                        style: context.headlineSmall,
+                        style: MethodistTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: context.spacingS),
+                      SizedBox(height: MethodistTheme.spacingS),
                       Text(
                         'Fill in the details to create a new Methodist Youth Fellowship group',
-                        style: context.bodyMedium.copyWith(
-                          color: context.textSecondary,
+                        style: MethodistTheme.bodyMedium.copyWith(
+                          color: MethodistTheme.mediumGray,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -95,7 +96,7 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                   ),
                 ),
 
-                SizedBox(height: context.spacingL),
+                SizedBox(height: MethodistTheme.spacingL),
 
                 AppTextField(
                   controller: _titleController,
@@ -105,7 +106,7 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                   validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
                 ),
 
-                SizedBox(height: context.spacingM),
+                SizedBox(height: MethodistTheme.spacingM),
 
                 AppTextField(
                   controller: _descriptionController,
@@ -116,7 +117,7 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                   validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
                 ),
 
-                SizedBox(height: context.spacingXL),
+                SizedBox(height: MethodistTheme.spacingXL),
 
                 PrimaryButton(
                   label: 'Create MYF',

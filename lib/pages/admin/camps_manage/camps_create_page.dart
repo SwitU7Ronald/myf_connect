@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:methodist_connect/app/theme.dart';
-import '../../../widgets/cards.dart';
-import '../../../widgets/loading_widgets.dart';
-import '../../../widgets/primary_button.dart';
-import '../../../widgets/text_fields.dart';
+import '../../../widgets/widgets.dart';
 
 class CampsCreatePage extends StatefulWidget {
   const CampsCreatePage({super.key});
@@ -24,7 +20,8 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
   Future<void> _saveCamp() async {
     if (_loading) return;
     if (_formKey.currentState?.validate() != true || _selectedDate == null) {
-      context.showErrorSnackBar('Please fill all fields and select date');
+      MethodistTheme.showErrorSnackBar(
+          context, 'Please fill all fields and select date');
       return;
     }
 
@@ -40,12 +37,13 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       });
 
       if (mounted) {
-        context.showSuccessSnackBar('Camp created successfully');
+        MethodistTheme.showSuccessSnackBar(
+            context, 'Camp created successfully');
         navigator.pop();
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackBar('Error creating camp: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Error creating camp: $e');
       }
     } finally {
       if (mounted) {
@@ -53,11 +51,15 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       }
     }
   }
-
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New Camp')),
+      backgroundColor: context.backgroundColor,
+      appBar: AppBar(
+        title: const Text('Create New Camp'),
+        backgroundColor: context.primaryColor,
+        foregroundColor: context.surfaceColor,
+      ),
       body: LoadingOverlay(
         isLoading: _loading,
         loadingMessage: 'Creating camp...',
@@ -86,7 +88,9 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                       SizedBox(height: context.spacingM),
                       Text(
                         'Create New Camp',
-                        style: context.headlineSmall,
+                        style: context.headlineSmall.copyWith(
+                          color: context.textPrimary,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: context.spacingS),
@@ -103,6 +107,7 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: context.spacingL),
 
+                // Form Fields
                 AppTextField(
                   controller: _titleController,
                   label: 'Camp Title',
@@ -145,13 +150,32 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: context.spacingXL),
 
-                PrimaryButton(
-                  label: 'Create Camp',
-                  onPressed: _saveCamp,
-                  loading: _loading,
-                  fullWidth: true,
-                  icon: Icons.add_circle,
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton.secondary(
+                        label: 'Cancel',
+                        onPressed: _loading ? null : () => Navigator.pop(context),
+                        fullWidth: true,
+                        icon: Icons.cancel,
+                      ),
+                    ),
+                    SizedBox(width: context.spacingM),
+                    Expanded(
+                      flex: 2,
+                      child: PrimaryButton(
+                        label: 'Create Camp',
+                        onPressed: _saveCamp,
+                        loading: _loading,
+                        fullWidth: true,
+                        icon: Icons.add_circle,
+                      ),
+                    ),
+                  ],
                 ),
+
+                SizedBox(height: context.spacingL),
               ],
             ),
           ),

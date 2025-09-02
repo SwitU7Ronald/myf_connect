@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/widgets.dart';
-import 'users_manage/users_management_page.dart';
-import 'camps_manage/camps_management_page.dart';
-import 'myfs_manage/myfs_management_page.dart';
+import '../admin/camps_manage/camps_management_page.dart';
+import '../admin/myfs_manage/myfs_management_page.dart';
+import '../admin/users_manage/users_management_page.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -10,12 +10,19 @@ class AdminDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
+      backgroundColor: context.backgroundColor,
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        backgroundColor: context.primaryColor,
+        foregroundColor: context.surfaceColor,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
-        padding: MethodistTheme.paddingM,
+        padding: MethodistTheme.paddingL,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome section
+            // Welcome Card
             MethodistCard(
               child: Column(
                 children: [
@@ -34,7 +41,9 @@ class AdminDashboardPage extends StatelessWidget {
                   SizedBox(height: context.spacingM),
                   Text(
                     'Admin Dashboard',
-                    style: context.headlineMedium,
+                    style: context.headlineSmall.copyWith(
+                      color: context.textPrimary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: context.spacingS),
@@ -51,10 +60,10 @@ class AdminDashboardPage extends StatelessWidget {
 
             SizedBox(height: context.spacingL),
 
-            // Management cards
+            // Management Cards
             InfoCard(
-              title: 'Users Management',
-              description: 'Approve users and manage permissions',
+              title: 'User Management',
+              description: 'Manage user permissions and approvals',
               icon: Icons.people,
               onTap: () {
                 Navigator.push(
@@ -70,7 +79,7 @@ class AdminDashboardPage extends StatelessWidget {
 
             InfoCard(
               title: 'Camps Management',
-              description: 'Create, edit, delete camps and events',
+              description: 'Create and manage camps and their events',
               icon: Icons.campaign,
               onTap: () {
                 Navigator.push(
@@ -96,6 +105,100 @@ class AdminDashboardPage extends StatelessWidget {
                   ),
                 );
               },
+            ),
+
+            SizedBox(height: context.spacingL),
+
+            // Statistics Cards Row
+            Row(
+              children: [
+                Expanded(
+                  child: MethodistCard(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.people_outline,
+                          size: 32,
+                          color: context.infoBlue,
+                        ),
+                        SizedBox(height: context.spacingS),
+                        Text(
+                          'Users',
+                          style: context.labelMedium.copyWith(
+                            color: context.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: context.spacingXS),
+                        Text(
+                          '-',
+                          style: context.titleLarge.copyWith(
+                            color: context.infoBlue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: context.spacingM),
+                Expanded(
+                  child: MethodistCard(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.campaign,
+                          size: 32,
+                          color: context.warningColor,
+                        ),
+                        SizedBox(height: context.spacingS),
+                        Text(
+                          'Camps',
+                          style: context.labelMedium.copyWith(
+                            color: context.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: context.spacingXS),
+                        Text(
+                          '-',
+                          style: context.titleLarge.copyWith(
+                            color: context.warningColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: context.spacingM),
+                Expanded(
+                  child: MethodistCard(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.group,
+                          size: 32,
+                          color: context.successColor,
+                        ),
+                        SizedBox(height: context.spacingS),
+                        Text(
+                          'MYFs',
+                          style: context.labelMedium.copyWith(
+                            color: context.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: context.spacingXS),
+                        Text(
+                          '-',
+                          style: context.titleLarge.copyWith(
+                            color: context.successColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

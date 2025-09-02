@@ -37,7 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       debugPrint('Error loading user: $e');
       if (mounted) {
-        context.showErrorSnackBar('Error loading profile: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Error loading profile: $e');
       }
     }
     if (mounted) {
@@ -92,7 +92,8 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       debugPrint('Logout error: $e');
       if (mounted) {
-        context.showErrorSnackBar('Logout failed: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Logout failed: $e');
+
       }
     } finally {
       if (mounted) {

@@ -18,7 +18,7 @@ class MethodistConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Methodist Connect',
-      theme: MethodistTheme.themeData,
+      theme: MethodistTheme.theme, // Changed from themeData to theme
       onGenerateRoute: AppRoutes.onGenerateRoute,
       initialRoute: AppRoutes.root,
       debugShowCheckedModeBanner: false,
@@ -47,14 +47,20 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
 
         // Show loading while waiting for auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: MethodistTheme.lightGray,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading...'),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                  ),
+                  SizedBox(height: MethodistTheme.spacingM),
+                  Text(
+                    'Loading...',
+                    style: MethodistTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -64,15 +70,28 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
         // Handle auth stream errors
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Error')),
+            backgroundColor: MethodistTheme.lightGray,
+            appBar: AppBar(
+              title: const Text('Error'),
+              backgroundColor: MethodistTheme.primaryRed,
+              foregroundColor: MethodistTheme.white,
+            ),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text('Authentication Error: ${snapshot.error}'),
-                  const SizedBox(height: 16),
+                  const Icon(
+                    Icons.error,
+                    size: 64,
+                    color: MethodistTheme.errorRed,
+                  ),
+                  SizedBox(height: MethodistTheme.spacingM),
+                  Text(
+                    'Authentication Error: ${snapshot.error}',
+                    style: MethodistTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: MethodistTheme.spacingM),
                   ElevatedButton(
                     onPressed: () {
                       // Force restart the auth check
@@ -81,6 +100,7 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
                             (route) => false,
                       );
                     },
+                    style: MethodistTheme.primaryButtonStyle,
                     child: const Text('Retry'),
                   ),
                 ],
@@ -91,14 +111,20 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
 
         // Prevent multiple navigation calls
         if (_navigated) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: MethodistTheme.lightGray,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Navigating...'),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                  ),
+                  SizedBox(height: MethodistTheme.spacingM),
+                  Text(
+                    'Navigating...',
+                    style: MethodistTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -117,14 +143,20 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
             }
           });
 
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: MethodistTheme.lightGray,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Signing in...'),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                  ),
+                  SizedBox(height: MethodistTheme.spacingM),
+                  Text(
+                    'Signing in...',
+                    style: MethodistTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -141,14 +173,20 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
           }
         });
 
-        return const Scaffold(
+        return Scaffold(
+          backgroundColor: MethodistTheme.lightGray,
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Initializing...'),
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                ),
+                SizedBox(height: MethodistTheme.spacingM),
+                Text(
+                  'Initializing...',
+                  style: MethodistTheme.bodyMedium,
+                ),
               ],
             ),
           ),

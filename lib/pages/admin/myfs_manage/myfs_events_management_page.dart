@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../widgets/widgets.dart';
 
 class MyfsEventsManagementPage extends StatefulWidget {
   final String myfId;
   final String myfTitle;
+
   const MyfsEventsManagementPage({
     super.key,
     required this.myfId,
     required this.myfTitle,
   });
+
   @override
   State<MyfsEventsManagementPage> createState() =>
       _MyfsEventsManagementPageState();
@@ -24,18 +27,22 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
         .snapshots();
   }
 
-  Future<void> _showEventDialog(
-    BuildContext parentContext, {
+  Future<void> _showEventDialog({
     DocumentSnapshot<Map<String, dynamic>>? doc,
   }) async {
     final titleCtrl = TextEditingController(text: doc?.data()?['title'] ?? '');
     final descCtrl = TextEditingController(
       text: doc?.data()?['description'] ?? '',
     );
+
     DateTime? selected;
     final raw = doc?.data()?['dateTime'];
     if (raw is String) selected = DateTime.tryParse(raw);
     if (raw is Timestamp) selected = raw.toDate();
+
+    final formKey = GlobalKey<FormState>();
+    bool loading = false;
+
     Future<void> pickDateTime(BuildContext dialogContext) async {
       final now = DateTime.now();
       final date = await showDatePicker(
@@ -44,107 +51,208 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
         lastDate: now.add(const Duration(days: 365 * 2)),
         initialDate: selected ?? now,
       );
-      if (date == null) return;
-      if (!dialogContext.mounted) return;
+      if (date == null || !dialogContext.mounted) return;
+
       final time = await showTimePicker(
         context: dialogContext,
         initialTime: (selected != null)
             ? TimeOfDay(hour: selected!.hour, minute: selected!.minute)
             : TimeOfDay.now(),
       );
-      if (time == null) return;
-      if (!dialogContext.mounted) return;
-      if (!context.mounted) return;
-      setState(() {
-        selected = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
-      });
+      if (time == null || !dialogContext.mounted) return;
+
+      if (mounted) {
+        setState(() {
+          selected = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
+        });
+      }
     }
 
-    final formKey = GlobalKey<FormState>();
     await showDialog(
-      context: parentContext,
+      context: context,
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(doc == null ? 'Add MYF Event' : 'Edit MYF Event'),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: titleCtrl,
-                    decoration: const InputDecoration(labelText: 'Title'),
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Required' : null,
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: Text(
+              doc == null ? 'Add MYF Event' : 'Edit MYF Event',
+              style: MethodistTheme.headlineSmall,
+            ),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppTextField(
+                        controller: titleCtrl,
+                        label: 'Event Title',
+                        hint: 'Enter event title',
+                        textCapitalization: TextCapitalization.words,
+                        validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Title is required' : null,
+                      ),
+
+                      SizedBox(height: MethodistTheme.spacingM),
+
+                      AppTextField(
+                        controller: descCtrl,
+                        label: 'Description',
+                        hint: 'Enter event description',
+                        textCapitalization: TextCapitalization.sentences,
+                        maxLines: 3,
+                        validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Description is required' : null,
+                      ),
+
+                      SizedBox(height: MethodistTheme.spacingM),
+
+                      InkWell(
+                        onTap: () async {
+                          await pickDateTime(dialogContext);
+                          setDialogState(() {});
+                        },
+                        borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                        child: Container(
+                          padding: MethodistTheme.paddingM,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: MethodistTheme.mediumGray.withOpacity(0.3)),
+                            borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: MethodistTheme.primaryRed,
+                                size: 20,
+                              ),
+                              SizedBox(width: MethodistTheme.spacingM),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Date & Time',
+                                      style: MethodistTheme.labelMedium.copyWith(
+                                        color: MethodistTheme.mediumGray,
+                                      ),
+                                    ),
+                                    SizedBox(height: MethodistTheme.spacingXS),
+                                    Text(
+                                      selected == null
+                                          ? 'Select date & time'
+                                          : selected!.toLocal().toString().split('.').first,
+                                      style: MethodistTheme.bodyMedium.copyWith(
+                                        color: selected == null
+                                            ? MethodistTheme.mediumGray
+                                            : MethodistTheme.darkGray,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: descCtrl,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    maxLines: 3,
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  ListTile(
-                    title: Text(
-                      selected == null
-                          ? 'Select date & time'
-                          : selected!.toLocal().toString(),
-                    ),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () => pickDateTime(dialogContext),
-                  ),
-                ],
+                ),
               ),
             ),
+            actions: [
+              PrimaryButton.secondary(
+                label: 'Cancel',
+                onPressed: () => Navigator.of(dialogContext).pop(),
+              ),
+              SizedBox(width: MethodistTheme.spacingS),
+              PrimaryButton(
+                label: doc == null ? 'Add Event' : 'Update Event',
+                loading: loading,
+                onPressed: () async {
+                  if (!formKey.currentState!.validate() || selected == null) {
+                    if (selected == null) {
+                      MethodistTheme.showErrorSnackBar(context, 'Please select date and time');
+                    }
+                    return;
+                  }
+
+                  setDialogState(() => loading = true);
+
+                  try {
+                    final col = FirebaseFirestore.instance
+                        .collection('myfs')
+                        .doc(widget.myfId)
+                        .collection('events');
+
+                    final payload = {
+                      'title': titleCtrl.text.trim(),
+                      'description': descCtrl.text.trim(),
+                      'dateTime': Timestamp.fromDate(selected!),
+                    };
+
+                    if (doc == null) {
+                      await col.add(payload);
+                    } else {
+                      await col.doc(doc.id).update(payload);
+                    }
+
+                    if (dialogContext.mounted) {
+                      MethodistTheme.showSuccessSnackBar(
+                          context, doc == null ? 'Event added successfully' : 'Event updated successfully'
+                      );
+                      Navigator.of(dialogContext).pop();
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      MethodistTheme.showErrorSnackBar(context, 'Error: $e');
+                    }
+                  } finally {
+                    if (mounted) {
+                      setDialogState(() => loading = false);
+                    }
+                  }
+                },
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (!formKey.currentState!.validate() || selected == null) {
-                  return;
-                }
-                final col = FirebaseFirestore.instance
-                    .collection('myfs')
-                    .doc(widget.myfId)
-                    .collection('events');
-                final payload = {
-                  'title': titleCtrl.text.trim(),
-                  'description': descCtrl.text.trim(),
-                  'dateTime': Timestamp.fromDate(selected!),
-                };
-                if (doc == null) {
-                  await col.add(payload);
-                } else {
-                  await col.doc(doc.id).update(payload);
-                }
-                if (!dialogContext.mounted) return;
-                Navigator.of(dialogContext).pop();
-              },
-              child: Text(doc == null ? 'Add' : 'Update'),
-            ),
-          ],
         );
       },
     );
   }
 
-  Future<void> _handleDeleteEvent(
-    String id,
-    ScaffoldMessengerState messenger,
-  ) async {
+  Future<void> _handleDeleteEvent(String id, String title) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Event', style: MethodistTheme.headlineSmall),
+        content: Text(
+          'Are you sure you want to delete "$title"? This cannot be undone.',
+          style: MethodistTheme.bodyMedium,
+        ),
+        actions: [
+          PrimaryButton.secondary(
+            label: 'Cancel',
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          SizedBox(width: MethodistTheme.spacingS),
+          PrimaryButton.danger(
+            label: 'Delete',
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
     try {
       await FirebaseFirestore.instance
           .collection('myfs')
@@ -152,64 +260,89 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
           .collection('events')
           .doc(id)
           .delete();
+
+      if (mounted) {
+        MethodistTheme.showSuccessSnackBar(context, 'Event deleted successfully');
+      }
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Failed to delete event: ${e.toString()}')),
-      );
+      if (mounted) {
+        MethodistTheme.showErrorSnackBar(context, 'Failed to delete event: $e');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Manage Events - ${widget.myfTitle}')),
+      backgroundColor: MethodistTheme.lightGray,
+      appBar: AppBar(
+        title: Text('Manage Events - ${widget.myfTitle}'),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showEventDialog(context),
+        onPressed: () => _showEventDialog(),
         tooltip: 'Add Event',
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _eventsStream(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingWidget(message: 'Loading events...');
           }
+
+          if (snapshot.hasError) {
+            return ErrorStateWidget(
+              title: 'Error Loading Events',
+              description: 'Error: ${snapshot.error}',
+              onRetry: () => setState(() {}),
+            );
+          }
+
           final docs = snapshot.data!.docs;
+
           if (docs.isEmpty) {
-            return const Center(child: Text('No events found'));
+            return const EmptyStateWidget(
+              icon: Icons.event,
+              title: 'No Events Found',
+              description: 'No events have been created for this MYF group yet. Tap the + button to add the first event.',
+            );
           }
-          return ListView.separated(
+
+          return ListView.builder(
+            padding: MethodistTheme.paddingM,
             itemCount: docs.length,
-            separatorBuilder: (context, index) => const Divider(),
-            itemBuilder: (_, i) {
-              final d = docs[i];
+            itemBuilder: (context, index) {
+              final d = docs[index];
               final data = d.data();
               final raw = data['dateTime'];
+
               DateTime? dt;
               if (raw is String) dt = DateTime.tryParse(raw);
               if (raw is Timestamp) dt = raw.toDate();
-              return ListTile(
-                title: Text(data['title'] ?? ''),
-                subtitle: Text(
-                  '${dt != null ? dt.toLocal().toString().split(' ').first : ''}\n${data['description'] ?? ''}',
-                ),
-                isThreeLine: true,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.orange),
-                      onPressed: () => _showEventDialog(context, doc: d),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        final messenger = ScaffoldMessenger.of(context);
-                        _handleDeleteEvent(d.id, messenger);
-                      },
-                    ),
-                  ],
-                ),
+
+              return InfoCard(
+                title: data['title'] ?? 'Untitled Event',
+                subtitle: dt != null
+                    ? dt.toLocal().toString().split(' ').first
+                    : 'No date set',
+                description: data['description'] ?? 'No description',
+                icon: Icons.event,
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.edit, color: MethodistTheme.warningOrange),
+                    tooltip: 'Edit Event',
+                    onPressed: () => _showEventDialog(doc: d),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: MethodistTheme.errorRed),
+                    tooltip: 'Delete Event',
+                    onPressed: () => _handleDeleteEvent(d.id, data['title'] ?? 'Untitled Event'),
+                  ),
+                ],
               );
             },
           );

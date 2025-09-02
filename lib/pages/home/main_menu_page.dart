@@ -44,8 +44,12 @@ class _MainMenuPageState extends State<MainMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
         title: const Text('Methodist Connect'),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
+        elevation: 0,
         actions: [
           if (_isAdmin)
             IconButton(
@@ -73,26 +77,28 @@ class _MainMenuPageState extends State<MainMenuPage> {
                   Container(
                     padding: MethodistTheme.paddingM,
                     decoration: BoxDecoration(
-                      color: context.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(context.radiusXL),
+                      color: MethodistTheme.primaryRed.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                     ),
                     child: Icon(
                       Icons.church,
                       size: 48,
-                      color: context.primaryColor,
+                      color: MethodistTheme.primaryRed,
                     ),
                   ),
-                  SizedBox(height: context.spacingM),
+                  SizedBox(height: MethodistTheme.spacingM),
                   Text(
                     'Welcome to Methodist Connect',
-                    style: context.headlineMedium,
+                    style: MethodistTheme.headlineMedium.copyWith(
+                      color: MethodistTheme.darkGray,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: context.spacingS),
+                  SizedBox(height: MethodistTheme.spacingS),
                   Text(
                     'Connect with camps and MYF groups',
-                    style: context.bodyMedium.copyWith(
-                      color: context.textSecondary,
+                    style: MethodistTheme.bodyMedium.copyWith(
+                      color: MethodistTheme.mediumGray,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -100,9 +106,9 @@ class _MainMenuPageState extends State<MainMenuPage> {
               ),
             ),
 
-            SizedBox(height: context.spacingL),
+            SizedBox(height: MethodistTheme.spacingL),
 
-            // Feature cards
+            // Feature cards (only Camps and MYF)
             FeatureCard(
               title: 'Camps',
               description: 'Explore Methodist camps and events',
@@ -110,7 +116,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
               onTap: () => Navigator.pushNamed(context, AppRoutes.campsList),
             ),
 
-            SizedBox(height: context.spacingM),
+            SizedBox(height: MethodistTheme.spacingM),
 
             FeatureCard(
               title: 'MYF Groups',

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
-import '../../app/theme.dart';
+import '../../widgets/widgets.dart';
 import '../../services/user_service.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -86,9 +86,7 @@ class _WelcomePageState extends State<WelcomePage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign-in error: $e')),
-        );
+        MethodistTheme.showErrorSnackBar(context, 'Sign-in error: $e');
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -113,13 +111,13 @@ class _WelcomePageState extends State<WelcomePage> {
               Container(
                 padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: MethodistTheme.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.church,
                   size: 80,
-                  color: Colors.white,
+                  color: MethodistTheme.white,
                 ),
               ),
 
@@ -128,7 +126,7 @@ class _WelcomePageState extends State<WelcomePage> {
               // Title
               Text(
                 'Methodist Connect',
-                style: MethodistTheme.displayMedium.copyWith(color: Colors.white),
+                style: MethodistTheme.displayMedium.copyWith(color: MethodistTheme.white),
                 textAlign: TextAlign.center,
               ),
 
@@ -138,7 +136,7 @@ class _WelcomePageState extends State<WelcomePage> {
               Text(
                 'Connect with Methodist Camps & MYF',
                 style: MethodistTheme.bodyLarge.copyWith(
-                  color: Colors.white.withOpacity(0.8),
+                  color: MethodistTheme.white.withOpacity(0.8),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -146,39 +144,12 @@ class _WelcomePageState extends State<WelcomePage> {
               const Spacer(),
 
               // Sign in button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: _loading ? null : _continueWithGoogle,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: MethodistTheme.primaryRed,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-                    ),
-                    elevation: 2,
-                  ),
-                  icon: _loading
-                      ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        MethodistTheme.primaryRed,
-                      ),
-                    ),
-                  )
-                      : const Icon(Icons.account_circle, size: 20),
-                  label: Text(
-                    _loading ? 'Signing in...' : 'Continue with Google',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              PrimaryButton(
+                label: _loading ? 'Signing in...' : 'Continue with Google',
+                onPressed: _loading ? null : _continueWithGoogle,
+                loading: _loading,
+                fullWidth: true,
+                icon: Icons.account_circle,
               ),
 
               SizedBox(height: MethodistTheme.spacingXL),
