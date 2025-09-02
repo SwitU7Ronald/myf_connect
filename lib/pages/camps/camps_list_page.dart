@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../camps/camps_detail_page.dart';
+import '../../widgets/widgets.dart';
+import 'camps_detail_page.dart';
 
 class CampsListPage extends StatelessWidget {
   const CampsListPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,31 +17,53 @@ class CampsListPage extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingWidget(message: 'Loading camps...');
           }
+
           final camps = snapshot.data!.docs;
+
           if (camps.isEmpty) {
-            return const Center(child: Text('No camps available'));
+            return const EmptyStateWidget(
+              icon: Icons.campaign,
+              title: 'No Camps Available',
+              description: 'Check back later for upcoming camps and events.',
+            );
           }
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
+
+          return ListView.builder(
+            padding: MethodistTheme.paddingM,
             itemCount: camps.length,
-            separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (context, index) {
               final camp = camps[index];
               final campId = camp.id;
-              final title = camp['title'] ?? 'Unnamed Camp';
-              return ListTile(
-                title: Text(title),
-                subtitle: Text(
-                  '${camp['date'] ?? ''} • ${camp['place'] ?? ''}',
-                ),
+              final data = camp.data() as Map<String, dynamic>;
+              final title = data['title'] ?? 'Unnamed Camp';
+              final place = data['place'] ?? '';
+              final description = data['description'] ?? '';
+
+              // Parse date
+              String dateStr = '';
+              final dateVal = data['date'];
+              if (dateVal is Timestamp) {
+                dateStr = dateVal.toDate().toLocal().toString().split(' ').first;
+              } else if (dateVal is String) {
+                final parsedDate = DateTime.tryParse(dateVal);
+                dateStr = parsedDate?.toLocal().toString().split(' ').first ?? '';
+              }
+
+              return InfoCard(
+                title: title,
+                subtitle: place.isNotEmpty ? place : null,
+                description: '$dateStr${description.isNotEmpty ? '\n$description' : ''}',
+                icon: Icons.campaign,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          CampsDetailPage(campId: campId, campTitle: title),
+                      builder: (_) => CampsDetailPage(
+                        campId: campId,
+                        campTitle: title,
+                      ),
                     ),
                   );
                 },

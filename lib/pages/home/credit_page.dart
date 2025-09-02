@@ -1,41 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
+import '../../app/theme.dart';
 
 class CreditPage extends StatefulWidget {
   const CreditPage({super.key});
+
   @override
   State<CreditPage> createState() => _CreditPageState();
 }
 
 class _CreditPageState extends State<CreditPage> {
   bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('CreditPage: Initialized');
+  }
+
   void _navigateNext() async {
     if (_loading) return;
+
+    debugPrint('CreditPage: Continue button pressed');
     setState(() => _loading = true);
+
     try {
+      await Future.delayed(const Duration(milliseconds: 300)); // Small delay to show loading state
+
+      if (!mounted) return;
+
+      final user = FirebaseAuth.instance.currentUser;
       final canPop = Navigator.of(context).canPop();
+
+      debugPrint('CreditPage: canPop=$canPop, user=${user?.uid}');
+
       if (canPop) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        // If we came from another page, just go back
+        debugPrint('CreditPage: Going back');
+        Navigator.pop(context);
       } else {
-        final user = FirebaseAuth.instance.currentUser;
+        // We're at the root level, check authentication
         if (user != null) {
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, AppRoutes.mainMenu);
-          }
+          debugPrint('CreditPage: User authenticated, going to main menu');
+          await Navigator.pushReplacementNamed(context, AppRoutes.mainMenu);
         } else {
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, AppRoutes.welcome);
-          }
+          debugPrint('CreditPage: No user, going to welcome page');
+          await Navigator.pushReplacementNamed(context, AppRoutes.welcome);
         }
       }
     } catch (e) {
+      debugPrint('CreditPage: Navigation error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Navigation error: $e')),
+        );
+        // Fallback navigation
+        Navigator.pushReplacementNamed(context, AppRoutes.welcome);
       }
     } finally {
       if (mounted) {
@@ -47,121 +68,128 @@ class _CreditPageState extends State<CreditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: MethodistTheme.primaryRed,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: MethodistTheme.paddingL,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
+
+              // Logo/Icon
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
                 ),
-                child: const Icon(Icons.church, size: 80, color: Colors.white),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Methodist Connect',
-                style: TextStyle(
+                child: const Icon(
+                  Icons.church,
+                  size: 80,
                   color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              SizedBox(height: MethodistTheme.spacingL),
+
+              // Title
+              Text(
+                'Methodist Connect',
+                style: MethodistTheme.displayMedium.copyWith(
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // Subtitle
               Text(
                 'Connect with Methodist Camps & MYF',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
+                style: MethodistTheme.bodyLarge.copyWith(
+                  color: Colors.white.withOpacity(0.8),
                 ),
                 textAlign: TextAlign.center,
               ),
+
               const Spacer(),
+
+              // Credits section
               Container(
-                padding: const EdgeInsets.all(20),
-                margin: const EdgeInsets.only(bottom: 40),
+                padding: MethodistTheme.paddingL,
+                margin: EdgeInsets.only(bottom: MethodistTheme.spacingXL),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
                 ),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Developed by',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                      style: MethodistTheme.bodyMedium.copyWith(
+                        color: Colors.white.withOpacity(0.7),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: MethodistTheme.spacingS),
+                    Text(
                       'Methodist Connect Team',
-                      style: TextStyle(
+                      style: MethodistTheme.titleLarge.copyWith(
                         color: Colors.white,
-                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: MethodistTheme.spacingXS),
                     Text(
                       'Version 1.0.0',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 12,
+                      style: MethodistTheme.bodySmall.copyWith(
+                        color: Colors.white.withOpacity(0.7),
                       ),
                     ),
                   ],
                 ),
               ),
+
+              // Continue button
               SizedBox(
                 width: double.infinity,
                 height: 50,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: _loading ? null : _navigateNext,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: MethodistTheme.primaryRed,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
                     ),
                     elevation: 2,
                   ),
-                  child: _loading
+                  icon: _loading
                       ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Theme.of(context).primaryColor,
-                            ),
-                          ),
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              Navigator.of(context).canPop()
-                                  ? 'Back'
-                                  : 'Continue',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Navigator.of(context).canPop()
-                                  ? Icons.arrow_back
-                                  : Icons.arrow_forward,
-                              size: 20,
-                            ),
-                          ],
-                        ),
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        MethodistTheme.primaryRed,
+                      ),
+                    ),
+                  )
+                      : Icon(
+                    Navigator.of(context).canPop()
+                        ? Icons.arrow_back
+                        : Icons.arrow_forward,
+                    size: 20,
+                  ),
+                  label: Text(
+                    _loading
+                        ? 'Loading...'
+                        : (Navigator.of(context).canPop() ? 'Back' : 'Continue'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],

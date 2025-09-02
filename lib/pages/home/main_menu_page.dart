@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
+import '../../widgets/widgets.dart';
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key});
+
   @override
   State<MainMenuPage> createState() => _MainMenuPageState();
 }
@@ -11,13 +13,14 @@ class MainMenuPage extends StatefulWidget {
 class _MainMenuPageState extends State<MainMenuPage> {
   bool _loading = true;
   bool _isAdmin = false;
+
   @override
   void initState() {
     super.initState();
-    _load();
+    _loadAdminStatus();
   }
 
-  Future<void> _load() async {
+  Future<void> _loadAdminStatus() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -30,15 +33,11 @@ class _MainMenuPageState extends State<MainMenuPage> {
           });
         }
       } else {
-        if (mounted) {
-          setState(() => _loading = false);
-        }
+        if (mounted) setState(() => _loading = false);
       }
     } catch (e) {
       debugPrint('Load admin claim error: $e');
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -52,8 +51,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             IconButton(
               icon: const Icon(Icons.admin_panel_settings),
               tooltip: 'Admin Dashboard',
-              onPressed: () =>
-                  Navigator.pushNamed(context, AppRoutes.adminDashboard),
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.adminDashboard),
             ),
           IconButton(
             icon: const Icon(Icons.person),
@@ -63,68 +61,64 @@ class _MainMenuPageState extends State<MainMenuPage> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(24),
-              child: GridView.count(
-                crossAxisCount: 1,
-                mainAxisSpacing: 24,
-                childAspectRatio: 1.5,
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
+          ? const LoadingWidget(message: 'Loading...')
+          : SingleChildScrollView(
+        padding: MethodistTheme.paddingL,
+        child: Column(
+          children: [
+            // Welcome section
+            MethodistCard(
+              child: Column(
                 children: [
-                  _FeatureCard(
-                    title: 'Camps',
-                    icon: Icons.campaign,
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRoutes.campsList),
+                  Container(
+                    padding: MethodistTheme.paddingM,
+                    decoration: BoxDecoration(
+                      color: context.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(context.radiusXL),
+                    ),
+                    child: Icon(
+                      Icons.church,
+                      size: 48,
+                      color: context.primaryColor,
+                    ),
                   ),
-                  _FeatureCard(
-                    title: 'MYF',
-                    icon: Icons.people,
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRoutes.myfsList),
+                  SizedBox(height: context.spacingM),
+                  Text(
+                    'Welcome to Methodist Connect',
+                    style: context.headlineMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: context.spacingS),
+                  Text(
+                    'Connect with camps and MYF groups',
+                    style: context.bodyMedium.copyWith(
+                      color: context.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-    );
-  }
-}
 
-class _FeatureCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final VoidCallback onTap;
-  const _FeatureCard({
-    required this.title,
-    required this.icon,
-    required this.onTap,
-  });
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 48, color: theme.colorScheme.primary),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+            SizedBox(height: context.spacingL),
+
+            // Feature cards
+            FeatureCard(
+              title: 'Camps',
+              description: 'Explore Methodist camps and events',
+              icon: Icons.campaign,
+              onTap: () => Navigator.pushNamed(context, AppRoutes.campsList),
+            ),
+
+            SizedBox(height: context.spacingM),
+
+            FeatureCard(
+              title: 'MYF Groups',
+              description: 'Connect with Methodist Youth Fellowship',
+              icon: Icons.people,
+              onTap: () => Navigator.pushNamed(context, AppRoutes.myfsList),
+            ),
+          ],
         ),
       ),
     );
