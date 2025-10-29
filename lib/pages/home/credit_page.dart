@@ -66,12 +66,11 @@ class _CreditPageState extends State<CreditPage> {
     return Scaffold(
       backgroundColor: MethodistTheme.primaryRed,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: MethodistTheme.paddingL,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(),
+              SizedBox(height: MethodistTheme.spacingL),
 
               // Logo/Icon
               Container(
@@ -109,7 +108,7 @@ class _CreditPageState extends State<CreditPage> {
                 textAlign: TextAlign.center,
               ),
 
-              const Spacer(),
+              SizedBox(height: MethodistTheme.spacingXL),
 
               // Credits section
               MethodistCard(
@@ -141,7 +140,107 @@ class _CreditPageState extends State<CreditPage> {
                 ),
               ),
 
-              SizedBox(height: MethodistTheme.spacingL),
+              SizedBox(height: MethodistTheme.spacingXL),
+
+              // Team Members Section
+              Text(
+                'Our Team',
+                style: MethodistTheme.headlineMedium.copyWith(
+                  color: MethodistTheme.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // Team Members List - Priority Order
+
+              // 1. Youth Director (First)
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Ankur_Thakor-GRC-MYF-Youth-Director.jpg',
+                name: 'Ankur Thakor',
+                position: 'GRC MYF Youth Director',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // 2. Advisor (Second)
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Akash_Khristi-GRC-MYF-Advisor.jpg',
+                name: 'Akash Khristi',
+                position: 'GRC MYF Advisor',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Nevil_Christian-Advisor.jpg',
+                name: 'Nevil Christian',
+                position: 'GRC MYF Advisor',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // 3. President (Third)
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Chris_Christian-President.jpg',
+                name: 'Chris Christian',
+                position: 'Team President',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // 4. Secretary (Fourth)
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Chris_Khristi-Secretary.jpg',
+                name: 'Chris Khristi',
+                position: 'Team Secretary',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // 5. Treasurer (Fifth)
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Morlins_Macwan-Treasurer.jpg',
+                name: 'Morlins Macwan',
+                position: 'Team Treasurer',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              // Rest of the team members
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Chris_Christian-Sports-Entertainment-President.jpg',
+                name: 'Chris Christian',
+                position: 'Sports & Entertainment Lead',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Kuldeep_Gohel-Convenor-Physical-Arrangements.jpg',
+                name: 'Kuldeep Gohel',
+                position: 'Convenor - Physical Arrangements',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Maxwell_Parmar-Frontend-Designer.jpg',
+                name: 'Maxwell Parmar',
+                position: 'App Designer',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingM),
+
+              _buildTeamMemberCard(
+                imagePath: 'assets/team/Kshitij_Parmar-Developer.jpeg',
+                name: 'Kshitij Parmar',
+                position: 'App Developer',
+              ),
+
+              SizedBox(height: MethodistTheme.spacingXL),
 
               // Continue button
               PrimaryButton.secondary(
@@ -160,6 +259,70 @@ class _CreditPageState extends State<CreditPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTeamMemberCard({
+    required String imagePath,
+    required String name,
+    required String position,
+  }) {
+    return MethodistCard(
+      color: MethodistTheme.white.withValues(alpha: 0.1),
+      child: Row(
+        children: [
+          // Profile Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
+            child: Image.asset(
+              imagePath,
+              width: 70,
+              height: 70,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: MethodistTheme.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: 35,
+                    color: MethodistTheme.white.withValues(alpha: 0.7),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          SizedBox(width: MethodistTheme.spacingM),
+
+          // Name and Position
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: MethodistTheme.titleLarge.copyWith(
+                    color: MethodistTheme.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: MethodistTheme.spacingXS),
+                Text(
+                  position,
+                  style: MethodistTheme.bodyMedium.copyWith(
+                    color: MethodistTheme.white.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

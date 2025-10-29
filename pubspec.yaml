@@ -39,7 +39,8 @@ flutter:
   uses-material-design: true
 
   # Add assets here when ready
-  # assets:
+  assets:
+   - assets/team/
   #   - assets/images/
   #   - assets/icons/
 
