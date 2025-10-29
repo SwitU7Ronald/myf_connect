@@ -37,9 +37,10 @@ class CampsManagementPage extends StatelessWidget {
   }
 
   Future<void> _deleteCamp(BuildContext context, String id, String title) async {
+    // Step 1: Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text('Delete Camp', style: MethodistTheme.headlineSmall),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
@@ -48,38 +49,61 @@ class CampsManagementPage extends StatelessWidget {
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
           ),
           SizedBox(width: MethodistTheme.spacingS),
           PrimaryButton.danger(
             label: 'Delete',
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
           ),
         ],
       ),
     );
 
-    if (!context.mounted || confirmed != true) return;
+    if (confirmed != true) return;
 
-    // Show loading overlay
+    // Step 2: Store the navigator state BEFORE showing loading
+    final navigator = Navigator.of(context);
+
+    // Step 3: Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const LoadingWidget(message: 'Deleting camp and events...'),
+      builder: (loadingContext) => PopScope(
+        canPop: false,
+        child: const LoadingWidget(message: 'Deleting camp and events...'),
+      ),
     );
 
     try {
+      // Step 4: Delete events
       await _deleteCampEventsCascade(id);
+
+      // Step 5: Delete camp
       await FirebaseFirestore.instance.collection('camps').doc(id).delete();
 
+      // Step 6: Close loading dialog using stored navigator
+      navigator.pop();
+
+      // Step 7: Show success message
       if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-        MethodistTheme.showSuccessSnackBar(context, 'Camp and all events deleted successfully');
+        MethodistTheme.showSuccessSnackBar(
+          context,
+          'Camp and all events deleted successfully',
+        );
       }
     } catch (e) {
+      debugPrint('❌ Camp Delete Error: $e');
+
+      // Close loading dialog using stored navigator
+      navigator.pop();
+
+      // Show error message
       if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-        MethodistTheme.showErrorSnackBar(context, 'Delete failed: $e');
+        MethodistTheme.showErrorSnackBar(
+          context,
+          'Failed to delete camp: ${e.toString()}',
+        );
       }
     }
   }
@@ -174,6 +198,10 @@ class CampsManagementPage extends StatelessWidget {
                 setDialogState(() => loading = true);
 
                 try {
+                  // Calculate day of week
+                  final dayOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                  final day = dayOfWeek[selectedDate!.weekday - 1];
+
                   await FirebaseFirestore.instance
                       .collection('camps')
                       .doc(campId)
@@ -181,7 +209,9 @@ class CampsManagementPage extends StatelessWidget {
                     'title': titleCtrl.text.trim(),
                     'place': placeCtrl.text.trim(),
                     'date': Timestamp.fromDate(selectedDate!),
+                    'day': day, // ✅ Add day field
                     'description': descCtrl.text.trim(),
+                    'updatedAt': FieldValue.serverTimestamp(),
                   });
 
                   if (dialogContext.mounted) {
@@ -189,6 +219,7 @@ class CampsManagementPage extends StatelessWidget {
                     MethodistTheme.showSuccessSnackBar(context, 'Camp updated successfully');
                   }
                 } catch (e) {
+                  debugPrint('Camp Update Error: $e');
                   MethodistTheme.showErrorSnackBar(context, 'Error updating camp: $e');
                 } finally {
                   setDialogState(() => loading = false);
@@ -277,12 +308,12 @@ class CampsManagementPage extends StatelessWidget {
                 icon: Icons.campaign,
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.edit, color: MethodistTheme.warningOrange),
+                    icon: const Icon(Icons.edit, color: MethodistTheme.warningOrange),
                     tooltip: 'Edit Camp',
                     onPressed: () => _showEditCampDialog(context, campId, data),
                   ),
                   IconButton(
-                    icon: Icon(Icons.event, color: MethodistTheme.infoBlue),
+                    icon: const Icon(Icons.event, color: MethodistTheme.infoBlue),
                     tooltip: 'Manage Events',
                     onPressed: () {
                       Navigator.push(
@@ -297,7 +328,7 @@ class CampsManagementPage extends StatelessWidget {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: MethodistTheme.errorRed),
+                    icon: const Icon(Icons.delete, color: MethodistTheme.errorRed),
                     tooltip: 'Delete Camp',
                     onPressed: () => _deleteCamp(context, campId, title),
                   ),
