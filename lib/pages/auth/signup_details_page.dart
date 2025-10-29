@@ -215,7 +215,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       Container(
                         padding: MethodistTheme.paddingM,
                         decoration: BoxDecoration(
-                          color: MethodistTheme.primaryRed.withOpacity(0.1),
+                          color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                         ),
                         child: const Icon(

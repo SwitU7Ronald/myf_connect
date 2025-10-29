@@ -186,7 +186,7 @@ class _WelcomePageState extends State<WelcomePage> {
               Container(
                 padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
-                  color: MethodistTheme.white.withOpacity(0.1),
+                  color: MethodistTheme.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
                 ),
                 child: Icon(
@@ -211,7 +211,7 @@ class _WelcomePageState extends State<WelcomePage> {
               Text(
                 'Connect with Methodist Camps & MYF',
                 style: MethodistTheme.bodyLarge.copyWith(
-                  color: MethodistTheme.white.withOpacity(0.8),
+                  color: MethodistTheme.white.withValues(alpha: 0.8),
                 ),
                 textAlign: TextAlign.center,
               ),

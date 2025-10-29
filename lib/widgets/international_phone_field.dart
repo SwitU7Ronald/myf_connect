@@ -176,7 +176,7 @@ class _InternationalPhoneFieldState extends State<InternationalPhoneField> {
             ),
             decoration: BoxDecoration(
               border: Border.all(
-                color: MethodistTheme.mediumGray.withOpacity(0.3),
+                color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
               ),
               borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
               color: widget.enabled ? MethodistTheme.white : MethodistTheme.lightGray,
@@ -189,7 +189,7 @@ class _InternationalPhoneFieldState extends State<InternationalPhoneField> {
                   height: 18,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: MethodistTheme.primaryRed.withOpacity(0.1),
+                    color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: Text(
@@ -238,7 +238,7 @@ class _InternationalPhoneFieldState extends State<InternationalPhoneField> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: MethodistTheme.mediumGray.withOpacity(0.3),
+                  color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
                 ),
                 borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
               ),

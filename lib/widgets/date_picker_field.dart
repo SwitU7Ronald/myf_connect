@@ -161,7 +161,7 @@ class DatePickerField extends StatelessWidget {
             decoration: BoxDecoration(
               color: enabled ? MethodistTheme.white : MethodistTheme.lightGray,
               border: Border.all(
-                color: MethodistTheme.mediumGray.withOpacity(0.3),
+                color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
               ),
               borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
             ),
@@ -209,13 +209,13 @@ class DatePickerField extends StatelessWidget {
             padding: MethodistTheme.paddingS,
             decoration: BoxDecoration(
               color: _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                  ? MethodistTheme.successGreen.withOpacity(0.1)
-                  : MethodistTheme.errorRed.withOpacity(0.1),
+                  ? MethodistTheme.successGreen.withValues(alpha: 0.1)
+                  : MethodistTheme.errorRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
               border: Border.all(
                 color: _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                    ? MethodistTheme.successGreen.withOpacity(0.3)
-                    : MethodistTheme.errorRed.withOpacity(0.3),
+                    ? MethodistTheme.successGreen.withValues(alpha: 0.3)
+                    : MethodistTheme.errorRed.withValues(alpha: 0.3),
               ),
             ),
             child: Row(

@@ -320,7 +320,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                                             color: MethodistTheme.white,
                                             borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
                                             border: Border.all(
-                                              color: MethodistTheme.mediumGray.withOpacity(0.3),
+                                              color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
                                             ),
                                           ),
                                           child: Row(
@@ -366,7 +366,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                                             color: MethodistTheme.white,
                                             borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
                                             border: Border.all(
-                                              color: MethodistTheme.mediumGray.withOpacity(0.3),
+                                              color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
                                             ),
                                           ),
                                           child: Wrap(

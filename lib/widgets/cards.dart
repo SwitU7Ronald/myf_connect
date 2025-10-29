@@ -80,7 +80,7 @@ class InfoCard extends StatelessWidget {
                 Container(
                   padding: MethodistTheme.paddingS,
                   decoration: BoxDecoration(
-                    color: MethodistTheme.primaryRed.withOpacity(0.1),
+                    color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
                   ),
                   child: Icon(
@@ -160,7 +160,7 @@ class FeatureCard extends StatelessWidget {
           Container(
             padding: MethodistTheme.paddingL,
             decoration: BoxDecoration(
-              color: MethodistTheme.primaryRed.withOpacity(0.1),
+              color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
             ),
             child: Icon(

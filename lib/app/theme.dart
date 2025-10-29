@@ -245,7 +245,6 @@ class MethodistTheme {
         brightness: Brightness.light,
         primary: primaryRed,
         surface: white,
-        background: lightGray,
       ),
       scaffoldBackgroundColor: lightGray,
       appBarTheme: const AppBarTheme(

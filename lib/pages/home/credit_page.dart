@@ -77,7 +77,7 @@ class _CreditPageState extends State<CreditPage> {
               Container(
                 padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
-                  color: MethodistTheme.white.withOpacity(0.1),
+                  color: MethodistTheme.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
                 ),
                 child: Icon(
@@ -104,7 +104,7 @@ class _CreditPageState extends State<CreditPage> {
               Text(
                 'Connect with Methodist Camps & MYF',
                 style: MethodistTheme.bodyLarge.copyWith(
-                  color: MethodistTheme.white.withOpacity(0.8),
+                  color: MethodistTheme.white.withValues(alpha: 0.8),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -113,13 +113,13 @@ class _CreditPageState extends State<CreditPage> {
 
               // Credits section
               MethodistCard(
-                color: MethodistTheme.white.withOpacity(0.1),
+                color: MethodistTheme.white.withValues(alpha: 0.1),
                 child: Column(
                   children: [
                     Text(
                       'Developed by',
                       style: MethodistTheme.bodyMedium.copyWith(
-                        color: MethodistTheme.white.withOpacity(0.7),
+                        color: MethodistTheme.white.withValues(alpha: 0.7),
                       ),
                     ),
                     SizedBox(height: MethodistTheme.spacingS),
@@ -134,7 +134,7 @@ class _CreditPageState extends State<CreditPage> {
                     Text(
                       'Version 1.0.0',
                       style: MethodistTheme.bodySmall.copyWith(
-                        color: MethodistTheme.white.withOpacity(0.7),
+                        color: MethodistTheme.white.withValues(alpha: 0.7),
                       ),
                     ),
                   ],

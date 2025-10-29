@@ -59,7 +59,7 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: MethodistTheme.black.withOpacity(0.3),
+            color: MethodistTheme.black.withValues(alpha: 0.3),
             child: LoadingWidget(message: loadingMessage),
           ),
       ],
@@ -160,7 +160,7 @@ class ErrorStateWidget extends StatelessWidget {
             Container(
               padding: MethodistTheme.paddingL,
               decoration: BoxDecoration(
-                color: MethodistTheme.errorRed.withOpacity(0.1),
+                color: MethodistTheme.errorRed.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
               ),
               child: Icon(

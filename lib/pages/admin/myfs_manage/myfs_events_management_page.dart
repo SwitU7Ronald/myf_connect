@@ -123,7 +123,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                         child: Container(
                           padding: MethodistTheme.paddingM,
                           decoration: BoxDecoration(
-                            border: Border.all(color: MethodistTheme.mediumGray.withOpacity(0.3)),
+                            border: Border.all(color: MethodistTheme.mediumGray.withValues(alpha: 0.3)),
                             borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
                           ),
                           child: Row(

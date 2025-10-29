@@ -200,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Divider(
             height: MethodistTheme.spacingL,
             thickness: 1.2,
-            color: MethodistTheme.mediumGray.withOpacity(0.3),
+            color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
           ),
           _buildDetailRow(
             'Birthdate',
@@ -227,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Divider(
             height: MethodistTheme.spacingL,
             thickness: 1.2,
-            color: MethodistTheme.mediumGray.withOpacity(0.3),
+            color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
           ),
           Builder(
             builder: (context) {
