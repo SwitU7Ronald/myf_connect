@@ -15,9 +15,10 @@ class MyfsManagementPage extends StatelessWidget {
   }
 
   Future<void> _deleteMyf(BuildContext context, String id, String title) async {
+    // Step 1: Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text('Delete MYF', style: MethodistTheme.headlineSmall),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
@@ -26,28 +27,34 @@ class MyfsManagementPage extends StatelessWidget {
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
           ),
           SizedBox(width: MethodistTheme.spacingS),
           PrimaryButton.danger(
             label: 'Delete',
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
           ),
         ],
       ),
     );
 
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true) return;
 
-    // Show loading overlay
+    // Step 2: Store navigator BEFORE showing loading dialog
+    final navigator = Navigator.of(context);
+
+    // Step 3: Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const LoadingWidget(message: 'Deleting MYF and events...'),
+      builder: (loadingContext) => PopScope(
+        canPop: false,
+        child: const LoadingWidget(message: 'Deleting MYF and events...'),
+      ),
     );
 
     try {
-      // Delete all events first
+      // Step 4: Delete all events first
       final eventsRef = FirebaseFirestore.instance
           .collection('myfs')
           .doc(id)
@@ -68,18 +75,31 @@ class MyfsManagementPage extends StatelessWidget {
         await batch.commit();
       }
 
-      // Delete the MYF document
+      // Step 5: Delete the MYF document
       await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
 
+      // Step 6: Close loading dialog using stored navigator
+      navigator.pop();
+
+      // Step 7: Show success message
       if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-        MethodistTheme.showSuccessSnackBar(context, 'MYF and all events deleted successfully');
+        MethodistTheme.showSuccessSnackBar(
+          context,
+          'MYF and all events deleted successfully',
+        );
       }
     } catch (e) {
-      debugPrint('[MYF Delete] FAILED to delete MYF: $e');
+      debugPrint('❌ MYF Delete Error: $e');
+
+      // Close loading dialog using stored navigator
+      navigator.pop();
+
+      // Show error message
       if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-        MethodistTheme.showErrorSnackBar(context, 'Error deleting MYF: $e');
+        MethodistTheme.showErrorSnackBar(
+          context,
+          'Failed to delete MYF: ${e.toString()}',
+        );
       }
     }
   }
@@ -114,9 +134,7 @@ class MyfsManagementPage extends StatelessWidget {
                       textCapitalization: TextCapitalization.words,
                       validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
                     ),
-
                     SizedBox(height: MethodistTheme.spacingM),
-
                     AppTextField(
                       controller: descCtrl,
                       label: 'Description',
@@ -151,6 +169,7 @@ class MyfsManagementPage extends StatelessWidget {
                       .update({
                     'title': titleCtrl.text.trim(),
                     'description': descCtrl.text.trim(),
+                    'updatedAt': FieldValue.serverTimestamp(),
                   });
 
                   if (dialogContext.mounted) {
@@ -158,6 +177,7 @@ class MyfsManagementPage extends StatelessWidget {
                     MethodistTheme.showSuccessSnackBar(context, 'MYF updated successfully');
                   }
                 } catch (e) {
+                  debugPrint('❌ MYF Update Error: $e');
                   MethodistTheme.showErrorSnackBar(context, 'Error updating MYF: $e');
                 } finally {
                   setDialogState(() => loading = false);
@@ -198,7 +218,6 @@ class MyfsManagementPage extends StatelessWidget {
               title: 'Error Loading MYF Groups',
               description: 'Error: ${snap.error}',
               onRetry: () {
-                // Trigger rebuild
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const MyfsManagementPage()),
@@ -233,12 +252,12 @@ class MyfsManagementPage extends StatelessWidget {
                 icon: Icons.group,
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.edit, color: MethodistTheme.warningOrange),
+                    icon: const Icon(Icons.edit, color: MethodistTheme.warningOrange),
                     tooltip: 'Edit MYF',
                     onPressed: () => _showEditMyfDialog(context, myfId, data),
                   ),
                   IconButton(
-                    icon: Icon(Icons.event, color: MethodistTheme.infoBlue),
+                    icon: const Icon(Icons.event, color: MethodistTheme.infoBlue),
                     tooltip: 'Manage Events',
                     onPressed: () {
                       Navigator.push(
@@ -253,7 +272,7 @@ class MyfsManagementPage extends StatelessWidget {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: MethodistTheme.errorRed),
+                    icon: const Icon(Icons.delete, color: MethodistTheme.errorRed),
                     tooltip: 'Delete MYF',
                     onPressed: () => _deleteMyf(context, myfId, title),
                   ),
