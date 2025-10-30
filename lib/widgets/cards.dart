@@ -55,6 +55,7 @@ class InfoCard extends StatelessWidget {
   final IconData? icon;
   final VoidCallback? onTap;
   final List<Widget>? actions;
+  final bool isLocked; // NEW: Add lock parameter
 
   const InfoCard({
     super.key,
@@ -64,77 +65,135 @@ class InfoCard extends StatelessWidget {
     this.icon,
     this.onTap,
     this.actions,
+    this.isLocked = false, // NEW: Default to false
   });
 
   @override
   Widget build(BuildContext context) {
     return MethodistCard(
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              if (icon != null) ...[
-                Container(
-                  padding: MethodistTheme.paddingS,
-                  decoration: BoxDecoration(
-                    color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+      child: Opacity(
+        opacity: isLocked ? 0.6 : 1.0, // NEW: Reduce opacity for locked items
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Container(
+                    padding: MethodistTheme.paddingS,
+                    decoration: BoxDecoration(
+                      color: isLocked // NEW: Change color for locked items
+                          ? MethodistTheme.mediumGray.withValues(alpha: 0.1)
+                          : MethodistTheme.primaryRed.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isLocked // NEW: Change icon color for locked items
+                          ? MethodistTheme.mediumGray
+                          : MethodistTheme.primaryRed,
+                      size: 20,
+                    ),
                   ),
-                  child: Icon(
-                    icon,
-                    color: MethodistTheme.primaryRed,
-                    size: 20,
+                  SizedBox(width: MethodistTheme.spacingM),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: MethodistTheme.titleMedium),
+                      if (subtitle != null) ...[
+                        SizedBox(height: MethodistTheme.spacingXS),
+                        Text(
+                          subtitle!,
+                          style: MethodistTheme.bodySmall.copyWith(
+                            color: MethodistTheme.mediumGray,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                SizedBox(width: MethodistTheme.spacingM),
+                // NEW: Show lock icon or arrow based on lock status
+                if (isLocked)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: MethodistTheme.errorRed.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                    ),
+                    child: Icon(
+                      Icons.lock_outline,
+                      color: MethodistTheme.errorRed,
+                      size: 20,
+                    ),
+                  )
+                else if (onTap != null)
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: MethodistTheme.mediumGray,
+                  ),
               ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            if (description != null) ...[
+              SizedBox(height: MethodistTheme.spacingM),
+              Text(
+                description!,
+                style: MethodistTheme.bodyMedium,
+              ),
+            ],
+            // NEW: Show warning badge for locked items
+            if (isLocked) ...[
+              SizedBox(height: MethodistTheme.spacingS),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MethodistTheme.spacingS,
+                  vertical: MethodistTheme.spacingXS,
+                ),
+                decoration: BoxDecoration(
+                  color: MethodistTheme.warningOrange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                  border: Border.all(
+                    color: MethodistTheme.warningOrange.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(title, style: MethodistTheme.titleMedium),
-                    if (subtitle != null) ...[
-                      SizedBox(height: MethodistTheme.spacingXS),
-                      Text(
-                        subtitle!,
-                        style: MethodistTheme.bodySmall.copyWith(
-                          color: MethodistTheme.mediumGray,
-                        ),
+                    Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      color: MethodistTheme.warningOrange,
+                    ),
+                    SizedBox(width: MethodistTheme.spacingXS),
+                    Text(
+                      'Admin approval required',
+                      style: MethodistTheme.bodySmall.copyWith(
+                        color: MethodistTheme.warningOrange,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
-              if (onTap != null)
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: MethodistTheme.mediumGray,
-                ),
             ],
-          ),
-          if (description != null) ...[
-            SizedBox(height: MethodistTheme.spacingM),
-            Text(
-              description!,
-              style: MethodistTheme.bodyMedium,
-            ),
+            if (actions != null && actions!.isNotEmpty) ...[
+              SizedBox(height: MethodistTheme.spacingM),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: actions!,
+              ),
+            ],
           ],
-          if (actions != null && actions!.isNotEmpty) ...[
-            SizedBox(height: MethodistTheme.spacingM),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: actions!,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
 }
+
 
 class FeatureCard extends StatelessWidget {
   final String title;
