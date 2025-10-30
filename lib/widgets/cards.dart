@@ -1,4 +1,3 @@
-// lib/widgets/cards.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,26 +26,32 @@ class MethodistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsivePadding = padding ?? context.responsivePadding(all: 16);
+    final responsiveMargin = margin ?? EdgeInsets.symmetric(
+      vertical: context.spacing(8),
+    );
+    final responsiveRadius = borderRadius ?? BorderRadius.circular(
+      context.responsiveRadius(16),
+    );
+
     Widget cardChild = Container(
-      padding: padding ?? MethodistTheme.paddingM,
+      padding: responsivePadding,
       child: child,
     );
 
     if (onTap != null) {
       cardChild = InkWell(
         onTap: onTap,
-        borderRadius: borderRadius ?? BorderRadius.circular(MethodistTheme.radiusL),
+        borderRadius: responsiveRadius,
         child: cardChild,
       );
     }
 
     return Card(
       color: color ?? MethodistTheme.white,
-      elevation: elevation ?? 2,
-      margin: margin ?? MethodistTheme.marginS,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(MethodistTheme.radiusL),
-      ),
+      elevation: elevation ?? context.responsive.cardElevation,
+      margin: responsiveMargin,
+      shape: RoundedRectangleBorder(borderRadius: responsiveRadius),
       child: cardChild,
     );
   }
@@ -88,106 +93,128 @@ class InfoCard extends StatelessWidget {
               children: [
                 if (icon != null) ...[
                   Container(
-                    padding: MethodistTheme.paddingS,
+                    padding: context.responsivePadding(all: 8),
                     decoration: BoxDecoration(
                       color: isLocked
                           ? MethodistTheme.mediumGray.withValues(alpha: 0.1)
                           : MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                      borderRadius: BorderRadius.circular(
+                        context.responsiveRadius(8),
+                      ),
                     ),
                     child: Icon(
                       icon,
                       color: isLocked
                           ? MethodistTheme.mediumGray
                           : MethodistTheme.primaryRed,
-                      size: 20,
+                      size: context.responsiveIconSize(20),
                     ),
                   ),
-                  SizedBox(width: MethodistTheme.spacingM),
+                  SizedBox(width: context.spacing(16)),
                 ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: MethodistTheme.titleMedium),
+                      Text(
+                        title,
+                        style: context.responsiveTitleMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       if (subtitle != null) ...[
-                        SizedBox(height: MethodistTheme.spacingXS),
+                        SizedBox(height: context.spacing(4)),
                         Text(
                           subtitle!,
-                          style: MethodistTheme.bodySmall.copyWith(
+                          style: context.responsiveBodySmall.copyWith(
                             color: MethodistTheme.mediumGray,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ],
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (trailing != null) ...[
-                      trailing!,
-                      if (isLocked || onTap != null)
-                        SizedBox(width: MethodistTheme.spacingS),
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (trailing != null) ...[
+                        trailing!,
+                        if (isLocked || onTap != null)
+                          SizedBox(width: context.spacing(8)),
+                      ],
+                      if (isLocked)
+                        Container(
+                          padding: context.responsivePadding(all: 8),
+                          decoration: BoxDecoration(
+                            color:
+                            MethodistTheme.errorRed.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              context.responsiveRadius(8),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.lock_outline,
+                            color: MethodistTheme.errorRed,
+                            size: context.responsiveIconSize(20),
+                          ),
+                        )
+                      else if (onTap != null && trailing == null)
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: context.responsiveIconSize(16),
+                          color: MethodistTheme.mediumGray,
+                        ),
                     ],
-                    if (isLocked)
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: MethodistTheme.errorRed.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
-                        ),
-                        child: const Icon(
-                          Icons.lock_outline,
-                          color: MethodistTheme.errorRed,
-                          size: 20,
-                        ),
-                      )
-                    else if (onTap != null && trailing == null)
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: MethodistTheme.mediumGray,
-                      ),
-                  ],
+                  ),
                 ),
               ],
             ),
             if (description != null) ...[
-              SizedBox(height: MethodistTheme.spacingM),
+              SizedBox(height: context.spacing(16)),
               Text(
                 description!,
-                style: MethodistTheme.bodyMedium,
+                style: context.responsiveBodyMedium,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
             if (isLocked) ...[
-              SizedBox(height: MethodistTheme.spacingS),
+              SizedBox(height: context.spacing(8)),
               Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MethodistTheme.spacingS,
-                  vertical: MethodistTheme.spacingXS,
+                padding: context.responsivePadding(
+                  horizontal: 8,
+                  vertical: 4,
                 ),
                 decoration: BoxDecoration(
                   color: MethodistTheme.warningOrange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                  borderRadius: BorderRadius.circular(
+                    context.responsiveRadius(8),
+                  ),
                   border: Border.all(
-                    color: MethodistTheme.warningOrange.withValues(alpha: 0.3),
+                    color:
+                    MethodistTheme.warningOrange.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.info_outline,
-                      size: 14,
+                      size: context.responsiveIconSize(14),
                       color: MethodistTheme.warningOrange,
                     ),
-                    SizedBox(width: MethodistTheme.spacingXS),
-                    Text(
-                      'Admin approval required',
-                      style: MethodistTheme.bodySmall.copyWith(
-                        color: MethodistTheme.warningOrange,
-                        fontWeight: FontWeight.w600,
+                    SizedBox(width: context.spacing(4)),
+                    Flexible(
+                      child: Text(
+                        'Admin approval required',
+                        style: context.responsiveBodySmall.copyWith(
+                          color: MethodistTheme.warningOrange,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -195,7 +222,7 @@ class InfoCard extends StatelessWidget {
               ),
             ],
             if (actions != null && actions!.isNotEmpty) ...[
-              SizedBox(height: MethodistTheme.spacingM),
+              SizedBox(height: context.spacing(16)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: actions!,
@@ -230,31 +257,37 @@ class FeatureCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: MethodistTheme.paddingL,
+            padding: context.responsivePadding(all: 24),
             decoration: BoxDecoration(
               color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
+              borderRadius: BorderRadius.circular(
+                context.responsiveRadius(20),
+              ),
             ),
             child: Icon(
               icon,
-              size: 48,
+              size: context.responsiveIconSize(48),
               color: MethodistTheme.primaryRed,
             ),
           ),
-          SizedBox(height: MethodistTheme.spacingM),
+          SizedBox(height: context.spacing(16)),
           Text(
             title,
-            style: MethodistTheme.titleLarge,
+            style: context.responsiveTitleLarge,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           if (description != null) ...[
-            SizedBox(height: MethodistTheme.spacingS),
+            SizedBox(height: context.spacing(8)),
             Text(
               description!,
-              style: MethodistTheme.bodyMedium.copyWith(
+              style: context.responsiveBodyMedium.copyWith(
                 color: MethodistTheme.mediumGray,
               ),
               textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ],
@@ -262,7 +295,6 @@ class FeatureCard extends StatelessWidget {
     );
   }
 }
-
 
 class EventCard extends StatefulWidget {
   final String title;
@@ -336,6 +368,7 @@ class _EventCardState extends State<EventCard> {
         isLoadingRating = false;
       });
     } catch (e) {
+      debugPrint('Error checking user rating: $e');
       setState(() {
         isLoadingRating = false;
       });
@@ -346,8 +379,15 @@ class _EventCardState extends State<EventCard> {
   Widget build(BuildContext context) {
     final dateStr = widget.dateTime.toLocal().toString().split(' ').first;
     final timeStr = DateFormat('hh:mm a').format(widget.dateTime);
-    final dayOfWeek =
-    ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][widget.dateTime.weekday - 1];
+    final dayOfWeek = [
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
+      'Sun'
+    ][widget.dateTime.weekday - 1];
 
     return MethodistCard(
       onTap: widget.onTap,
@@ -357,151 +397,240 @@ class _EventCardState extends State<EventCard> {
           Row(
             children: [
               Container(
-                padding: MethodistTheme.paddingS,
+                padding: context.responsivePadding(all: 8),
                 decoration: BoxDecoration(
                   color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                  borderRadius: BorderRadius.circular(
+                    context.responsiveRadius(8),
+                  ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.event,
                   color: MethodistTheme.primaryRed,
-                  size: 20,
+                  size: context.responsiveIconSize(20),
                 ),
               ),
-              SizedBox(width: MethodistTheme.spacingM),
+              SizedBox(width: context.spacing(16)),
               Expanded(
-                child: Text(widget.title, style: MethodistTheme.titleMedium),
+                child: Text(
+                  widget.title,
+                  style: context.responsiveTitleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
-          SizedBox(height: MethodistTheme.spacingM),
-          Row(
-            children: [
-              const Icon(Icons.calendar_today, size: 16, color: MethodistTheme.mediumGray),
-              SizedBox(width: MethodistTheme.spacingXS),
-              Text('$dayOfWeek, $dateStr', style: MethodistTheme.bodySmall),
-              SizedBox(width: MethodistTheme.spacingM),
-              const Icon(Icons.access_time, size: 16, color: MethodistTheme.mediumGray),
-              SizedBox(width: MethodistTheme.spacingXS),
-              Text(timeStr, style: MethodistTheme.bodySmall),
-            ],
+          SizedBox(height: context.spacing(16)),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  size: context.responsiveIconSize(16),
+                  color: MethodistTheme.mediumGray,
+                ),
+                SizedBox(width: context.spacing(4)),
+                Text(
+                  '$dayOfWeek, $dateStr',
+                  style: context.responsiveBodySmall,
+                ),
+                SizedBox(width: context.spacing(16)),
+                Icon(
+                  Icons.access_time,
+                  size: context.responsiveIconSize(16),
+                  color: MethodistTheme.mediumGray,
+                ),
+                SizedBox(width: context.spacing(4)),
+                Text(
+                  timeStr,
+                  style: context.responsiveBodySmall,
+                ),
+              ],
+            ),
           ),
           if (widget.venue != null) ...[
-            SizedBox(height: MethodistTheme.spacingS),
+            SizedBox(height: context.spacing(8)),
             Row(
               children: [
-                const Icon(Icons.location_on, size: 16, color: MethodistTheme.mediumGray),
-                SizedBox(width: MethodistTheme.spacingXS),
-                Expanded(child: Text(widget.venue!, style: MethodistTheme.bodySmall)),
+                Icon(
+                  Icons.location_on,
+                  size: context.responsiveIconSize(16),
+                  color: MethodistTheme.mediumGray,
+                ),
+                SizedBox(width: context.spacing(4)),
+                Expanded(
+                  child: Text(
+                    widget.venue!,
+                    style: context.responsiveBodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ],
-          SizedBox(height: MethodistTheme.spacingS),
+          SizedBox(height: context.spacing(8)),
           Text(
             widget.description,
-            style: MethodistTheme.bodyMedium.copyWith(color: MethodistTheme.mediumGray),
+            style: context.responsiveBodyMedium.copyWith(
+              color: MethodistTheme.mediumGray,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           if (widget.showRating) ...[
-            Divider(height: MethodistTheme.spacingL * 2),
+            Divider(height: context.spacing(24) * 2),
             if (isLoadingRating)
               Center(
                 child: SizedBox(
-                  height: 30,
-                  width: 30,
+                  height: context.responsiveIconSize(30),
+                  width: context.responsiveIconSize(30),
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      MethodistTheme.primaryRed,
+                    ),
                   ),
                 ),
               )
             else
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    // -- Average Rating LEFT side --
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 300;
+
+                  if (isMobile) {
+                    return Column(
                       children: [
-                        Text(
-                          'Average Rating',
-                          style: MethodistTheme.bodySmall.copyWith(
-                            color: MethodistTheme.mediumGray,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: MethodistTheme.spacingXS),
-                        Row(
-                          children: [
-                            Icon(Icons.star, size: 18, color: MethodistTheme.warningOrange),
-                            SizedBox(width: MethodistTheme.spacingXS),
-                            Text(
-                              '${widget.avgRating.toStringAsFixed(1)}/5',
-                              style: MethodistTheme.bodySmall.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: MethodistTheme.warningOrange,
-                              ),
-                            ),
-                            SizedBox(width: MethodistTheme.spacingXS),
-                            Text(
-                              '(${widget.numRatings})',
-                              style: MethodistTheme.bodySmall.copyWith(
-                                color: MethodistTheme.mediumGray,
-                              ),
-                            ),
-                          ],
-                        ),
+                        _buildAverageRatingSection(context),
+                        SizedBox(height: context.spacing(12)),
+                        _buildYourRatingSection(context),
                       ],
-                    ),
-
-                    Spacer(),
-
-                    // -- Your Rating or Button RIGHT side. EXACT SAME STYLE AS LEFT --
-                    if (userRating != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Your Rating',
-                            style: MethodistTheme.bodySmall.copyWith(
-                              color: MethodistTheme.mediumGray,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: MethodistTheme.spacingXS),
-                          Row(
-                            children: [
-                              Icon(Icons.star, size: 18, color: MethodistTheme.warningOrange),
-                              SizedBox(width: MethodistTheme.spacingXS),
-                              Text(
-                                '$userRating/5',
-                                style: MethodistTheme.bodySmall.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: MethodistTheme.warningOrange,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    else
-                      ElevatedButton.icon(
-                        onPressed: () => _showRatingDialog(context),
-                        icon: const Icon(Icons.star_rate, size: 16),
-                        label: const Text('Rate'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: MethodistTheme.primaryRed,
-                          foregroundColor: MethodistTheme.white,
-                        ),
-                      ),
-                  ],
-                ),
+                    );
+                  } else {
+                    return Row(
+                      children: [
+                        Expanded(
+                            child: _buildAverageRatingSection(context)),
+                        SizedBox(width: context.spacing(12)),
+                        Expanded(child: _buildYourRatingSection(context)),
+                      ],
+                    );
+                  }
+                },
               ),
           ],
         ],
       ),
     );
+  }
+
+  /// ✅ FIXED: Average Rating - Score under label properly aligned
+  Widget _buildAverageRatingSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Average Rating',
+          style: context.responsiveBodySmall.copyWith(
+            color: MethodistTheme.mediumGray,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: context.spacing(4)),
+        Row(
+          children: [
+            Icon(
+              Icons.star,
+              size: context.responsiveIconSize(18),
+              color: MethodistTheme.warningOrange,
+            ),
+            SizedBox(width: context.spacing(4)),
+            Text(
+              '${widget.avgRating.toStringAsFixed(1)}/5',
+              style: context.responsiveBodySmall.copyWith(
+                fontWeight: FontWeight.w600,
+                color: MethodistTheme.warningOrange,
+              ),
+            ),
+            SizedBox(width: context.spacing(4)),
+            Flexible(
+              child: Text(
+                '(${widget.numRatings})',
+                style: context.responsiveBodySmall.copyWith(
+                  color: MethodistTheme.mediumGray,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// ✅ FIXED: Your Rating - Score under label properly aligned
+  Widget _buildYourRatingSection(BuildContext context) {
+    if (userRating != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            'Your Rating',
+            style: context.responsiveBodySmall.copyWith(
+              color: MethodistTheme.mediumGray,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: context.spacing(4)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(
+                Icons.star,
+                size: context.responsiveIconSize(18),
+                color: MethodistTheme.warningOrange,
+              ),
+              SizedBox(width: context.spacing(4)),
+              Text(
+                '$userRating/5',
+                style: context.responsiveBodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: MethodistTheme.warningOrange,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else {
+      return ElevatedButton.icon(
+        onPressed: () => _showRatingDialog(context),
+        icon: Icon(
+          Icons.star_rate,
+          size: context.responsiveIconSize(16),
+        ),
+        label: Text(
+          'Rate',
+          style: TextStyle(
+            fontSize: context.responsiveFontSize(14),
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: MethodistTheme.primaryRed,
+          foregroundColor: MethodistTheme.white,
+          padding: context.responsivePadding(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              context.responsiveRadius(8),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _showRatingDialog(BuildContext context) async {
@@ -512,44 +641,67 @@ class _EventCardState extends State<EventCard> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('Rate Event', style: MethodistTheme.headlineSmall),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'How would you rate "${widget.title}"?',
-                style: MethodistTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: MethodistTheme.spacingL),
-              if (isSubmitting)
-                const CircularProgressIndicator()
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(5, (index) {
-                    return IconButton(
-                      icon: Icon(
-                        index < selectedRating ? Icons.star : Icons.star_border,
-                        color: MethodistTheme.warningOrange,
-                        size: 40,
-                      ),
-                      onPressed: () {
-                        setDialogState(() {
-                          selectedRating = index + 1;
-                        });
-                      },
-                    );
-                  }),
+          title: Text(
+            'Rate Event',
+            style: context.responsiveHeadlineSmall,
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'How would you rate "${widget.title}"?',
+                  style: context.responsiveBodyMedium,
+                  textAlign: TextAlign.center,
                 ),
-            ],
+                SizedBox(height: context.spacing(24)),
+                if (isSubmitting)
+                  SizedBox(
+                    height: context.responsiveIconSize(40),
+                    width: context.responsiveIconSize(40),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        MethodistTheme.primaryRed,
+                      ),
+                    ),
+                  )
+                else
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < selectedRating
+                                ? Icons.star
+                                : Icons.star_border,
+                            color: MethodistTheme.warningOrange,
+                            size: context.responsiveIconSize(40),
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              selectedRating = index + 1;
+                            });
+                          },
+                        );
+                      }),
+                    ),
+                  ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: isSubmitting ? null : () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: context.responsiveFontSize(14),
+                ),
+              ),
             ),
-            SizedBox(width: MethodistTheme.spacingS),
+            SizedBox(width: context.spacing(8)),
             ElevatedButton(
               onPressed: (selectedRating > 0 && !isSubmitting)
                   ? () async {
@@ -566,36 +718,17 @@ class _EventCardState extends State<EventCard> {
                 backgroundColor: MethodistTheme.primaryRed,
                 foregroundColor: MethodistTheme.white,
               ),
-              child: const Text('Submit'),
+              child: Text(
+                'Submit',
+                style: TextStyle(
+                  fontSize: context.responsiveFontSize(14),
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  double _safeToDouble(dynamic value, double defaultValue) {
-    try {
-      if (value == null) return defaultValue;
-      if (value is double) return value;
-      if (value is int) return value.toDouble();
-      if (value is String) return double.tryParse(value) ?? defaultValue;
-      return defaultValue;
-    } catch (e) {
-      return defaultValue;
-    }
-  }
-
-  int _safeToInt(dynamic value, int defaultValue) {
-    try {
-      if (value == null) return defaultValue;
-      if (value is int) return value;
-      if (value is double) return value.toInt();
-      if (value is String) return int.tryParse(value) ?? defaultValue;
-      return defaultValue;
-    } catch (e) {
-      return defaultValue;
-    }
   }
 
   Future<void> _submitRating(BuildContext context, int rating) async {
@@ -647,9 +780,8 @@ class _EventCardState extends State<EventCard> {
         return;
       }
 
-      final permissions = (userData['permissions'] as List?)?.cast<String>() ?? [];
-      final userName =
-      '${userData['firstName'] ?? ''} ${userData['lastName'] ?? ''}'.trim();
+      final permissions =
+          (userData['permissions'] as List?)?.cast<String>() ?? [];
 
       if (!permissions.contains(widget.campOrMyfId)) {
         if (context.mounted) {
@@ -696,35 +828,40 @@ class _EventCardState extends State<EventCard> {
       }
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final eventSnapshot = await transaction.get(eventRef);
+        final freshEventSnapshot = await transaction.get(eventRef);
 
-        if (!eventSnapshot.exists) {
+        if (!freshEventSnapshot.exists) {
           throw Exception('Event document was deleted during transaction');
         }
 
-        final eventData = eventSnapshot.data()!;
-        final currentAvgRating = _safeToDouble(eventData['avgRating'], 0.0);
-        final currentNumRatings = _safeToInt(eventData['numRatings'], 0);
+        final eventData = freshEventSnapshot.data();
+        final oldAvgRating =
+        _safeToDouble(eventData?['avgRating'], 0.0);
+        final oldCount =
+        _safeToInt(eventData?['ratingCount'], 0);
 
-        final newNumRatings = currentNumRatings + 1;
-        final oldRatingTotal = currentAvgRating * currentNumRatings;
-        final newAvgRating = (oldRatingTotal + rating) / newNumRatings;
-
-        final ratingRef = eventRef.collection('ratings').doc();
-        transaction.set(ratingRef, {
-          'userId': user.uid,
-          'userName': userName.isEmpty ? 'Anonymous' : userName,
-          'rating': rating,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        final newCount = oldCount + 1;
+        final newAvgRating =
+            (oldAvgRating * oldCount + rating) / newCount;
 
         transaction.update(eventRef, {
           'avgRating': newAvgRating,
-          'numRatings': newNumRatings,
+          'ratingCount': newCount,
         });
+
+        transaction.set(
+          eventRef.collection('ratings').doc(user.uid),
+          {
+            'userId': user.uid,
+            'rating': rating,
+            'timestamp': FieldValue.serverTimestamp(),
+          },
+        );
       });
 
-      await _checkUserRating();
+      setState(() {
+        userRating = rating;
+      });
 
       if (context.mounted) {
         MethodistTheme.showSuccessSnackBar(
@@ -733,12 +870,39 @@ class _EventCardState extends State<EventCard> {
         );
       }
     } catch (e) {
+      debugPrint('Error submitting rating: $e');
       if (context.mounted) {
         MethodistTheme.showErrorSnackBar(
           context,
-          'Error submitting rating: ${e.toString()}',
+          'Error submitting rating: $e',
         );
       }
+    }
+  }
+
+  double _safeToDouble(dynamic value, double defaultValue) {
+    try {
+      if (value == null) return defaultValue;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? defaultValue;
+      return defaultValue;
+    } catch (e) {
+      debugPrint('Error converting to double: $e');
+      return defaultValue;
+    }
+  }
+
+  int _safeToInt(dynamic value, int defaultValue) {
+    try {
+      if (value == null) return defaultValue;
+      if (value is int) return value;
+      if (value is double) return value.toInt();
+      if (value is String) return int.tryParse(value) ?? defaultValue;
+      return defaultValue;
+    } catch (e) {
+      debugPrint('Error converting to int: $e');
+      return defaultValue;
     }
   }
 }

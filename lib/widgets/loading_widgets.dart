@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:methodist_connect/widgets/primary_button.dart';
 import '../app/theme.dart';
 
 class LoadingWidget extends StatelessWidget {
-  final String? message;
-  final Color? color;
+  final String message;
 
   const LoadingWidget({
     super.key,
-    this.message,
-    this.color,
+    this.message = 'Loading...',
   });
 
   @override
@@ -18,51 +15,27 @@ class LoadingWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              color ?? MethodistTheme.primaryRed,
-            ),
-          ),
-          if (message != null) ...[
-            SizedBox(height: MethodistTheme.spacingM),
-            Padding(
-              padding: MethodistTheme.paddingM,
-              child: Text(
-                message!,
-                style: MethodistTheme.bodyMedium,
-                textAlign: TextAlign.center,
+          SizedBox(
+            width: context.responsiveIconSize(48),
+            height: context.responsiveIconSize(48),
+            child: CircularProgressIndicator(
+              strokeWidth: 4,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                MethodistTheme.primaryRed,
               ),
             ),
-          ],
+          ),
+          SizedBox(height: context.spacing(16)),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: context.responsiveFontSize(14),
+              color: MethodistTheme.mediumGray,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
-    );
-  }
-}
-
-class LoadingOverlay extends StatelessWidget {
-  final Widget child;
-  final bool isLoading;
-  final String? loadingMessage;
-
-  const LoadingOverlay({
-    super.key,
-    required this.child,
-    required this.isLoading,
-    this.loadingMessage,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        child,
-        if (isLoading)
-          Container(
-            color: MethodistTheme.black.withValues(alpha: 0.3),
-            child: LoadingWidget(message: loadingMessage),
-          ),
-      ],
     );
   }
 }
@@ -70,64 +43,57 @@ class LoadingOverlay extends StatelessWidget {
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String? description;
-  final String? actionLabel;
-  final VoidCallback? onActionPressed;
+  final String description;
 
   const EmptyStateWidget({
     super.key,
     required this.icon,
     required this.title,
-    this.description,
-    this.actionLabel,
-    this.onActionPressed,
+    required this.description,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: MethodistTheme.paddingXL,
+        padding: context.responsivePadding(all: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: MethodistTheme.paddingL,
+              padding: context.responsivePadding(all: 24),
               decoration: BoxDecoration(
-                color: MethodistTheme.lightGray,
-                borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
+                color: MethodistTheme.mediumGray.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(
+                  context.responsiveRadius(32),
+                ),
               ),
               child: Icon(
                 icon,
-                size: 48,
+                size: context.responsiveIconSize(64),
                 color: MethodistTheme.mediumGray,
               ),
             ),
-            SizedBox(height: MethodistTheme.spacingL),
+            SizedBox(height: context.spacing(24)),
             Text(
               title,
-              style: MethodistTheme.headlineSmall.copyWith(
+              style: TextStyle(
+                fontSize: context.responsiveFontSize(18),
+                fontWeight: FontWeight.w600,
                 color: MethodistTheme.darkGray,
               ),
               textAlign: TextAlign.center,
             ),
-            if (description != null) ...[
-              SizedBox(height: MethodistTheme.spacingM),
-              Text(
-                description!,
-                style: MethodistTheme.bodyMedium.copyWith(
-                  color: MethodistTheme.mediumGray,
-                ),
-                textAlign: TextAlign.center,
+            SizedBox(height: context.spacing(12)),
+            Text(
+              description,
+              style: TextStyle(
+                fontSize: context.responsiveFontSize(14),
+                color: MethodistTheme.mediumGray,
               ),
-            ],
-            if (actionLabel != null && onActionPressed != null) ...[
-              SizedBox(height: MethodistTheme.spacingXL),
-              PrimaryButton(
-                label: actionLabel!,
-                onPressed: onActionPressed,
-              ),
-            ],
+              textAlign: TextAlign.center,
+              maxLines: 4,
+            ),
           ],
         ),
       ),
@@ -143,9 +109,9 @@ class ErrorStateWidget extends StatelessWidget {
 
   const ErrorStateWidget({
     super.key,
-    this.title = 'Something went wrong',
+    required this.title,
     this.description,
-    this.retryLabel = 'Retry',
+    this.retryLabel,
     this.onRetry,
   });
 
@@ -153,51 +119,104 @@ class ErrorStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: MethodistTheme.paddingXL,
+        padding: context.responsivePadding(all: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: MethodistTheme.paddingL,
+              padding: context.responsivePadding(all: 24),
               decoration: BoxDecoration(
                 color: MethodistTheme.errorRed.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
+                borderRadius: BorderRadius.circular(
+                  context.responsiveRadius(32),
+                ),
               ),
               child: Icon(
                 Icons.error,
-                size: 48,
+                size: context.responsiveIconSize(64),
                 color: MethodistTheme.errorRed,
               ),
             ),
-            SizedBox(height: MethodistTheme.spacingL),
+            SizedBox(height: context.spacing(24)),
             Text(
               title,
-              style: MethodistTheme.headlineSmall.copyWith(
+              style: TextStyle(
+                fontSize: context.responsiveFontSize(18),
+                fontWeight: FontWeight.w600,
                 color: MethodistTheme.darkGray,
               ),
               textAlign: TextAlign.center,
             ),
             if (description != null) ...[
-              SizedBox(height: MethodistTheme.spacingM),
+              SizedBox(height: context.spacing(12)),
               Text(
                 description!,
-                style: MethodistTheme.bodyMedium.copyWith(
+                style: TextStyle(
+                  fontSize: context.responsiveFontSize(14),
                   color: MethodistTheme.mediumGray,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 4,
               ),
             ],
             if (onRetry != null && retryLabel != null) ...[
-              SizedBox(height: MethodistTheme.spacingXL),
-              PrimaryButton(
-                label: retryLabel!,
+              SizedBox(height: context.spacing(24)),
+              ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: Icons.refresh,
+                icon: const Icon(Icons.refresh),
+                label: Text(
+                  retryLabel!,
+                  style: TextStyle(
+                    fontSize: context.responsiveFontSize(14),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: context.responsivePadding(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      context.responsiveRadius(12),
+                    ),
+                  ),
+                ),
               ),
             ],
           ],
         ),
       ),
+    );
+  }
+}
+
+class LoadingOverlay extends StatelessWidget {
+  final bool isLoading;
+  final String loadingMessage;
+  final Widget child;
+
+  const LoadingOverlay({
+    super.key,
+    required this.isLoading,
+    required this.loadingMessage,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        if (isLoading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.3),
+              child: Center(
+                child: LoadingWidget(message: loadingMessage),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

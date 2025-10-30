@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
+import '../../app/theme.dart';
 import '../../widgets/widgets.dart';
 
 class MainMenuPage extends StatefulWidget {
@@ -46,58 +47,89 @@ class _MainMenuPageState extends State<MainMenuPage> {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: const Text('Methodist Connect'),
+        title: Text(
+          'Methodist Connect',
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        elevation: 0,
+        elevation: 4,
+        shadowColor: MethodistTheme.darkGray.withValues(alpha: 0.5),
         actions: [
+          // Admin Dashboard Button
           if (_isAdmin)
-            IconButton(
-              icon: const Icon(Icons.admin_panel_settings),
-              tooltip: 'Admin Dashboard',
-              onPressed: () => Navigator.pushNamed(context, AppRoutes.adminDashboard),
+            Tooltip(
+              message: 'Admin Dashboard',
+              child: IconButton(
+                icon: Icon(
+                  Icons.admin_panel_settings,
+                  size: context.responsiveIconSize(24),
+                ),
+                onPressed: () =>
+                    Navigator.pushNamed(context, AppRoutes.adminDashboard),
+              ),
             ),
-          IconButton(
-            icon: const Icon(Icons.person),
-            tooltip: 'Profile',
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.profile),
+          // Profile Button
+          Tooltip(
+            message: 'Profile',
+            child: IconButton(
+              icon: Icon(
+                Icons.account_circle,
+                size: context.responsiveIconSize(24),
+              ),
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.profile),
+            ),
           ),
+          // Add responsive spacing
+          SizedBox(width: context.spacing(8)),
         ],
       ),
       body: _loading
           ? const LoadingWidget(message: 'Loading...')
           : SingleChildScrollView(
-        padding: MethodistTheme.paddingL,
+        padding: context.responsivePadding(all: 20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Welcome section
+            // ✅ FIXED: Welcome section with proper alignment
             MethodistCard(
+              padding: context.responsivePadding(all: 24),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    padding: MethodistTheme.paddingM,
+                    padding: context.responsivePadding(all: 16),
                     decoration: BoxDecoration(
-                      color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
+                      color: MethodistTheme.primaryRed.withValues(
+                        alpha: 0.1,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        context.responsiveRadius(24),
+                      ),
                     ),
                     child: Icon(
                       Icons.church,
-                      size: 48,
+                      size: context.responsiveIconSize(56),
                       color: MethodistTheme.primaryRed,
                     ),
                   ),
-                  SizedBox(height: MethodistTheme.spacingM),
+                  SizedBox(height: context.spacing(20)),
                   Text(
                     'Welcome to Methodist Connect',
-                    style: MethodistTheme.headlineMedium.copyWith(
+                    style: context.responsiveHeadlineMedium.copyWith(
                       color: MethodistTheme.darkGray,
+                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: MethodistTheme.spacingS),
+                  SizedBox(height: context.spacing(12)),
                   Text(
                     'Connect with camps and MYF groups',
-                    style: MethodistTheme.bodyMedium.copyWith(
+                    style: context.responsiveBodyMedium.copyWith(
                       color: MethodistTheme.mediumGray,
                     ),
                     textAlign: TextAlign.center,
@@ -106,24 +138,28 @@ class _MainMenuPageState extends State<MainMenuPage> {
               ),
             ),
 
-            SizedBox(height: MethodistTheme.spacingL),
+            SizedBox(height: context.spacing(28)),
 
-            // Feature cards (only Camps and MYF)
+            // ✅ FIXED: Feature cards with proper layout
             FeatureCard(
               title: 'Camps',
               description: 'Explore Methodist camps and events',
               icon: Icons.campaign,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.campsList),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.campsList),
             ),
 
-            SizedBox(height: MethodistTheme.spacingM),
+            SizedBox(height: context.spacing(16)),
 
             FeatureCard(
               title: 'MYF Groups',
               description: 'Connect with Methodist Youth Fellowship',
               icon: Icons.people,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.myfsList),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.myfsList),
             ),
+
+            SizedBox(height: context.spacing(28)),
           ],
         ),
       ),

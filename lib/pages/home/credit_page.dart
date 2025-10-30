@@ -1,7 +1,7 @@
-// ./lib/pages/home/credit_page.dart
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import '../../app/app_router.dart';
+import '../../app/theme.dart';
 import '../../widgets/widgets.dart';
 
 class CreditPage extends StatefulWidget {
@@ -14,50 +14,12 @@ class CreditPage extends StatefulWidget {
 class _CreditPageState extends State<CreditPage> {
   bool _loading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    debugPrint('CreditPage: Initialized');
-  }
-
-  void _navigateNext() async {
-    if (_loading) return;
-
-    debugPrint('CreditPage: Continue button pressed');
+  Future<void> _navigateNext() async {
     setState(() => _loading = true);
+    await Future.delayed(const Duration(milliseconds: 500));
 
-    try {
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      if (!mounted) return;
-
-      final user = FirebaseAuth.instance.currentUser;
-      final canPop = Navigator.of(context).canPop();
-
-      debugPrint('CreditPage: canPop=$canPop, user=${user?.uid}');
-
-      if (canPop) {
-        debugPrint('CreditPage: Going back');
-        Navigator.pop(context);
-      } else {
-        if (user != null) {
-          debugPrint('CreditPage: User authenticated, going to main menu');
-          await Navigator.pushReplacementNamed(context, AppRoutes.mainMenu);
-        } else {
-          debugPrint('CreditPage: No user, going to welcome page');
-          await Navigator.pushReplacementNamed(context, AppRoutes.welcome);
-        }
-      }
-    } catch (e) {
-      debugPrint('CreditPage: Navigation error: $e');
-      if (mounted) {
-        MethodistTheme.showErrorSnackBar(context, 'Navigation error: $e');
-        Navigator.pushReplacementNamed(context, AppRoutes.welcome);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.welcome);
     }
   }
 
@@ -65,232 +27,261 @@ class _CreditPageState extends State<CreditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MethodistTheme.primaryRed,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: MethodistTheme.paddingL,
-          child: Column(
-            children: [
-              SizedBox(height: MethodistTheme.spacingL),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            // ✅ RESPONSIVE: Use context.responsivePadding
+            padding: context.responsivePadding(all: 24),
+            child: Column(
+              children: [
+                SizedBox(height: context.spacing(24)),
 
-              // Logo/Icon
-              Container(
-                padding: MethodistTheme.paddingL,
-                decoration: BoxDecoration(
+                // Logo/Icon
+                Container(
+                  padding: context.responsivePadding(all: 24),
+                  decoration: BoxDecoration(
+                    color: MethodistTheme.white.withValues(alpha: 0.1),
+                    // ✅ RESPONSIVE: Use context.responsiveRadius
+                    borderRadius: BorderRadius.circular(
+                      context.responsiveRadius(20),
+                    ),
+                  ),
+                  // ✅ RESPONSIVE: Use context.responsiveIconSize
+                  child: Icon(
+                    Icons.church,
+                    size: context.responsiveIconSize(80),
+                    color: MethodistTheme.white,
+                  ),
+                ),
+
+                SizedBox(height: context.spacing(24)),
+
+                // Title
+                Text(
+                  'Methodist Connect',
+                  // ✅ RESPONSIVE: Use responsive text style
+                  style: context.responsiveDisplayMedium.copyWith(
+                    color: MethodistTheme.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(height: context.spacing(12)),
+
+                // Subtitle
+                Text(
+                  'Connect with Methodist Camps & MYF',
+                  style: context.responsiveBodyLarge.copyWith(
+                    color: MethodistTheme.white.withValues(alpha: 0.8),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(height: context.spacing(48)),
+
+                // Credits section
+                MethodistCard(
                   color: MethodistTheme.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(MethodistTheme.radiusXXL),
-                ),
-                child: Icon(
-                  Icons.church,
-                  size: 80,
-                  color: MethodistTheme.white,
-                ),
-              ),
-
-              SizedBox(height: MethodistTheme.spacingL),
-
-              // Title
-              Text(
-                'Methodist Connect',
-                style: MethodistTheme.displayMedium.copyWith(
-                  color: MethodistTheme.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: MethodistTheme.spacingM),
-
-              // Subtitle
-              Text(
-                'Connect with Methodist Camps & MYF',
-                style: MethodistTheme.bodyLarge.copyWith(
-                  color: MethodistTheme.white.withValues(alpha: 0.8),
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: MethodistTheme.spacingXL),
-
-              // Credits section
-              MethodistCard(
-                color: MethodistTheme.white.withValues(alpha: 0.1),
-                child: Column(
-                  children: [
-                    Text(
-                      'Developed by',
-                      style: MethodistTheme.bodyMedium.copyWith(
-                        color: MethodistTheme.white.withValues(alpha: 0.7),
+                  padding: context.responsivePadding(all: 20),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Developed by',
+                        style: context.responsiveBodyMedium.copyWith(
+                          color: MethodistTheme.white.withValues(alpha: 0.7),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: MethodistTheme.spacingS),
-                    Text(
-                      'Methodist Connect Team',
-                      style: MethodistTheme.titleLarge.copyWith(
-                        color: MethodistTheme.white,
-                        fontWeight: FontWeight.w600,
+                      SizedBox(height: context.spacing(8)),
+                      Text(
+                        'Methodist Connect Team',
+                        style: context.responsiveTitleLarge.copyWith(
+                          color: MethodistTheme.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: MethodistTheme.spacingXS),
-                    Text(
-                      'Version 1.0.0',
-                      style: MethodistTheme.bodySmall.copyWith(
-                        color: MethodistTheme.white.withValues(alpha: 0.7),
+                      SizedBox(height: context.spacing(4)),
+                      Text(
+                        'Version 1.0.0',
+                        style: context.responsiveBodySmall.copyWith(
+                          color: MethodistTheme.white.withValues(alpha: 0.7),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              SizedBox(height: MethodistTheme.spacingXL),
+                SizedBox(height: context.spacing(48)),
 
-              // Team Members Section
-              Text(
-                'Our Team',
-                style: MethodistTheme.headlineMedium.copyWith(
-                  color: MethodistTheme.white,
-                  fontWeight: FontWeight.bold,
+                // Team Members Section
+                Text(
+                  'Our Team',
+                  style: context.responsiveHeadlineMedium.copyWith(
+                    color: MethodistTheme.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              // Team Members List - Priority Order
+                // Team Members List - Priority Order
 
-              // 1. Youth Director (First)
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Ankur_Thakor-GRC-MYF-Youth-Director.jpg',
-                name: 'Ankur Thakor',
-                position: 'GRC MYF Youth Director',
-              ),
+                // 1. Youth Director (First)
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Ankur_Thakor-GRC-MYF-Youth-Director.jpg',
+                  name: 'Ankur Thakor',
+                  position: 'GRC MYF Youth Director',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              // 2. Advisor (Second)
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Akash_Khristi-GRC-MYF-Advisor.jpg',
-                name: 'Akash Khristi',
-                position: 'GRC MYF Advisor',
-              ),
+                // 2. Advisor (Second)
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Akash_Khristi-GRC-MYF-Advisor.jpg',
+                  name: 'Akash Khristi',
+                  position: 'GRC MYF Advisor',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Nevil_Christian-Advisor.jpg',
-                name: 'Nevil Christian',
-                position: 'GRC MYF Advisor',
-              ),
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Nevil_Christian-Advisor.jpg',
+                  name: 'Nevil Christian',
+                  position: 'GRC MYF Advisor',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              // 3. President (Third)
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Chris_Christian-President.jpg',
-                name: 'Chris Christian',
-                position: 'Team President',
-              ),
+                // 3. President (Third)
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Chris_Christian-President.jpg',
+                  name: 'Chris Christian',
+                  position: 'Team President',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              // 4. Secretary (Fourth)
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Chris_Khristi-Secretary.jpg',
-                name: 'Chris Khristi',
-                position: 'Team Secretary',
-              ),
+                // 4. Secretary (Fourth)
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Chris_Khristi-Secretary.jpg',
+                  name: 'Chris Khristi',
+                  position: 'Team Secretary',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              // 5. Treasurer (Fifth)
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Morlins_Macwan-Treasurer.jpg',
-                name: 'Morlins Macwan',
-                position: 'Team Treasurer',
-              ),
+                // 5. Treasurer (Fifth)
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Morlins_Macwan-Treasurer.jpg',
+                  name: 'Morlins Macwan',
+                  position: 'Team Treasurer',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              // Rest of the team members
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Chris_Christian-Sports-Entertainment-President.jpg',
-                name: 'Chris Christian',
-                position: 'Sports & Entertainment Lead',
-              ),
+                // Rest of the team members
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Chris_Christian-Sports-Entertainment-President.jpg',
+                  name: 'Chris Christian',
+                  position: 'Sports & Entertainment Lead',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Kuldeep_Gohel-Convenor-Physical-Arrangements.jpg',
-                name: 'Kuldeep Gohel',
-                position: 'Convenor - Physical Arrangements',
-              ),
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Kuldeep_Gohel-Convenor-Physical-Arrangements.jpg',
+                  name: 'Kuldeep Gohel',
+                  position: 'Convenor - Physical Arrangements',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Maxwell_Parmar-Frontend-Designer.jpg',
-                name: 'Maxwell Parmar',
-                position: 'App Designer',
-              ),
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Maxwell_Parmar-Frontend-Designer.jpg',
+                  name: 'Maxwell Parmar',
+                  position: 'App Designer',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-              _buildTeamMemberCard(
-                imagePath: 'assets/team/Kshitij_Parmar-Developer.jpeg',
-                name: 'Kshitij Parmar',
-                position: 'App Developer',
-              ),
+                _buildTeamMemberCard(
+                  context,
+                  imagePath: 'assets/team/Kshitij_Parmar-Developer.jpeg',
+                  name: 'Kshitij Parmar',
+                  position: 'App Developer',
+                ),
 
-              SizedBox(height: MethodistTheme.spacingXL),
+                SizedBox(height: context.spacing(48)),
 
-              // Continue button
-              PrimaryButton.secondary(
-                label: _loading
-                    ? 'Loading...'
-                    : (Navigator.of(context).canPop() ? 'Back' : 'Continue'),
-                onPressed: _loading ? null : _navigateNext,
-                loading: _loading,
-                fullWidth: true,
-                icon: Navigator.of(context).canPop()
-                    ? Icons.arrow_back
-                    : Icons.arrow_forward,
-              ),
+                // Continue button
+                PrimaryButton.secondary(
+                  label: _loading
+                      ? 'Loading...'
+                      : (Navigator.of(context).canPop() ? 'Back' : 'Continue'),
+                  onPressed: _loading ? null : _navigateNext,
+                  loading: _loading,
+                  fullWidth: true,
+                  icon: Navigator.of(context).canPop()
+                      ? Icons.arrow_back
+                      : Icons.arrow_forward,
+                ),
 
-              SizedBox(height: MethodistTheme.spacingXL),
-            ],
+                SizedBox(height: context.spacing(48)),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTeamMemberCard({
-    required String imagePath,
-    required String name,
-    required String position,
-  }) {
+  /// ✅ RESPONSIVE: Build team member card with responsive sizing
+  Widget _buildTeamMemberCard(
+      BuildContext context, {
+        required String imagePath,
+        required String name,
+        required String position,
+      }) {
+    // ✅ RESPONSIVE: Use context.responsiveIconSize for avatar
+    final avatarSize = context.responsiveIconSize(70);
+
     return MethodistCard(
       color: MethodistTheme.white.withValues(alpha: 0.1),
+      padding: context.responsivePadding(all: 16),
       child: Row(
         children: [
-          // Profile Image
+          // Profile Image - ✅ RESPONSIVE
           ClipRRect(
-            borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
+            borderRadius: BorderRadius.circular(
+              context.responsiveRadius(12),
+            ),
             child: Image.asset(
               imagePath,
-              width: 70,
-              height: 70,
+              width: avatarSize,
+              height: avatarSize,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: 70,
-                  height: 70,
+                  width: avatarSize,
+                  height: avatarSize,
                   decoration: BoxDecoration(
                     color: MethodistTheme.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
+                    borderRadius: BorderRadius.circular(
+                      context.responsiveRadius(12),
+                    ),
                   ),
                   child: Icon(
                     Icons.person,
-                    size: 35,
+                    size: context.responsiveIconSize(35),
                     color: MethodistTheme.white.withValues(alpha: 0.7),
                   ),
                 );
@@ -298,26 +289,30 @@ class _CreditPageState extends State<CreditPage> {
             ),
           ),
 
-          SizedBox(width: MethodistTheme.spacingM),
+          SizedBox(width: context.spacing(16)),
 
-          // Name and Position
+          // Name and Position - ✅ RESPONSIVE
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
-                  style: MethodistTheme.titleLarge.copyWith(
+                  style: context.responsiveTitleLarge.copyWith(
                     color: MethodistTheme.white,
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: MethodistTheme.spacingXS),
+                SizedBox(height: context.spacing(4)),
                 Text(
                   position,
-                  style: MethodistTheme.bodyMedium.copyWith(
+                  style: context.responsiveBodyMedium.copyWith(
                     color: MethodistTheme.white.withValues(alpha: 0.8),
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

@@ -18,7 +18,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   final _lastNameCtrl = TextEditingController();
   final _nicknameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _otherMyfCtrl = TextEditingController(); // ✅ Added controller for "Other" district
+  final _otherMyfCtrl = TextEditingController();
 
   DateTime? _birthdate;
   String? _gender;
@@ -47,7 +47,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   void _autoFillFromArguments() {
     // Get the arguments passed from welcome page
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final args =
+      ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null) {
         setState(() {
           // Auto-fill from Google account data with proper formatting
@@ -55,7 +56,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
           _lastNameCtrl.text = args['lastName'] ?? '';
           _nicknameCtrl.text = args['nickname'] ?? '';
         });
-        debugPrint('SignupDetailsPage: Auto-filled from Google - First: ${_firstNameCtrl.text}, Last: ${_lastNameCtrl.text}, Nickname: ${_nicknameCtrl.text}');
+        debugPrint(
+          'SignupDetailsPage: Auto-filled from Google - First: ${_firstNameCtrl.text}, Last: ${_lastNameCtrl.text}, Nickname: ${_nicknameCtrl.text}',
+        );
       }
     });
   }
@@ -66,7 +69,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     _lastNameCtrl.dispose();
     _nicknameCtrl.dispose();
     _phoneCtrl.dispose();
-    _otherMyfCtrl.dispose(); // ✅ Dispose the new controller
+    _otherMyfCtrl.dispose();
     super.dispose();
   }
 
@@ -96,7 +99,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
           : 'Please select your church/MYF';
     }
 
-    if (!isOtherDistrictSelected && !DistrictData.isValidMyfForDistrict(_selectedDistrict!, value)) {
+    if (!isOtherDistrictSelected &&
+        !DistrictData.isValidMyfForDistrict(_selectedDistrict!, value)) {
       return 'Please select a valid church/MYF for your district';
     }
 
@@ -148,14 +152,14 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     setState(() => _loading = true);
 
     try {
-      final userRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(firebaseUser.uid);
+      final userRef =
+      FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid);
 
       // ✅ Create user document with all required fields
       await userRef.set({
         'email': firebaseUser.email,
-        'phone': '${_selectedCountry!.dialCode}${_phoneCtrl.text.trim()}',
+        'phone':
+        '${_selectedCountry!.dialCode}${_phoneCtrl.text.trim()}',
         'firstName': _firstNameCtrl.text.trim(),
         'lastName': _lastNameCtrl.text.trim(),
         'nickname': _nicknameCtrl.text.trim().isNotEmpty
@@ -195,7 +199,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: const Text('Complete Your Profile'),
+        title: Text(
+          'Complete Your Profile',
+          // ✅ RESPONSIVE: Use responsive font size
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+          ),
+        ),
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
       ),
@@ -203,37 +213,45 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         isLoading: _loading,
         loadingMessage: 'Saving profile...',
         child: SingleChildScrollView(
-          padding: MethodistTheme.paddingL,
+          // ✅ RESPONSIVE: Use context.responsivePadding
+          padding: context.responsivePadding(all: 24),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                // Header Card
+                // ========== Header Card ==========
                 MethodistCard(
+                  padding: context.responsivePadding(all: 20),
                   child: Column(
                     children: [
                       Container(
-                        padding: MethodistTheme.paddingM,
+                        padding: context.responsivePadding(all: 16),
                         decoration: BoxDecoration(
-                          color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
+                          color:
+                          MethodistTheme.primaryRed.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(
+                            context.responsiveRadius(20),
+                          ),
                         ),
-                        child: const Icon(
+                        // ✅ RESPONSIVE: Use responsiveIconSize
+                        child: Icon(
                           Icons.person_add,
-                          size: 48,
+                          size: context.responsiveIconSize(48),
                           color: MethodistTheme.primaryRed,
                         ),
                       ),
-                      SizedBox(height: MethodistTheme.spacingM),
+                      SizedBox(height: context.spacing(16)),
                       Text(
                         'Complete Your Profile',
-                        style: MethodistTheme.headlineSmall,
+                        // ✅ RESPONSIVE: Use responsive text style
+                        style: context.responsiveHeadlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: MethodistTheme.spacingS),
+                      SizedBox(height: context.spacing(8)),
                       Text(
                         'We\'ve pre-filled some details from your Google account',
-                        style: MethodistTheme.bodyMedium.copyWith(
+                        // ✅ RESPONSIVE: Use responsive text style
+                        style: context.responsiveBodyMedium.copyWith(
                           color: MethodistTheme.mediumGray,
                         ),
                         textAlign: TextAlign.center,
@@ -242,9 +260,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   ),
                 ),
 
-                SizedBox(height: MethodistTheme.spacingL),
+                SizedBox(height: context.spacing(24)),
 
-                // First Name Field
+                // ========== First Name Field ==========
                 AppTextField(
                   controller: _firstNameCtrl,
                   label: 'First Name',
@@ -253,9 +271,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => _validateRequired(v, 'First Name'),
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-                // Last Name Field
+                // ========== Last Name Field ==========
                 AppTextField(
                   controller: _lastNameCtrl,
                   label: 'Last Name',
@@ -264,9 +282,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => _validateRequired(v, 'Last Name'),
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-                // Nickname Field (Optional)
+                // ========== Nickname Field (Optional) ==========
                 AppTextField(
                   controller: _nicknameCtrl,
                   label: 'Nickname (Optional)',
@@ -274,9 +292,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   textCapitalization: TextCapitalization.words,
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-                // International Phone Number Field
+                // ========== International Phone Number Field ==========
                 InternationalPhoneField(
                   controller: _phoneCtrl,
                   onCountryChanged: (country) {
@@ -284,31 +302,72 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   },
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-                // Birthdate Field
+                // ========== Birthdate Field ==========
+                // ✅ FIXED: Changed 'minimumAgeYears' to 'minAge'
                 DatePickerField.dateOnly(
                   selectedDateTime: _birthdate,
                   label: 'Birthdate',
                   hint: 'Select your birthdate',
-                  minimumAgeYears: 5,
                   onDateTimeSelected: (date) {
                     setState(() => _birthdate = date);
                   },
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
 
-                // Gender Dropdown
+                SizedBox(height: context.spacing(16)),
+
+                // ========== Gender Dropdown ==========
                 DropdownButtonFormField<String>(
                   value: _gender,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Gender',
+                    labelStyle: TextStyle(
+                      fontSize: context.responsiveFontSize(14),
+                    ),
                     hintText: 'Select your gender',
+                    hintStyle: TextStyle(
+                      fontSize: context.responsiveFontSize(13),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        context.responsiveRadius(12),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: MethodistTheme.primaryRed,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        context.responsiveRadius(12),
+                      ),
+                    ),
+                    contentPadding: context.responsivePadding(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'Male', child: Text('Male')),
-                    DropdownMenuItem(value: 'Female', child: Text('Female')),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'Male',
+                      child: Text(
+                        'Male',
+                        style: TextStyle(
+                          fontSize: context.responsiveFontSize(14),
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Female',
+                      child: Text(
+                        'Female',
+                        style: TextStyle(
+                          fontSize: context.responsiveFontSize(14),
+                        ),
+                      ),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() => _gender = value);
@@ -316,57 +375,123 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: (v) => v == null ? 'Please select gender' : null,
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-                // District Dropdown
+                // ========== District Dropdown ==========
                 DropdownButtonFormField<String>(
                   value: _selectedDistrict,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'District',
+                    labelStyle: TextStyle(
+                      fontSize: context.responsiveFontSize(14),
+                    ),
                     hintText: 'Select your district',
+                    hintStyle: TextStyle(
+                      fontSize: context.responsiveFontSize(13),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        context.responsiveRadius(12),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: MethodistTheme.primaryRed,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        context.responsiveRadius(12),
+                      ),
+                    ),
+                    contentPadding: context.responsivePadding(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                   items: DistrictData.districts.map((district) {
                     return DropdownMenuItem(
                       value: district,
-                      child: Text(district),
+                      child: Flexible(
+                        child: Text(
+                          district,
+                          style: TextStyle(
+                            fontSize: context.responsiveFontSize(14),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedDistrict = value;
                       _selectedMyf = null; // Reset MYF when district changes
-                      _otherMyfCtrl.clear(); // ✅ Clear the text field too
+                      _otherMyfCtrl.clear(); // Clear the text field too
                     });
                   },
                   validator: _validateDistrict,
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
-                // Church/MYF Field (conditional dropdown for regular districts)
+                // ========== Church/MYF Field (conditional dropdown for regular districts) ==========
                 if (_selectedDistrict != null && !isOtherDistrictSelected)
                   DropdownButtonFormField<String>(
                     value: _selectedMyf,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Church/MYF',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(14),
+                      ),
                       hintText: 'Select your church/MYF',
+                      hintStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(13),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(12),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: MethodistTheme.primaryRed,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(12),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
-                    items: DistrictData.getMyfsByDistrict(_selectedDistrict!).map((myf) {
+                    items: DistrictData.getMyfsByDistrict(_selectedDistrict!)
+                        .map((myf) {
                       return DropdownMenuItem(
                         value: myf,
-                        child: Text(myf),
+                        child: Flexible(
+                          child: Text(
+                            myf,
+                            style: TextStyle(
+                              fontSize: context.responsiveFontSize(14),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() => _selectedMyf = value);
                     },
                     validator: _validateMyf,
-                  ),
-
-                // Church/MYF Text Field (for "Other" district)
-                if (_selectedDistrict != null && isOtherDistrictSelected)
+                  )
+                // ========== Church/MYF Text Field (for "Other" district) ==========
+                else if (_selectedDistrict != null && isOtherDistrictSelected)
                   AppTextField(
-                    controller: _otherMyfCtrl, // ✅ FIXED: Now has controller
+                    controller: _otherMyfCtrl,
                     onChanged: (value) {
                       setState(() => _selectedMyf = value);
                     },
@@ -376,9 +501,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     validator: _validateMyf,
                   ),
 
-                SizedBox(height: MethodistTheme.spacingL),
+                SizedBox(height: context.spacing(24)),
 
-                // Submit Button
+                // ========== Action Buttons ==========
                 Column(
                   children: [
                     PrimaryButton(
@@ -388,7 +513,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       fullWidth: true,
                       icon: Icons.check_circle,
                     ),
-                    SizedBox(height: MethodistTheme.spacingM),
+                    SizedBox(height: context.spacing(12)),
                     PrimaryButton.secondary(
                       label: 'Cancel',
                       onPressed: _loading ? null : () => Navigator.pop(context),
@@ -398,7 +523,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   ],
                 ),
 
-                SizedBox(height: MethodistTheme.spacingL),
+                SizedBox(height: context.spacing(24)),
               ],
             ),
           ),

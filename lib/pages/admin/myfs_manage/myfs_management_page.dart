@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
+import '../../../app/theme.dart';
 import 'myfs_events_management_page.dart';
 import 'myfs_create_page.dart';
 
@@ -15,21 +16,30 @@ class MyfsManagementPage extends StatelessWidget {
   }
 
   Future<void> _deleteMyf(BuildContext context, String id, String title) async {
-    // Step 1: Show confirmation dialog
+    // Step 1: Show confirmation dialog - ✅ RESPONSIVE
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('Delete MYF', style: MethodistTheme.headlineSmall),
+        title: Text(
+          'Delete MYF',
+          // ✅ RESPONSIVE: Use responsive text style
+          style: context.responsiveHeadlineSmall,
+        ),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
-          style: MethodistTheme.bodyMedium,
+          // ✅ RESPONSIVE: Use responsive text style
+          style: context.responsiveBodyMedium,
+        ),
+        actionsPadding: context.responsivePadding(
+          horizontal: 16,
+          vertical: 12,
         ),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
             onPressed: () => Navigator.pop(dialogContext, false),
           ),
-          SizedBox(width: MethodistTheme.spacingS),
+          SizedBox(width: context.spacing(8)),
           PrimaryButton.danger(
             label: 'Delete',
             onPressed: () => Navigator.pop(dialogContext, true),
@@ -118,42 +128,59 @@ class MyfsManagementPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('Edit MYF', style: MethodistTheme.headlineSmall),
+          title: Text(
+            'Edit MYF',
+            // ✅ RESPONSIVE: Use responsive text style
+            style: context.responsiveHeadlineSmall,
+          ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
+              // ✅ RESPONSIVE: Make dialog width responsive
+              width: MediaQuery.of(context).size.width * 0.85,
               child: Form(
                 key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // MYF Title Field
                     AppTextField(
                       controller: titleCtrl,
                       label: 'MYF Title',
                       hint: 'Enter MYF group title',
                       textCapitalization: TextCapitalization.words,
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Title is required'
+                          : null,
                     ),
-                    SizedBox(height: MethodistTheme.spacingM),
+                    // ✅ RESPONSIVE: Use context.spacing
+                    SizedBox(height: context.spacing(16)),
+
+                    // MYF Description Field
                     AppTextField(
                       controller: descCtrl,
                       label: 'Description',
                       hint: 'Enter MYF group description',
                       textCapitalization: TextCapitalization.sentences,
                       maxLines: 4,
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Description is required'
+                          : null,
                     ),
                   ],
                 ),
               ),
             ),
           ),
+          actionsPadding: context.responsivePadding(
+            horizontal: 16,
+            vertical: 12,
+          ),
           actions: [
             PrimaryButton.secondary(
               label: 'Cancel',
               onPressed: () => Navigator.pop(dialogContext),
             ),
-            SizedBox(width: MethodistTheme.spacingS),
+            SizedBox(width: context.spacing(8)),
             PrimaryButton(
               label: 'Update MYF',
               loading: loading,
@@ -174,11 +201,13 @@ class MyfsManagementPage extends StatelessWidget {
 
                   if (dialogContext.mounted) {
                     Navigator.pop(dialogContext);
-                    MethodistTheme.showSuccessSnackBar(context, 'MYF updated successfully');
+                    MethodistTheme.showSuccessSnackBar(
+                        context, 'MYF updated successfully');
                   }
                 } catch (e) {
                   debugPrint('❌ MYF Update Error: $e');
-                  MethodistTheme.showErrorSnackBar(context, 'Error updating MYF: $e');
+                  MethodistTheme.showErrorSnackBar(
+                      context, 'Error updating MYF: $e');
                 } finally {
                   setDialogState(() => loading = false);
                 }
@@ -195,7 +224,13 @@ class MyfsManagementPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: const Text('MYF Management'),
+        title: Text(
+          'MYF Management',
+          // ✅ RESPONSIVE: Use responsive text style
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+          ),
+        ),
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
       ),
@@ -204,10 +239,15 @@ class MyfsManagementPage extends StatelessWidget {
         tooltip: 'Add MYF',
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        child: const Icon(Icons.add),
+        // ✅ RESPONSIVE: Use responsive icon size
+        child: Icon(
+          Icons.add,
+          size: context.responsiveIconSize(28),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('myfs').snapshots(),
+        stream:
+        FirebaseFirestore.instance.collection('myfs').snapshots(),
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
             return const LoadingWidget(message: 'Loading MYF groups...');
@@ -220,7 +260,8 @@ class MyfsManagementPage extends StatelessWidget {
               onRetry: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const MyfsManagementPage()),
+                  MaterialPageRoute(
+                      builder: (_) => const MyfsManagementPage()),
                 );
               },
             );
@@ -232,12 +273,14 @@ class MyfsManagementPage extends StatelessWidget {
             return const EmptyStateWidget(
               icon: Icons.group,
               title: 'No MYF Groups Found',
-              description: 'No MYF groups have been created yet. Tap the + button to create your first MYF group.',
+              description:
+              'No MYF groups have been created yet. Tap the + button to create your first MYF group.',
             );
           }
 
           return ListView.builder(
-            padding: MethodistTheme.paddingM,
+            // ✅ RESPONSIVE: Use context.responsivePadding
+            padding: context.responsivePadding(all: 16),
             itemCount: myfDocs.length,
             itemBuilder: (context, index) {
               final myf = myfDocs[index];
@@ -246,36 +289,70 @@ class MyfsManagementPage extends StatelessWidget {
               final title = data['title'] ?? 'Untitled MYF';
               final description = data['description'] ?? '';
 
-              return InfoCard(
-                title: title,
-                description: description.isNotEmpty ? description : 'No description available',
-                icon: Icons.group,
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: MethodistTheme.warningOrange),
-                    tooltip: 'Edit MYF',
-                    onPressed: () => _showEditMyfDialog(context, myfId, data),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.event, color: MethodistTheme.infoBlue),
-                    tooltip: 'Manage Events',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MyfsEventsManagementPage(
-                            myfId: myfId,
-                            myfTitle: title,
+              return Column(
+                children: [
+                  InfoCard(
+                    title: title,
+                    description: description.isNotEmpty
+                        ? description
+                        : 'No description available',
+                    icon: Icons.group,
+                    actions: [
+                      // Edit Button - ✅ RESPONSIVE
+                      Tooltip(
+                        message: 'Edit MYF',
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            color: MethodistTheme.warningOrange,
+                            // ✅ RESPONSIVE: Use responsive icon size
+                            size: context.responsiveIconSize(20),
                           ),
+                          onPressed: () =>
+                              _showEditMyfDialog(context, myfId, data),
                         ),
-                      );
-                    },
+                      ),
+                      // Events Button - ✅ RESPONSIVE
+                      Tooltip(
+                        message: 'Manage Events',
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.event,
+                            color: MethodistTheme.infoBlue,
+                            size: context.responsiveIconSize(20),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    MyfsEventsManagementPage(
+                                      myfId: myfId,
+                                      myfTitle: title,
+                                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      // Delete Button - ✅ RESPONSIVE
+                      Tooltip(
+                        message: 'Delete MYF',
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            color: MethodistTheme.errorRed,
+                            size: context.responsiveIconSize(20),
+                          ),
+                          onPressed: () =>
+                              _deleteMyf(context, myfId, title),
+                        ),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: MethodistTheme.errorRed),
-                    tooltip: 'Delete MYF',
-                    onPressed: () => _deleteMyf(context, myfId, title),
-                  ),
+                  // ✅ RESPONSIVE: Use context.spacing between items
+                  if (index < myfDocs.length - 1)
+                    SizedBox(height: context.spacing(12)),
                 ],
               );
             },

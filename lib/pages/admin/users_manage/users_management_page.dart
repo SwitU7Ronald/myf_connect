@@ -6,7 +6,7 @@ import '../../../widgets/widgets.dart';
 enum SortBy { name, phone, district, permissions }
 enum SortOrder { asc, desc }
 enum PermissionFilter { all, has, not }
-enum PermissionType { camps, myfs } // NEW: Add permission type
+enum PermissionType { camps, myfs }
 
 class UsersManagementPage extends StatefulWidget {
   const UsersManagementPage({super.key});
@@ -22,11 +22,10 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   String? selectedGender;
   String? selectedDistrict;
   String? selectedCampId;
-  String? selectedMyfId; // NEW: Add MYF filter
+  String? selectedMyfId;
   PermissionFilter permFilter = PermissionFilter.all;
-  PermissionType permissionType = PermissionType.camps; // NEW: Default to camps
+  PermissionType permissionType = PermissionType.camps;
 
-  /// Set camp permission for a user
   Future<void> setCampPermission({
     required String uid,
     required String campId,
@@ -40,30 +39,23 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
             : FieldValue.arrayRemove([campId]),
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              enabled
-                  ? 'Camp permission granted successfully'
-                  : 'Camp permission removed successfully',
-            ),
-            backgroundColor: MethodistTheme.successGreen,
-          ),
+        MethodistTheme.showSuccessSnackBar(
+          context,
+          enabled
+              ? 'Camp permission granted successfully'
+              : 'Camp permission removed successfully',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating camp permission: $e'),
-            backgroundColor: MethodistTheme.errorRed,
-          ),
+        MethodistTheme.showErrorSnackBar(
+          context,
+          'Error updating camp permission: $e',
         );
       }
     }
   }
 
-  /// NEW: Set MYF permission for a user
   Future<void> setMyfPermission({
     required String uid,
     required String myfId,
@@ -77,24 +69,18 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
             : FieldValue.arrayRemove([myfId]),
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              enabled
-                  ? 'MYF permission granted successfully'
-                  : 'MYF permission removed successfully',
-            ),
-            backgroundColor: MethodistTheme.successGreen,
-          ),
+        MethodistTheme.showSuccessSnackBar(
+          context,
+          enabled
+              ? 'MYF permission granted successfully'
+              : 'MYF permission removed successfully',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating MYF permission: $e'),
-            backgroundColor: MethodistTheme.errorRed,
-          ),
+        MethodistTheme.showErrorSnackBar(
+          context,
+          'Error updating MYF permission: $e',
         );
       }
     }
@@ -103,7 +89,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   Stream<QuerySnapshot> get campsStream =>
       FirebaseFirestore.instance.collection('camps').snapshots();
 
-  // NEW: Add MYF stream
   Stream<QuerySnapshot> get myfsStream =>
       FirebaseFirestore.instance.collection('myfs').snapshots();
 
@@ -116,7 +101,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
       sortBy = SortBy.name;
       sortOrder = SortOrder.asc;
       selectedCampId = null;
-      selectedMyfId = null; // NEW
+      selectedMyfId = null;
       permFilter = PermissionFilter.all;
       selectedGender = null;
       selectedDistrict = null;
@@ -128,7 +113,12 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: const Text('Users Management'),
+        title: Text(
+          'Users Management',
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+          ),
+        ),
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
       ),
@@ -159,7 +149,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                 .toLowerCase()
                 .compareTo((b['title'] as String).toLowerCase()));
 
-          // NEW: Fetch MYF groups
           return StreamBuilder<QuerySnapshot>(
             stream: myfsStream,
             builder: (context, myfsSnap) {
@@ -223,11 +212,12 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                   }
 
                   final districtList = districts.toList()
-                    ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                    ..sort((a, b) =>
+                        a.toLowerCase().compareTo(b.toLowerCase()));
                   final genderList = genders.toList()
-                    ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                    ..sort((a, b) =>
+                        a.toLowerCase().compareTo(b.toLowerCase()));
 
-                  // Filter and sort logic
                   String fullName(AppUser u) =>
                       '${u.firstName ?? ''} ${u.lastName ?? ''}'.trim();
 
@@ -247,15 +237,17 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                       selectedGender == null || u.gender == selectedGender;
 
                   bool matchesDistrict(AppUser u) =>
-                      selectedDistrict == null || u.district == selectedDistrict;
+                      selectedDistrict == null ||
+                          u.district == selectedDistrict;
 
                   bool matchesPermission(AppUser u) {
-                    // Check based on selected permission type
-                    final selectedId = permissionType == PermissionType.camps
+                    final selectedId =
+                    permissionType == PermissionType.camps
                         ? selectedCampId
                         : selectedMyfId;
 
-                    if (selectedId == null || permFilter == PermissionFilter.all) {
+                    if (selectedId == null ||
+                        permFilter == PermissionFilter.all) {
                       return true;
                     }
                     final has = u.permissions.contains(selectedId);
@@ -271,7 +263,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                         matchesPermission(u);
                   }).toList();
 
-                  // Sort filtered users
                   int cmpStr(String a, String b) =>
                       a.toLowerCase().compareTo(b.toLowerCase());
 
@@ -288,7 +279,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                         r = cmpStr(a.district ?? '', b.district ?? '');
                         break;
                       case SortBy.permissions:
-                        r = a.permissions.length.compareTo(b.permissions.length);
+                        r = a.permissions.length
+                            .compareTo(b.permissions.length);
                         break;
                     }
                     return sortOrder == SortOrder.asc ? r : -r;
@@ -298,26 +290,30 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
                   return Column(
                     children: [
-                      // Filter Bar
                       FilterBar(
                         search: search,
-                        onSearchChanged: (v) => setState(() => search = v),
+                        onSearchChanged: (v) =>
+                            setState(() => search = v),
                         sortBy: sortBy,
-                        onSortByChanged: (v) => setState(() => sortBy = v),
+                        onSortByChanged: (v) =>
+                            setState(() => sortBy = v),
                         sortOrder: sortOrder,
-                        onSortOrderChanged: (v) => setState(() => sortOrder = v),
+                        onSortOrderChanged: (v) =>
+                            setState(() => sortOrder = v),
                         camps: camps,
-                        myfs: myfs, // NEW: Pass MYF groups
+                        myfs: myfs,
                         selectedCampId: selectedCampId,
-                        selectedMyfId: selectedMyfId, // NEW
-                        onCampChanged: (v) => setState(() => selectedCampId = v),
-                        onMyfChanged: (v) => setState(() => selectedMyfId = v), // NEW
+                        selectedMyfId: selectedMyfId,
+                        onCampChanged: (v) =>
+                            setState(() => selectedCampId = v),
+                        onMyfChanged: (v) =>
+                            setState(() => selectedMyfId = v),
                         permFilter: permFilter,
-                        onPermFilterChanged: (v) => setState(() => permFilter = v),
-                        permissionType: permissionType, // NEW
+                        onPermFilterChanged: (v) =>
+                            setState(() => permFilter = v),
+                        permissionType: permissionType,
                         onPermissionTypeChanged: (v) => setState(() {
                           permissionType = v;
-                          // Clear the other filter when switching types
                           if (v == PermissionType.camps) {
                             selectedMyfId = null;
                           } else {
@@ -326,14 +322,15 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                         }),
                         genders: genderList,
                         selectedGender: selectedGender,
-                        onGenderChanged: (v) => setState(() => selectedGender = v),
+                        onGenderChanged: (v) =>
+                            setState(() => selectedGender = v),
                         districts: districtList,
                         selectedDistrict: selectedDistrict,
-                        onDistrictChanged: (v) => setState(() => selectedDistrict = v),
+                        onDistrictChanged: (v) =>
+                            setState(() => selectedDistrict = v),
                         onClear: clearFilters,
                       ),
 
-                      // Users List
                       if (filtered.isEmpty)
                         const Expanded(
                           child: EmptyStateWidget(
@@ -346,109 +343,149 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                       else
                         Expanded(
                           child: ListView.builder(
-                            padding: MethodistTheme.paddingM,
+                            padding: context.responsivePadding(all: 16),
                             itemCount: filtered.length,
                             itemBuilder: (context, index) {
                               final user = filtered[index];
                               final name = fullName(user);
                               final perms = user.permissions;
 
-                              return MethodistCard(
-                                margin: EdgeInsets.only(bottom: MethodistTheme.spacingM),
-                                child: ExpansionTile(
-                                  title: Text(
-                                    name.isEmpty ? 'Unnamed user' : name,
-                                    style: MethodistTheme.titleMedium,
-                                  ),
-                                  subtitle: Text(
-                                    user.phone.isEmpty ? 'No phone' : user.phone,
-                                    style: MethodistTheme.bodySmall.copyWith(
-                                      color: MethodistTheme.mediumGray,
-                                    ),
-                                  ),
-                                  trailing: StatusBadge(
-                                    text: '${perms.length}',
-                                    type: perms.isEmpty
-                                        ? StatusType.neutral
-                                        : StatusType.info,
-                                    isSmall: true,
-                                  ),
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      padding: MethodistTheme.paddingM,
-                                      decoration: BoxDecoration(
-                                        color: MethodistTheme.lightGray,
-                                        borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(MethodistTheme.radiusL),
-                                          bottomRight: Radius.circular(MethodistTheme.radiusL),
+                              return Column(
+                                children: [
+                                  MethodistCard(
+                                    child: ExpansionTile(
+                                      title: Text(
+                                        name.isEmpty ? 'Unnamed user' : name,
+                                        style:
+                                        context.responsiveTitleMedium,
+                                      ),
+                                      subtitle: Text(
+                                        user.phone.isEmpty
+                                            ? 'No phone'
+                                            : user.phone,
+                                        style: context.responsiveBodySmall
+                                            .copyWith(
+                                          color: MethodistTheme.mediumGray,
                                         ),
                                       ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // User Details
-                                          Text(
-                                            'User Details',
-                                            style: MethodistTheme.titleSmall.copyWith(
-                                              color: MethodistTheme.primaryRed,
-                                              fontWeight: FontWeight.bold,
+                                      trailing: StatusBadge(
+                                        text: '${perms.length}',
+                                        type: perms.isEmpty
+                                            ? StatusType.neutral
+                                            : StatusType.info,
+                                        isSmall: true,
+                                      ),
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          padding: context
+                                              .responsivePadding(all: 16),
+                                          decoration: BoxDecoration(
+                                            color: MethodistTheme.lightGray,
+                                            borderRadius:
+                                            BorderRadius.only(
+                                              bottomLeft: Radius.circular(
+                                                context.responsiveRadius(16),
+                                              ),
+                                              bottomRight: Radius.circular(
+                                                context.responsiveRadius(16),
+                                              ),
                                             ),
                                           ),
-                                          SizedBox(height: MethodistTheme.spacingS),
-                                          UserDetailRow('District:', user.district ?? 'Not specified'),
-                                          UserDetailRow('Church:', user.church ?? 'Not specified'),
-                                          UserDetailRow('Gender:', user.gender ?? 'Not specified'),
-                                          SizedBox(height: MethodistTheme.spacingM),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'User Details',
+                                                style: context
+                                                    .responsiveTitleSmall
+                                                    .copyWith(
+                                                  color: MethodistTheme
+                                                      .primaryRed,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: context.spacing(8),
+                                              ),
+                                              UserDetailRow(
+                                                'District:',
+                                                user.district ??
+                                                    'Not specified',
+                                              ),
+                                              UserDetailRow(
+                                                'Church:',
+                                                user.church ?? 'Not specified',
+                                              ),
+                                              UserDetailRow(
+                                                'Gender:',
+                                                user.gender ?? 'Not specified',
+                                              ),
+                                              SizedBox(
+                                                height: context.spacing(16),
+                                              ),
 
-                                          // Camp Permissions Section
-                                          if (camps.isEmpty)
-                                            _buildNoItemsAvailable(
-                                              'Camps',
-                                              'No camps are available for permission assignment.',
-                                              Icons.campaign_outlined,
-                                            )
-                                          else
-                                            _buildPermissionsSection(
-                                              title: 'Camp Permissions',
-                                              items: camps,
-                                              userPermissions: perms,
-                                              onPermissionChanged: (id, enabled) {
-                                                setCampPermission(
-                                                  uid: user.uid,
-                                                  campId: id,
-                                                  enabled: enabled,
-                                                );
-                                              },
-                                            ),
 
-                                          SizedBox(height: MethodistTheme.spacingM),
+                                              if (camps.isEmpty)
+                                                _buildNoItemsAvailable(
+                                                  context,
+                                                  'Camps',
+                                                  'No camps are available for permission assignment.',
+                                                  Icons.campaign_outlined,
+                                                )
+                                              else
+                                                _buildPermissionsSection(
+                                                  context: context,
+                                                  title: 'Camp Permissions',
+                                                  items: camps,
+                                                  userPermissions: perms,
+                                                  onPermissionChanged: (id, enabled) {
+                                                    setCampPermission(
+                                                      uid: user.uid,
+                                                      campId: id,
+                                                      enabled: enabled,
+                                                    );
+                                                  },
+                                                ),
 
-                                          // NEW: MYF Permissions Section
-                                          if (myfs.isEmpty)
-                                            _buildNoItemsAvailable(
-                                              'MYF Groups',
-                                              'No MYF groups are available for permission assignment.',
-                                              Icons.group_outlined,
-                                            )
-                                          else
-                                            _buildPermissionsSection(
-                                              title: 'MYF Permissions',
-                                              items: myfs,
-                                              userPermissions: perms,
-                                              onPermissionChanged: (id, enabled) {
-                                                setMyfPermission(
-                                                  uid: user.uid,
-                                                  myfId: id,
-                                                  enabled: enabled,
-                                                );
-                                              },
-                                            ),
-                                        ],
-                                      ),
+                                              SizedBox(
+                                                height: context.spacing(16),
+                                              ),
+
+                                              // ✅ FIXED: MYF Permissions
+                                              if (myfs.isEmpty)
+                                                _buildNoItemsAvailable(
+                                                  context,
+                                                  'MYF Groups',
+                                                  'No MYF groups are available for permission assignment.',
+                                                  Icons.group_outlined,
+                                                )
+                                              else
+                                                _buildPermissionsSection(
+                                                  context: context,
+                                                  title: 'MYF Permissions',
+                                                  items: myfs,
+                                                  userPermissions: perms,
+                                                  onPermissionChanged: (id, enabled) {
+                                                    setMyfPermission(
+                                                      uid: user.uid,
+                                                      myfId: id,
+                                                      enabled: enabled,
+                                                    );
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  if (index < filtered.length - 1)
+                                    SizedBox(
+                                      height: context.spacing(12),
+                                    ),
+                                ],
                               );
                             },
                           ),
@@ -464,13 +501,19 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     );
   }
 
-  // NEW: Helper method to build "no items available" message
-  Widget _buildNoItemsAvailable(String itemType, String message, IconData icon) {
+  Widget _buildNoItemsAvailable(
+      BuildContext context,
+      String itemType,
+      String message,
+      IconData icon,
+      ) {
     return Container(
-      padding: MethodistTheme.paddingM,
+      padding: context.responsivePadding(all: 16),
       decoration: BoxDecoration(
         color: MethodistTheme.white,
-        borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+        borderRadius: BorderRadius.circular(
+          context.responsiveRadius(12),
+        ),
         border: Border.all(
           color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
         ),
@@ -480,20 +523,20 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
           Icon(
             icon,
             color: MethodistTheme.mediumGray,
-            size: 40,
+            size: context.responsiveIconSize(40),
           ),
-          SizedBox(width: MethodistTheme.spacingM),
+          SizedBox(width: context.spacing(16)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'No $itemType Available',
-                  style: MethodistTheme.titleSmall,
+                  style: context.responsiveTitleSmall,
                 ),
                 Text(
                   message,
-                  style: MethodistTheme.bodySmall.copyWith(
+                  style: context.responsiveBodySmall.copyWith(
                     color: MethodistTheme.mediumGray,
                   ),
                 ),
@@ -505,8 +548,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     );
   }
 
-  // NEW: Helper method to build permissions section
   Widget _buildPermissionsSection({
+    required BuildContext context,
     required String title,
     required List<Map<String, Object>> items,
     required List<String> userPermissions,
@@ -517,24 +560,26 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
       children: [
         Text(
           title,
-          style: MethodistTheme.titleSmall.copyWith(
+          style: context.responsiveTitleSmall.copyWith(
             color: MethodistTheme.primaryRed,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: MethodistTheme.spacingS),
+        SizedBox(height: context.spacing(8)),
         Container(
-          padding: MethodistTheme.paddingM,
+          padding: context.responsivePadding(all: 16),
           decoration: BoxDecoration(
             color: MethodistTheme.white,
-            borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+            borderRadius: BorderRadius.circular(
+              context.responsiveRadius(12),
+            ),
             border: Border.all(
               color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
             ),
           ),
           child: Wrap(
-            spacing: MethodistTheme.spacingS,
-            runSpacing: MethodistTheme.spacingS,
+            spacing: context.spacing(8),
+            runSpacing: context.spacing(8),
             children: items.map((item) {
               final itemId = item['id'] as String;
               final itemTitle = item['title'] as String;
@@ -555,7 +600,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   }
 }
 
-// Rest of the classes remain the same...
 class UserDetailRow extends StatelessWidget {
   final String label;
   final String value;
@@ -565,7 +609,7 @@ class UserDetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MethodistTheme.spacingXS),
+      padding: EdgeInsets.only(bottom: context.spacing(4)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -573,7 +617,7 @@ class UserDetailRow extends StatelessWidget {
             width: 80,
             child: Text(
               label,
-              style: MethodistTheme.bodySmall.copyWith(
+              style: context.responsiveBodySmall.copyWith(
                 color: MethodistTheme.mediumGray,
                 fontWeight: FontWeight.w500,
               ),
@@ -582,7 +626,7 @@ class UserDetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: MethodistTheme.bodySmall.copyWith(
+              style: context.responsiveBodySmall.copyWith(
                 color: MethodistTheme.darkGray,
               ),
             ),
@@ -601,15 +645,15 @@ class FilterBar extends StatelessWidget {
   final SortOrder sortOrder;
   final ValueChanged<SortOrder> onSortOrderChanged;
   final List<Map<String, Object>> camps;
-  final List<Map<String, Object>> myfs; // NEW
+  final List<Map<String, Object>> myfs;
   final String? selectedCampId;
-  final String? selectedMyfId; // NEW
+  final String? selectedMyfId;
   final ValueChanged<String?> onCampChanged;
-  final ValueChanged<String?> onMyfChanged; // NEW
+  final ValueChanged<String?> onMyfChanged;
   final PermissionFilter permFilter;
   final ValueChanged<PermissionFilter> onPermFilterChanged;
-  final PermissionType permissionType; // NEW
-  final ValueChanged<PermissionType> onPermissionTypeChanged; // NEW
+  final PermissionType permissionType;
+  final ValueChanged<PermissionType> onPermissionTypeChanged;
   final List<String> genders;
   final String? selectedGender;
   final ValueChanged<String?> onGenderChanged;
@@ -627,15 +671,15 @@ class FilterBar extends StatelessWidget {
     required this.sortOrder,
     required this.onSortOrderChanged,
     required this.camps,
-    required this.myfs, // NEW
+    required this.myfs,
     required this.selectedCampId,
-    required this.selectedMyfId, // NEW
+    required this.selectedMyfId,
     required this.onCampChanged,
-    required this.onMyfChanged, // NEW
+    required this.onMyfChanged,
     required this.permFilter,
     required this.onPermFilterChanged,
-    required this.permissionType, // NEW
-    required this.onPermissionTypeChanged, // NEW
+    required this.permissionType,
+    required this.onPermissionTypeChanged,
     required this.genders,
     required this.selectedGender,
     required this.onGenderChanged,
@@ -652,225 +696,354 @@ class FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the currently active items based on permission type
-    final activeItems = permissionType == PermissionType.camps ? camps : myfs;
-    final selectedId = permissionType == PermissionType.camps ? selectedCampId : selectedMyfId;
-    final onChanged = permissionType == PermissionType.camps ? onCampChanged : onMyfChanged;
+    final activeItems =
+    permissionType == PermissionType.camps ? camps : myfs;
+    final selectedId =
+    permissionType == PermissionType.camps ? selectedCampId : selectedMyfId;
+    final onChanged =
+    permissionType == PermissionType.camps ? onCampChanged : onMyfChanged;
 
     return MethodistCard(
-      margin: MethodistTheme.paddingM,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Filters & Search',
-            style: MethodistTheme.titleMedium.copyWith(
-              color: MethodistTheme.primaryRed,
+      margin: context.responsivePadding(all: 16),
+      padding: context.responsivePadding(all: 16),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Filters & Search',
+              style: context.responsiveTitleMedium.copyWith(
+                color: MethodistTheme.primaryRed,
+              ),
             ),
-          ),
-          SizedBox(height: MethodistTheme.spacingS),
+            SizedBox(height: context.spacing(12)),
 
-          // Search Field
-          SizedBox(
-            height: 50,
-            child: TextFormField(
-              initialValue: search,
-              onChanged: onSearchChanged,
-              decoration: InputDecoration(
-                labelText: 'Search',
-                hintText: 'Name, phone, district...',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                suffixIcon: search.isNotEmpty
-                    ? IconButton(
-                  icon: const Icon(Icons.clear, size: 18),
-                  onPressed: onClear,
-                )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
+            SizedBox(
+              height: context.responsiveIconSize(50),
+              child: TextFormField(
+                initialValue: search,
+                onChanged: onSearchChanged,
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  labelStyle: TextStyle(
+                    fontSize: context.responsiveFontSize(14),
+                  ),
+                  hintText: 'Name, phone, district...',
+                  hintStyle: TextStyle(
+                    fontSize: context.responsiveFontSize(13),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: context.responsiveIconSize(20),
+                  ),
+                  suffixIcon: search.isNotEmpty
+                      ? IconButton(
+                    icon: Icon(
+                      Icons.clear,
+                      size: context.responsiveIconSize(18),
+                    ),
+                    onPressed: onClear,
+                  )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      context.responsiveRadius(12),
+                    ),
+                  ),
+                  contentPadding: context.responsivePadding(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  isDense: true,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+            SizedBox(height: context.spacing(12)),
+
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<SortBy>(
+                    isExpanded: true,
+                    value: sortBy,
+                    onChanged: (v) =>
+                    v == null ? null : onSortByChanged(v),
+                    decoration: InputDecoration(
+                      labelText: 'Sort',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(8),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      isDense: true,
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: SortBy.name,
+                        child: Text('Name'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortBy.phone,
+                        child: Text('Phone'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortBy.district,
+                        child: Text('District'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortBy.permissions,
+                        child: Text('Permissions'),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: context.spacing(8)),
+                Expanded(
+                  child: DropdownButtonFormField<SortOrder>(
+                    isExpanded: true,
+                    value: sortOrder,
+                    onChanged: (v) =>
+                    v == null ? null : onSortOrderChanged(v),
+                    decoration: InputDecoration(
+                      labelText: 'Order',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(8),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      isDense: true,
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: SortOrder.asc,
+                        child: Text('A-Z'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortOrder.desc,
+                        child: Text('Z-A'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: context.spacing(12)),
+
+            DropdownButtonFormField<PermissionType>(
+              isExpanded: true,
+              value: permissionType,
+              onChanged: (v) =>
+              v == null ? null : onPermissionTypeChanged(v),
+              decoration: InputDecoration(
+                labelText: 'Permission Type',
+                labelStyle: TextStyle(
+                  fontSize: context.responsiveFontSize(12),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(
+                    context.responsiveRadius(8),
+                  ),
+                ),
+                contentPadding: context.responsivePadding(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
                 isDense: true,
               ),
+              items: const [
+                DropdownMenuItem(
+                  value: PermissionType.camps,
+                  child: Text('Camps'),
+                ),
+                DropdownMenuItem(
+                  value: PermissionType.myfs,
+                  child: Text('MYF Groups'),
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: MethodistTheme.spacingS),
+            SizedBox(height: context.spacing(12)),
 
-          // Row 1 - Sort
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<SortBy>(
-                  isExpanded: true,
-                  value: sortBy,
-                  onChanged: (v) => v == null ? null : onSortByChanged(v),
-                  decoration: InputDecoration(
-                    labelText: 'Sort',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    value: selectedId,
+                    onChanged: onChanged,
+                    decoration: InputDecoration(
+                      labelText: permissionType == PermissionType.camps
+                          ? 'Camp'
+                          : 'MYF Group',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(8),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      isDense: true,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All'),
+                      ),
+                      ...activeItems.map((item) {
+                        final id = item['id'] as String;
+                        final title =
+                        truncateText(item['title'] as String, 25);
+                        return DropdownMenuItem(
+                          value: id,
+                          child: Text(title),
+                        );
+                      }),
+                    ],
                   ),
-                  items: const [
-                    DropdownMenuItem(value: SortBy.name, child: Text('Name')),
-                    DropdownMenuItem(value: SortBy.phone, child: Text('Phone')),
-                    DropdownMenuItem(value: SortBy.district, child: Text('District')),
-                    DropdownMenuItem(value: SortBy.permissions, child: Text('Permissions')),
-                  ],
                 ),
-              ),
-              SizedBox(width: MethodistTheme.spacingS),
-              Expanded(
-                child: DropdownButtonFormField<SortOrder>(
-                  isExpanded: true,
-                  value: sortOrder,
-                  onChanged: (v) => v == null ? null : onSortOrderChanged(v),
-                  decoration: InputDecoration(
-                    labelText: 'Order',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                SizedBox(width: context.spacing(8)),
+                Expanded(
+                  child: DropdownButtonFormField<PermissionFilter>(
+                    isExpanded: true,
+                    value: permFilter,
+                    onChanged: (v) =>
+                    v == null ? null : onPermFilterChanged(v),
+                    decoration: InputDecoration(
+                      labelText: 'Filter',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(8),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      isDense: true,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
+                    items: const [
+                      DropdownMenuItem(
+                        value: PermissionFilter.all,
+                        child: Text('All'),
+                      ),
+                      DropdownMenuItem(
+                        value: PermissionFilter.has,
+                        child: Text('Has'),
+                      ),
+                      DropdownMenuItem(
+                        value: PermissionFilter.not,
+                        child: Text('Not'),
+                      ),
+                    ],
                   ),
-                  items: const [
-                    DropdownMenuItem(value: SortOrder.asc, child: Text('A-Z')),
-                    DropdownMenuItem(value: SortOrder.desc, child: Text('Z-A')),
-                  ],
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: MethodistTheme.spacingS),
+              ],
+            ),
+            SizedBox(height: context.spacing(12)),
 
-          // NEW: Row 2 - Permission Type Toggle
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<PermissionType>(
-                  isExpanded: true,
-                  value: permissionType,
-                  onChanged: (v) => v == null ? null : onPermissionTypeChanged(v),
-                  decoration: InputDecoration(
-                    labelText: 'Permission Type',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    value: selectedGender,
+                    onChanged: onGenderChanged,
+                    decoration: InputDecoration(
+                      labelText: 'Gender',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(8),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      isDense: true,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All'),
+                      ),
+                      ...genders.map(
+                            (g) => DropdownMenuItem(
+                          value: g,
+                          child: Text(g),
+                        ),
+                      ),
+                    ],
                   ),
-                  items: const [
-                    DropdownMenuItem(value: PermissionType.camps, child: Text('Camps')),
-                    DropdownMenuItem(value: PermissionType.myfs, child: Text('MYF Groups')),
-                  ],
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: MethodistTheme.spacingS),
-
-          // Row 3 - Camp/MYF Selection and Filter
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  value: selectedId,
-                  onChanged: onChanged,
-                  decoration: InputDecoration(
-                    labelText: permissionType == PermissionType.camps ? 'Camp' : 'MYF Group',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
+                SizedBox(width: context.spacing(8)),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    value: selectedDistrict,
+                    onChanged: onDistrictChanged,
+                    decoration: InputDecoration(
+                      labelText: 'District',
+                      labelStyle: TextStyle(
+                        fontSize: context.responsiveFontSize(12),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.responsiveRadius(8),
+                        ),
+                      ),
+                      contentPadding: context.responsivePadding(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      isDense: true,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All'),
+                      ),
+                      ...districts.map(
+                            (d) {
+                          final truncated = truncateText(d, 20);
+                          return DropdownMenuItem(
+                            value: d,
+                            child: Text(truncated),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
-                    ...activeItems.map((item) {
-                      final id = item['id'] as String;
-                      final title = truncateText(item['title'] as String, 25);
-                      return DropdownMenuItem(value: id, child: Text(title));
-                    }),
-                  ],
                 ),
-              ),
-              SizedBox(width: MethodistTheme.spacingS),
-              Expanded(
-                child: DropdownButtonFormField<PermissionFilter>(
-                  isExpanded: true,
-                  value: permFilter,
-                  onChanged: (v) => v == null ? null : onPermFilterChanged(v),
-                  decoration: InputDecoration(
-                    labelText: 'Filter',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: PermissionFilter.all, child: Text('All')),
-                    DropdownMenuItem(value: PermissionFilter.has, child: Text('Has')),
-                    DropdownMenuItem(value: PermissionFilter.not, child: Text('Not')),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: MethodistTheme.spacingS),
-
-          // Row 4 - Gender and District
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  value: selectedGender,
-                  onChanged: onGenderChanged,
-                  decoration: InputDecoration(
-                    labelText: 'Gender',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
-                  ),
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
-                    ...genders.map((g) => DropdownMenuItem(value: g, child: Text(g))),
-                  ],
-                ),
-              ),
-              SizedBox(width: MethodistTheme.spacingS),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  value: selectedDistrict,
-                  onChanged: onDistrictChanged,
-                  decoration: InputDecoration(
-                    labelText: 'District',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
-                  ),
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
-                    ...districts.map((d) {
-                      final truncated = truncateText(d, 20);
-                      return DropdownMenuItem(value: d, child: Text(truncated));
-                    }),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

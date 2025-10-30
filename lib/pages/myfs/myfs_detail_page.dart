@@ -1,54 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../models/event.dart';
 import '../../widgets/widgets.dart';
-
-class MyfEvent {
-  final String id;
-  final DateTime dateTime;
-  final String title;
-  final String description;
-  final String? venue;
-  final double avgRating;
-  final int numRatings;
-
-  MyfEvent({
-    required this.id,
-    required this.dateTime,
-    required this.title,
-    required this.description,
-    this.venue,
-    this.avgRating = 0.0,
-    this.numRatings = 0,
-  });
-
-  String get dayOfWeek =>
-      ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dateTime.weekday - 1];
-
-  factory MyfEvent.fromMap(String id, Map<String, dynamic> data) {
-    final raw = data['dateTime'];
-    final dt = raw is Timestamp ? raw.toDate() : DateTime.parse(raw as String);
-    return MyfEvent(
-      id: id,
-      dateTime: dt,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      venue: data['venue'],
-      avgRating: (data['avgRating'] ?? 0.0).toDouble(),
-      numRatings: data['numRatings'] ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'dateTime': Timestamp.fromDate(dateTime),
-      'title': title,
-      'description': description,
-      if (venue != null) 'venue': venue,
-      'avgRating': avgRating,
-      'numRatings': numRatings,
-    };
-  }
-}
+import '../../app/theme.dart';
 
 class MyfsDetailPage extends StatefulWidget {
   final String myfId;
@@ -65,7 +20,7 @@ class MyfsDetailPage extends StatefulWidget {
 }
 
 class _MyfsDetailPageState extends State<MyfsDetailPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -111,17 +66,15 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const LoadingWidget(message: 'Loading events...');
         }
-
         if (snapshot.hasError) {
           return ErrorStateWidget(
-            title: 'Error Loading Events',
+            title: 'Error loading events',
             description: 'Error: ${snapshot.error}',
             onRetry: () => setState(() {}),
           );
         }
 
         final events = snapshot.data ?? [];
-
         if (events.isEmpty) {
           return EmptyStateWidget(
             icon: upcoming ? Icons.upcoming : Icons.history,
@@ -133,12 +86,12 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
         }
 
         return ListView.builder(
-          padding: MethodistTheme.paddingM,
+          padding: context.responsivePadding(all: 16),
           itemCount: events.length,
           itemBuilder: (context, index) {
             final event = events[index];
             return Padding(
-              padding: EdgeInsets.only(bottom: MethodistTheme.spacingM),
+              padding: EdgeInsets.only(bottom: context.spacing(12)),
               child: EventCard(
                 title: event.title,
                 description: event.description,
@@ -149,7 +102,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
                 numRatings: event.numRatings,
                 eventId: event.id,
                 campOrMyfId: widget.myfId,
-                isCamp: false, // This is MYF, not camp
+                isCamp: false,
               ),
             );
           },
@@ -161,13 +114,61 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: Text(widget.myfTitle),
+        title: Text(
+          widget.myfTitle,
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
+        // ✅ FIXED: Proper TabBar styling with visible text
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Upcoming', icon: Icon(Icons.upcoming)),
-            Tab(text: 'Past', icon: Icon(Icons.history)),
+          labelColor: MethodistTheme.white,
+          unselectedLabelColor: MethodistTheme.white.withValues(alpha: 0.7),
+          indicatorColor: MethodistTheme.white,
+          labelStyle: TextStyle(
+            fontSize: context.responsiveFontSize(14),
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontSize: context.responsiveFontSize(14),
+            fontWeight: FontWeight.w500,
+          ),
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.upcoming,
+                    size: context.responsiveIconSize(18),
+                  ),
+                  SizedBox(width: context.spacing(6)),
+                  const Text('Upcoming'),
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.history,
+                    size: context.responsiveIconSize(18),
+                  ),
+                  SizedBox(width: context.spacing(6)),
+                  const Text('Past'),
+                ],
+              ),
+            ),
           ],
         ),
       ),

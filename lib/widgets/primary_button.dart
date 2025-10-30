@@ -60,10 +60,15 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get responsive sizing
+    final responsiveIconSize = context.responsiveIconSize(20);
+    final responsiveButtonHeight = context.responsiveIconSize(48);
+    final responsiveSpacing = context.spacing(8);
+
     Widget buttonChild = loading
         ? SizedBox(
-      width: 20,
-      height: 20,
+      width: responsiveIconSize,
+      height: responsiveIconSize,
       child: CircularProgressIndicator(
         strokeWidth: 2,
         valueColor: AlwaysStoppedAnimation<Color>(
@@ -78,18 +83,41 @@ class PrimaryButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (icon != null) ...[
-          Icon(icon, size: 18),
-          SizedBox(width: MethodistTheme.spacingS),
+          Icon(icon, size: responsiveIconSize),
+          SizedBox(width: responsiveSpacing),
         ],
         Flexible(
           child: Text(
             label,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: context.responsiveFontSize(14),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
     );
+
+    // Define responsive button style
+    ButtonStyle getResponsiveButtonStyle(ButtonStyle baseStyle) {
+      return baseStyle.copyWith(
+        padding: WidgetStateProperty.all(
+          context.responsivePadding(
+            horizontal: 24,
+            vertical: 14,
+          ),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              context.responsiveRadius(12),
+            ),
+          ),
+        ),
+      );
+    }
 
     Widget button;
 
@@ -97,28 +125,28 @@ class PrimaryButton extends StatelessWidget {
       case ButtonType.primary:
         button = ElevatedButton(
           onPressed: loading ? null : onPressed,
-          style: MethodistTheme.primaryButtonStyle,
+          style: getResponsiveButtonStyle(MethodistTheme.primaryButtonStyle),
           child: buttonChild,
         );
         break;
       case ButtonType.secondary:
         button = OutlinedButton(
           onPressed: loading ? null : onPressed,
-          style: MethodistTheme.secondaryButtonStyle,
+          style: getResponsiveButtonStyle(MethodistTheme.secondaryButtonStyle),
           child: buttonChild,
         );
         break;
       case ButtonType.text:
         button = TextButton(
           onPressed: loading ? null : onPressed,
-          style: MethodistTheme.textButtonStyle,
+          style: getResponsiveButtonStyle(MethodistTheme.textButtonStyle),
           child: buttonChild,
         );
         break;
       case ButtonType.danger:
         button = ElevatedButton(
           onPressed: loading ? null : onPressed,
-          style: MethodistTheme.dangerButtonStyle,
+          style: getResponsiveButtonStyle(MethodistTheme.dangerButtonStyle),
           child: buttonChild,
         );
         break;
@@ -126,7 +154,7 @@ class PrimaryButton extends StatelessWidget {
 
     return SizedBox(
       width: fullWidth ? double.infinity : width,
-      height: height ?? 48,
+      height: height ?? responsiveButtonHeight,
       child: button,
     );
   }

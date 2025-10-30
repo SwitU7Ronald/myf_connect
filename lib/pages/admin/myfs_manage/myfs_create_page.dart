@@ -1,7 +1,7 @@
-// ./lib/pages/admin/myfs_manage/myfs_create_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
+import '../../../app/theme.dart';
 
 class MyfsCreatePage extends StatefulWidget {
   const MyfsCreatePage({super.key});
@@ -38,7 +38,8 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
       });
 
       if (mounted) {
-        MethodistTheme.showSuccessSnackBar(context, 'MYF created successfully');
+        MethodistTheme.showSuccessSnackBar(
+            context, 'MYF created successfully');
         navigator.pop();
       }
     } catch (e) {
@@ -57,7 +58,13 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: const Text('Create New MYF'),
+        // ✅ RESPONSIVE: Use responsive text style
+        title: Text(
+          'Create New MYF',
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+          ),
+        ),
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
       ),
@@ -65,37 +72,46 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
         isLoading: _loading,
         loadingMessage: 'Creating MYF...',
         child: SingleChildScrollView(
-          padding: MethodistTheme.paddingL,
+          // ✅ RESPONSIVE: Use context.responsivePadding
+          padding: context.responsivePadding(all: 24),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                // Header card
+                // ========== Header Card ==========
                 MethodistCard(
+                  padding: context.responsivePadding(all: 20),
                   child: Column(
                     children: [
                       Container(
-                        padding: MethodistTheme.paddingM,
+                        padding: context.responsivePadding(all: 16),
                         decoration: BoxDecoration(
                           color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
+                          // ✅ RESPONSIVE: Use context.responsiveRadius
+                          borderRadius: BorderRadius.circular(
+                            context.responsiveRadius(20),
+                          ),
                         ),
+                        // ✅ RESPONSIVE: Use context.responsiveIconSize
                         child: Icon(
                           Icons.group_add,
-                          size: 48,
+                          size: context.responsiveIconSize(48),
                           color: MethodistTheme.primaryRed,
                         ),
                       ),
-                      SizedBox(height: MethodistTheme.spacingM),
+                      // ✅ RESPONSIVE: Use context.spacing
+                      SizedBox(height: context.spacing(16)),
                       Text(
                         'Create New MYF Group',
-                        style: MethodistTheme.headlineSmall,
+                        // ✅ RESPONSIVE: Use responsive text style
+                        style: context.responsiveHeadlineSmall,
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: MethodistTheme.spacingS),
+                      SizedBox(height: context.spacing(8)),
                       Text(
                         'Fill in the details to create a new Methodist Youth Fellowship group',
-                        style: MethodistTheme.bodyMedium.copyWith(
+                        // ✅ RESPONSIVE: Use responsive text style
+                        style: context.responsiveBodyMedium.copyWith(
                           color: MethodistTheme.mediumGray,
                         ),
                         textAlign: TextAlign.center,
@@ -104,30 +120,36 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                   ),
                 ),
 
-                SizedBox(height: MethodistTheme.spacingL),
+                SizedBox(height: context.spacing(24)),
 
+                // ========== MYF Title Field ==========
                 AppTextField(
                   controller: _titleController,
                   label: 'MYF Title',
                   hint: 'Enter MYF group title',
                   textCapitalization: TextCapitalization.words,
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Title is required' : null,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Title is required'
+                      : null,
                 ),
 
-                SizedBox(height: MethodistTheme.spacingM),
+                SizedBox(height: context.spacing(16)),
 
+                // ========== MYF Description Field ==========
                 AppTextField(
                   controller: _descriptionController,
                   label: 'Description',
                   hint: 'Enter MYF group description',
                   textCapitalization: TextCapitalization.sentences,
                   maxLines: 4,
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Description is required'
+                      : null,
                 ),
 
-                SizedBox(height: MethodistTheme.spacingXL),
+                SizedBox(height: context.spacing(32)),
 
-                // Fixed: Action Buttons with Column layout to prevent overflow
+                // ========== Action Buttons ==========
                 Column(
                   children: [
                     PrimaryButton(
@@ -137,7 +159,7 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                       fullWidth: true,
                       icon: Icons.add_circle,
                     ),
-                    SizedBox(height: MethodistTheme.spacingM),
+                    SizedBox(height: context.spacing(12)),
                     PrimaryButton.secondary(
                       label: 'Cancel',
                       onPressed: _loading ? null : () => Navigator.pop(context),
@@ -147,7 +169,7 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                   ],
                 ),
 
-                SizedBox(height: MethodistTheme.spacingL),
+                SizedBox(height: context.spacing(24)),
               ],
             ),
           ),

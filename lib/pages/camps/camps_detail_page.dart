@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/event.dart';
 import '../../widgets/widgets.dart';
+import '../../app/theme.dart';
 
 class CampsDetailPage extends StatefulWidget {
   final String campId;
@@ -18,7 +19,7 @@ class CampsDetailPage extends StatefulWidget {
 }
 
 class _CampsDetailPageState extends State<CampsDetailPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -84,12 +85,12 @@ class _CampsDetailPageState extends State<CampsDetailPage>
         }
 
         return ListView.builder(
-          padding: MethodistTheme.paddingM,
+          padding: context.responsivePadding(all: 16),
           itemCount: events.length,
           itemBuilder: (context, index) {
             final event = events[index];
             return Padding(
-              padding: EdgeInsets.only(bottom: MethodistTheme.spacingM),
+              padding: EdgeInsets.only(bottom: context.spacing(12)),
               child: EventCard(
                 title: event.title,
                 description: event.description,
@@ -112,13 +113,61 @@ class _CampsDetailPageState extends State<CampsDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        title: Text(widget.campTitle),
+        title: Text(
+          widget.campTitle,
+          style: context.responsiveHeadlineSmall.copyWith(
+            color: MethodistTheme.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        backgroundColor: MethodistTheme.primaryRed,
+        foregroundColor: MethodistTheme.white,
+        // ✅ FIXED: Proper TabBar styling with visible text
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Upcoming', icon: Icon(Icons.upcoming)),
-            Tab(text: 'Past', icon: Icon(Icons.history)),
+          labelColor: MethodistTheme.white,
+          unselectedLabelColor: MethodistTheme.white.withValues(alpha: 0.7),
+          indicatorColor: MethodistTheme.white,
+          labelStyle: TextStyle(
+            fontSize: context.responsiveFontSize(14),
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontSize: context.responsiveFontSize(14),
+            fontWeight: FontWeight.w500,
+          ),
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.upcoming,
+                    size: context.responsiveIconSize(18),
+                  ),
+                  SizedBox(width: context.spacing(6)),
+                  const Text('Upcoming'),
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.history,
+                    size: context.responsiveIconSize(18),
+                  ),
+                  SizedBox(width: context.spacing(6)),
+                  const Text('Past'),
+                ],
+              ),
+            ),
           ],
         ),
       ),
