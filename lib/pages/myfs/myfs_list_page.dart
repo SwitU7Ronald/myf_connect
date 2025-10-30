@@ -37,6 +37,40 @@ class MyfsListPage extends StatelessWidget {
     }
   }
 
+  /// Get average rating for a MYF from all its past events
+  Stream<Map<String, double>> getMyfAverageRating(String myfId) {
+    return FirebaseFirestore.instance
+        .collection('myfs')
+        .doc(myfId)
+        .collection('events')
+        .where('dateTime', isLessThan: Timestamp.now())
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return {'avgRating': 0.0, 'count': 0.0};
+      }
+
+      double totalRating = 0.0;
+      int eventCount = 0;
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final avgRating = (data['avgRating'] ?? 0.0).toDouble();
+        final numRatings = data['numRatings'] ?? 0;
+
+        if (numRatings > 0) {
+          totalRating += avgRating;
+          eventCount++;
+        }
+      }
+
+      return {
+        'avgRating': eventCount > 0 ? totalRating / eventCount : 0.0,
+        'count': eventCount.toDouble(),
+      };
+    });
+  }
+
   /// Handle MYF tap with permission check
   void _handleMyfTap(
       BuildContext context,
@@ -83,7 +117,8 @@ class MyfsListPage extends StatelessWidget {
           if (permSnapshot.hasError) {
             return ErrorStateWidget(
               title: 'Error Loading Permissions',
-              description: 'Failed to load your permissions: ${permSnapshot.error}',
+              description:
+              'Failed to load your permissions: ${permSnapshot.error}',
               onRetry: () {
                 // Trigger rebuild to retry
                 Navigator.pushReplacement(
@@ -151,7 +186,39 @@ class MyfsListPage extends StatelessWidget {
                         : 'No description available',
                     icon: Icons.group,
                     isLocked: !hasPermission,
-                    onTap: () => _handleMyfTap(context, myfId, title, userPermissions),
+                    onTap: () =>
+                        _handleMyfTap(context, myfId, title, userPermissions),
+                    trailing: StreamBuilder<Map<String, double>>(
+                      stream: getMyfAverageRating(myfId),
+                      builder: (context, ratingSnapshot) {
+                        if (!ratingSnapshot.hasData ||
+                            ratingSnapshot.data!['count']! == 0) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final ratingData = ratingSnapshot.data!;
+                        final avgRating = ratingData['avgRating']!;
+
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              color: MethodistTheme.warningOrange,
+                              size: 18,
+                            ),
+                            SizedBox(width: MethodistTheme.spacingXS),
+                            Text(
+                              avgRating.toStringAsFixed(1),
+                              style: MethodistTheme.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: MethodistTheme.warningOrange,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   );
                 },
               );

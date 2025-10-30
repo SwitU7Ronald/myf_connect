@@ -37,6 +37,40 @@ class CampsListPage extends StatelessWidget {
     }
   }
 
+  /// Get average rating for a camp from all its past events
+  Stream<Map<String, double>> getCampAverageRating(String campId) {
+    return FirebaseFirestore.instance
+        .collection('camps')
+        .doc(campId)
+        .collection('events')
+        .where('dateTime', isLessThan: Timestamp.now())
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return {'avgRating': 0.0, 'count': 0.0};
+      }
+
+      double totalRating = 0.0;
+      int eventCount = 0;
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final avgRating = (data['avgRating'] ?? 0.0).toDouble();
+        final numRatings = data['numRatings'] ?? 0;
+
+        if (numRatings > 0) {
+          totalRating += avgRating;
+          eventCount++;
+        }
+      }
+
+      return {
+        'avgRating': eventCount > 0 ? totalRating / eventCount : 0.0,
+        'count': eventCount.toDouble(),
+      };
+    });
+  }
+
   /// Handle camp tap with permission check
   void _handleCampTap(
       BuildContext context,
@@ -83,7 +117,8 @@ class CampsListPage extends StatelessWidget {
           if (permSnapshot.hasError) {
             return ErrorStateWidget(
               title: 'Error Loading Permissions',
-              description: 'Failed to load your permissions: ${permSnapshot.error}',
+              description:
+              'Failed to load your permissions: ${permSnapshot.error}',
               onRetry: () {
                 // Trigger rebuild to retry
                 Navigator.pushReplacement(
@@ -126,7 +161,8 @@ class CampsListPage extends StatelessWidget {
                 return const EmptyStateWidget(
                   icon: Icons.campaign,
                   title: 'No Camps Available',
-                  description: 'Check back later for upcoming camps and events.',
+                  description:
+                  'Check back later for upcoming camps and events.',
                 );
               }
 
@@ -145,10 +181,12 @@ class CampsListPage extends StatelessWidget {
                   String dateStr = '';
                   final dateVal = data['date'];
                   if (dateVal is Timestamp) {
-                    dateStr = dateVal.toDate().toLocal().toString().split(' ').first;
+                    dateStr =
+                        dateVal.toDate().toLocal().toString().split(' ').first;
                   } else if (dateVal is String) {
                     final parsedDate = DateTime.tryParse(dateVal);
-                    dateStr = parsedDate?.toLocal().toString().split(' ').first ?? '';
+                    dateStr =
+                        parsedDate?.toLocal().toString().split(' ').first ?? '';
                   }
 
                   // Check if user has permission for this camp
@@ -157,10 +195,43 @@ class CampsListPage extends StatelessWidget {
                   return InfoCard(
                     title: title,
                     subtitle: place.isNotEmpty ? place : null,
-                    description: '${dateStr}${description.isNotEmpty ? '\n$description' : ''}',
+                    description:
+                    '$dateStr${description.isNotEmpty ? ' • $description' : ''}',
                     icon: Icons.campaign,
                     isLocked: !hasPermission,
-                    onTap: () => _handleCampTap(context, campId, title, userPermissions),
+                    onTap: () =>
+                        _handleCampTap(context, campId, title, userPermissions),
+                    trailing: StreamBuilder<Map<String, double>>(
+                      stream: getCampAverageRating(campId),
+                      builder: (context, ratingSnapshot) {
+                        if (!ratingSnapshot.hasData ||
+                            ratingSnapshot.data!['count']! == 0) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final ratingData = ratingSnapshot.data!;
+                        final avgRating = ratingData['avgRating']!;
+
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              color: MethodistTheme.warningOrange,
+                              size: 18,
+                            ),
+                            SizedBox(width: MethodistTheme.spacingXS),
+                            Text(
+                              avgRating.toStringAsFixed(1),
+                              style: MethodistTheme.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: MethodistTheme.warningOrange,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   );
                 },
               );

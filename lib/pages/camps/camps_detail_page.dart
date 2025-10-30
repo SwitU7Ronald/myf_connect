@@ -27,6 +27,13 @@ class _CampsDetailPageState extends State<CampsDetailPage>
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  /// Get events stream based on upcoming/past filter
   Stream<List<CampEvent>> _getEvents({required bool upcoming}) {
     final nowTs = Timestamp.now();
     final collection = FirebaseFirestore.instance
@@ -49,6 +56,7 @@ class _CampsDetailPageState extends State<CampsDetailPage>
     );
   }
 
+  /// Build event list widget for upcoming or past events
   Widget _buildEventList(bool upcoming) {
     return StreamBuilder<List<CampEvent>>(
       stream: _getEvents(upcoming: upcoming),
@@ -56,7 +64,6 @@ class _CampsDetailPageState extends State<CampsDetailPage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const LoadingWidget(message: 'Loading events...');
         }
-
         if (snapshot.hasError) {
           return ErrorStateWidget(
             title: 'Error loading events',
@@ -66,7 +73,6 @@ class _CampsDetailPageState extends State<CampsDetailPage>
         }
 
         final events = snapshot.data ?? [];
-
         if (events.isEmpty) {
           return EmptyStateWidget(
             icon: upcoming ? Icons.upcoming : Icons.history,
@@ -82,11 +88,20 @@ class _CampsDetailPageState extends State<CampsDetailPage>
           itemCount: events.length,
           itemBuilder: (context, index) {
             final event = events[index];
-            return EventCard(
-              title: event.title,
-              description: event.description,
-              dateTime: event.dateTime,
-              showRating: !upcoming, // Show rating for past events only
+            return Padding(
+              padding: EdgeInsets.only(bottom: MethodistTheme.spacingM),
+              child: EventCard(
+                title: event.title,
+                description: event.description,
+                dateTime: event.dateTime,
+                venue: event.venue,
+                showRating: !upcoming, // Show rating for past events only
+                avgRating: event.avgRating,
+                numRatings: event.numRatings,
+                eventId: event.id,
+                campOrMyfId: widget.campId,
+                isCamp: true,
+              ),
             );
           },
         );
@@ -115,11 +130,5 @@ class _CampsDetailPageState extends State<CampsDetailPage>
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }

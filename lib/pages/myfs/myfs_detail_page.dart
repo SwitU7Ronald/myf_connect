@@ -7,12 +7,18 @@ class MyfEvent {
   final DateTime dateTime;
   final String title;
   final String description;
+  final String? venue;
+  final double avgRating;
+  final int numRatings;
 
   MyfEvent({
     required this.id,
     required this.dateTime,
     required this.title,
     required this.description,
+    this.venue,
+    this.avgRating = 0.0,
+    this.numRatings = 0,
   });
 
   String get dayOfWeek =>
@@ -26,6 +32,9 @@ class MyfEvent {
       dateTime: dt,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
+      venue: data['venue'],
+      avgRating: (data['avgRating'] ?? 0.0).toDouble(),
+      numRatings: data['numRatings'] ?? 0,
     );
   }
 
@@ -34,6 +43,9 @@ class MyfEvent {
       'dateTime': Timestamp.fromDate(dateTime),
       'title': title,
       'description': description,
+      if (venue != null) 'venue': venue,
+      'avgRating': avgRating,
+      'numRatings': numRatings,
     };
   }
 }
@@ -62,6 +74,13 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  /// Get events stream based on upcoming/past filter
   Stream<List<MyfEvent>> _getEvents({required bool upcoming}) {
     final nowTs = Timestamp.now();
     final collection = FirebaseFirestore.instance
@@ -78,11 +97,13 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
         .orderBy('dateTime', descending: true);
 
     return query.snapshots().map(
-          (snap) =>
-          snap.docs.map((doc) => MyfEvent.fromMap(doc.id, doc.data())).toList(),
+          (snap) => snap.docs
+          .map((doc) => MyfEvent.fromMap(doc.id, doc.data()))
+          .toList(),
     );
   }
 
+  /// Build event list widget for upcoming or past events
   Widget _buildEventList(bool upcoming) {
     return StreamBuilder<List<MyfEvent>>(
       stream: _getEvents(upcoming: upcoming),
@@ -116,11 +137,20 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
           itemCount: events.length,
           itemBuilder: (context, index) {
             final event = events[index];
-            return EventCard(
-              title: event.title,
-              description: event.description,
-              dateTime: event.dateTime,
-              showRating: !upcoming, // Show rating for past events only
+            return Padding(
+              padding: EdgeInsets.only(bottom: MethodistTheme.spacingM),
+              child: EventCard(
+                title: event.title,
+                description: event.description,
+                dateTime: event.dateTime,
+                venue: event.venue,
+                showRating: !upcoming, // Show rating for past events only
+                avgRating: event.avgRating,
+                numRatings: event.numRatings,
+                eventId: event.id,
+                campOrMyfId: widget.myfId,
+                isCamp: false, // This is MYF, not camp
+              ),
             );
           },
         );
@@ -149,11 +179,5 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }
