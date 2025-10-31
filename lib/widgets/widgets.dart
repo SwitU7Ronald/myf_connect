@@ -6,4 +6,5 @@ export 'cards.dart';
 export 'status_widgets.dart';
 export 'dependent_dropdown.dart';
 export 'international_phone_field.dart';
+export 'date_picker_field.dart';
 export '../app/theme.dart';

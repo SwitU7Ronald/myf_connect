@@ -305,7 +305,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                 SizedBox(height: context.spacing(16)),
 
                 // ========== Birthdate Field ==========
-                // ✅ FIXED: Changed 'minimumAgeYears' to 'minAge'
                 DatePickerField.dateOnly(
                   selectedDateTime: _birthdate,
                   label: 'Birthdate',

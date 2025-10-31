@@ -2,341 +2,165 @@
 import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
-enum DatePickerMode {
-  dateOnly,     // Just date (for birthdate)
-  timeOnly,     // Just time
-  dateTime,     // Date + Time (for events)
-}
-
-class DatePickerField extends StatelessWidget {
+class DatePickerField extends StatefulWidget {
   final DateTime? selectedDateTime;
   final String label;
-  final String? hint;
-  final ValueChanged<DateTime?>? onDateTimeSelected;
-  final bool enabled;
+  final String hint;
   final DateTime? firstDate;
   final DateTime? lastDate;
-  final DatePickerMode mode;
-  final int? minimumAgeYears; // For age validation in dateOnly mode
+  final void Function(DateTime)? onDateTimeSelected;
+  final bool _isDateOnly;
 
-  const DatePickerField({
-    super.key,
-    this.selectedDateTime,
-    required this.label,
-    this.hint,
-    this.onDateTimeSelected,
-    this.enabled = true,
-    this.firstDate,
-    this.lastDate,
-    this.mode = DatePickerMode.dateOnly,
-    this.minimumAgeYears,
-  });
-
-  // Factory constructors for common use cases
+  /// For birthdate - date only
   const DatePickerField.dateOnly({
     super.key,
     this.selectedDateTime,
     required this.label,
-    this.hint,
-    this.onDateTimeSelected,
-    this.enabled = true,
+    required this.hint,
     this.firstDate,
     this.lastDate,
-    this.minimumAgeYears,
-  }) : mode = DatePickerMode.dateOnly;
-
-  const DatePickerField.timeOnly({
-    super.key,
-    this.selectedDateTime,
-    required this.label,
-    this.hint,
     this.onDateTimeSelected,
-    this.enabled = true,
-  }) : mode = DatePickerMode.timeOnly,
-        firstDate = null,
-        lastDate = null,
-        minimumAgeYears = null;
+  }) : _isDateOnly = true;
 
+  /// For events - date + time
   const DatePickerField.dateTime({
     super.key,
     this.selectedDateTime,
     required this.label,
-    this.hint,
-    this.onDateTimeSelected,
-    this.enabled = true,
+    required this.hint,
     this.firstDate,
     this.lastDate,
-  }) : mode = DatePickerMode.dateTime,
-        minimumAgeYears = null;
-
-  // Calculate maximum allowed birthdate for minimum age
-  DateTime _getMaxAllowedBirthdate() {
-    if (minimumAgeYears == null) return DateTime.now();
-
-    final today = DateTime.now();
-    return DateTime(
-      today.year - minimumAgeYears!,
-      today.month,
-      today.day,
-    );
-  }
-
-  // Validate age for dateOnly mode
-  String? _validateAge(DateTime? birthdate) {
-    if (minimumAgeYears == null || birthdate == null) return null;
-
-    final today = DateTime.now();
-    final age = today.year - birthdate.year;
-    final hasHadBirthdayThisYear = today.month > birthdate.month ||
-        (today.month == birthdate.month && today.day >= birthdate.day);
-
-    final actualAge = hasHadBirthdayThisYear ? age : age - 1;
-
-    if (actualAge < minimumAgeYears!) {
-      return 'Must be at least $minimumAgeYears years old';
-    }
-
-    return null;
-  }
-
-  // Calculate age for display
-  int? _calculateAge(DateTime? birthdate) {
-    if (birthdate == null) return null;
-
-    final today = DateTime.now();
-    final age = today.year - birthdate.year;
-    final hasHadBirthdayThisYear = today.month > birthdate.month ||
-        (today.month == birthdate.month && today.day >= birthdate.day);
-
-    return hasHadBirthdayThisYear ? age : age - 1;
-  }
-
-  IconData get _icon {
-    switch (mode) {
-      case DatePickerMode.dateOnly:
-        return Icons.calendar_today;
-      case DatePickerMode.timeOnly:
-        return Icons.access_time;
-      case DatePickerMode.dateTime:
-        return Icons.calendar_today;
-    }
-  }
-
-  String get _hintText {
-    if (hint != null) return hint!;
-
-    switch (mode) {
-      case DatePickerMode.dateOnly:
-        return 'Select date${minimumAgeYears != null ? " (min age: $minimumAgeYears years)" : ""}';
-      case DatePickerMode.timeOnly:
-        return 'Select time';
-      case DatePickerMode.dateTime:
-        return 'Select date & time';
-    }
-  }
-
-  String _formatDisplayText(BuildContext context) {
-    if (selectedDateTime == null) return _hintText;
-
-    switch (mode) {
-      case DatePickerMode.dateOnly:
-        return selectedDateTime!.toLocal().toString().split(' ').first;
-      case DatePickerMode.timeOnly:
-        return TimeOfDay.fromDateTime(selectedDateTime!).format(context);
-      case DatePickerMode.dateTime:
-        return selectedDateTime!.toLocal().toString().split('.').first;
-    }
-  }
+    this.onDateTimeSelected,
+  }) : _isDateOnly = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: enabled ? () => _showPicker(context) : null,
-          borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-          child: Container(
-            padding: MethodistTheme.paddingM,
-            decoration: BoxDecoration(
-              color: enabled ? MethodistTheme.white : MethodistTheme.lightGray,
-              border: Border.all(
-                color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
-              ),
-              borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _icon,
-                  color: enabled ? MethodistTheme.primaryRed : MethodistTheme.mediumGray,
-                  size: 20,
-                ),
-                SizedBox(width: MethodistTheme.spacingM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: MethodistTheme.labelMedium.copyWith(
-                          color: MethodistTheme.mediumGray,
-                        ),
-                      ),
-                      SizedBox(height: MethodistTheme.spacingXS),
-                      Text(
-                        _formatDisplayText(context),
-                        style: MethodistTheme.bodyMedium.copyWith(
-                          color: selectedDateTime == null
-                              ? MethodistTheme.mediumGray
-                              : MethodistTheme.darkGray,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+  State<DatePickerField> createState() => _DatePickerFieldState();
+}
 
-        // Age display for dateOnly mode with minimumAgeYears
-        if (mode == DatePickerMode.dateOnly &&
-            minimumAgeYears != null &&
-            selectedDateTime != null) ...[
-          SizedBox(height: MethodistTheme.spacingS),
-          Container(
-            padding: MethodistTheme.paddingS,
-            decoration: BoxDecoration(
-              color: _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                  ? MethodistTheme.successGreen.withValues(alpha: 0.1)
-                  : MethodistTheme.errorRed.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(MethodistTheme.radiusS),
-              border: Border.all(
-                color: _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                    ? MethodistTheme.successGreen.withValues(alpha: 0.3)
-                    : MethodistTheme.errorRed.withValues(alpha: 0.3),
+class _DatePickerFieldState extends State<DatePickerField> {
+  @override
+  Widget build(BuildContext context) {
+    final selectedText = widget.selectedDateTime != null
+        ? widget._isDateOnly
+        ? widget.selectedDateTime!.toLocal().toString().split(' ').first
+        : widget.selectedDateTime!.toLocal().toString().split('.').first
+        : 'Select ${widget._isDateOnly ? 'date' : 'date & time'}';
+
+    return InkWell(
+      onTap: widget._isDateOnly
+          ? () => _showDatePicker(context)
+          : () => _showDateTimePicker(context),
+      borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+      child: Container(
+        padding: context.responsivePadding(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
+          ),
+          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+          color: MethodistTheme.white,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              widget._isDateOnly ? Icons.calendar_today : Icons.access_time,
+              color: MethodistTheme.primaryRed,
+              size: context.responsiveIconSize(20),
+            ),
+            SizedBox(width: context.spacing(12)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.label,
+                    style: TextStyle(
+                      fontSize: context.responsiveFontSize(12),
+                      color: MethodistTheme.mediumGray,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: context.spacing(4)),
+                  Text(
+                    selectedText,
+                    style: TextStyle(
+                      fontSize: context.responsiveFontSize(14),
+                      color: widget.selectedDateTime == null
+                          ? MethodistTheme.mediumGray
+                          : MethodistTheme.darkGray,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                      ? Icons.check_circle_outline
-                      : Icons.error_outline,
-                  color: _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                      ? MethodistTheme.successGreen
-                      : MethodistTheme.errorRed,
-                  size: 16,
-                ),
-                SizedBox(width: MethodistTheme.spacingS),
-                Text(
-                  'Age: ${_calculateAge(selectedDateTime)} years ${_calculateAge(selectedDateTime)! >= minimumAgeYears! ? "(✓ Eligible)" : "(✗ Too young)"}',
-                  style: MethodistTheme.bodySmall.copyWith(
-                    color: _calculateAge(selectedDateTime)! >= minimumAgeYears!
-                        ? MethodistTheme.successGreen
-                        : MethodistTheme.errorRed,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ],
+          ],
+        ),
+      ),
     );
   }
 
-  Future<void> _showPicker(BuildContext context) async {
-    switch (mode) {
-      case DatePickerMode.dateOnly:
-        await _showDatePicker(context);
-        break;
-      case DatePickerMode.timeOnly:
-        await _showTimePicker(context);
-        break;
-      case DatePickerMode.dateTime:
-        await _showDateTimePicker(context);
-        break;
-    }
-  }
-
+  /// ✅ COMPLETE FIX: Properly handle initialDate within valid range
   Future<void> _showDatePicker(BuildContext context) async {
     final now = DateTime.now();
 
-    // Calculate date constraints
-    final DateTime effectiveFirstDate = firstDate ?? DateTime(1900);
-    DateTime effectiveLastDate = lastDate ?? DateTime(now.year + 100);
+    // ✅ Set proper date constraints for birthdate
+    final effectiveFirstDate = widget.firstDate ?? DateTime(1900);
+    final effectiveLastDate = widget.lastDate ?? now;
 
-    // If minimum age is specified, restrict the last selectable date
-    if (minimumAgeYears != null) {
-      final maxBirthdate = _getMaxAllowedBirthdate();
-      effectiveLastDate = maxBirthdate;
+    // ✅ CRITICAL: Calculate safe initialDate within range
+    late DateTime effectiveInitialDate;
+
+    if (widget.selectedDateTime != null) {
+      // Use selected date if provided
+      effectiveInitialDate = widget.selectedDateTime!;
+    } else {
+      // For new selection: start from a middle year (e.g., 2000) if no previous selection
+      // This ensures the year picker shows a reasonable range
+      if (now.year > 2000) {
+        effectiveInitialDate = DateTime(2000);
+      } else {
+        effectiveInitialDate = now;
+      }
+    }
+
+    // Ensure initialDate is within valid range
+    if (effectiveInitialDate.isBefore(effectiveFirstDate)) {
+      effectiveInitialDate = effectiveFirstDate;
+    }
+    if (effectiveInitialDate.isAfter(effectiveLastDate)) {
+      effectiveInitialDate = effectiveLastDate;
     }
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: selectedDateTime ?? effectiveLastDate,
+      initialDate: effectiveInitialDate,
       firstDate: effectiveFirstDate,
       lastDate: effectiveLastDate,
-      helpText: minimumAgeYears != null
-          ? 'Select birthdate (minimum age: $minimumAgeYears years)'
-          : null,
-      errorInvalidText: minimumAgeYears != null
-          ? 'Must be at least $minimumAgeYears years old'
-          : null,
+      helpText: 'Select your birthdate',
+      errorInvalidText: 'Invalid date',
     );
 
-    if (picked != null && onDateTimeSelected != null) {
-      // Validate age if minimum age is required
-      final ageError = _validateAge(picked);
-      if (ageError != null) {
-        // Show error and don't select the invalid date
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(ageError),
-              backgroundColor: MethodistTheme.errorRed,
-            ),
-          );
-        }
-        return;
-      }
-
-      onDateTimeSelected!(picked);
+    if (picked != null && widget.onDateTimeSelected != null) {
+      widget.onDateTimeSelected!(picked);
     }
   }
 
-  Future<void> _showTimePicker(BuildContext context) async {
-    final time = await showTimePicker(
-      context: context,
-      initialTime: selectedDateTime != null
-          ? TimeOfDay.fromDateTime(selectedDateTime!)
-          : TimeOfDay.now(),
-    );
-
-    if (time != null && onDateTimeSelected != null) {
-      final now = DateTime.now();
-      final combined = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        time.hour,
-        time.minute,
-      );
-      onDateTimeSelected!(combined);
-    }
-  }
-
+  /// Date + Time picker for events
   Future<void> _showDateTimePicker(BuildContext context) async {
     final now = DateTime.now();
 
     // First pick date
     final date = await showDatePicker(
       context: context,
-      initialDate: selectedDateTime ?? now,
-      firstDate: firstDate ?? DateTime(now.year - 1),
-      lastDate: lastDate ?? DateTime(now.year + 2),
+      initialDate: widget.selectedDateTime ?? now,
+      firstDate: widget.firstDate ?? DateTime(now.year - 1),
+      lastDate: widget.lastDate ?? DateTime(now.year + 2),
+      helpText: 'Select date',
     );
 
     if (date == null || !context.mounted) return;
@@ -344,12 +168,13 @@ class DatePickerField extends StatelessWidget {
     // Then pick time
     final time = await showTimePicker(
       context: context,
-      initialTime: selectedDateTime != null
-          ? TimeOfDay.fromDateTime(selectedDateTime!)
+      initialTime: widget.selectedDateTime != null
+          ? TimeOfDay.fromDateTime(widget.selectedDateTime!)
           : TimeOfDay.now(),
+      helpText: 'Select time',
     );
 
-    if (time != null && onDateTimeSelected != null) {
+    if (time != null && widget.onDateTimeSelected != null) {
       final combined = DateTime(
         date.year,
         date.month,
@@ -357,7 +182,7 @@ class DatePickerField extends StatelessWidget {
         time.hour,
         time.minute,
       );
-      onDateTimeSelected!(combined);
+      widget.onDateTimeSelected!(combined);
     }
   }
 }
