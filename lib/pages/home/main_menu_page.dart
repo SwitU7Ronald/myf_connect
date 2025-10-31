@@ -95,41 +95,36 @@ class _MainMenuPageState extends State<MainMenuPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ✅ FIXED: Welcome section with proper alignment
             MethodistCard(
-              padding: context.responsivePadding(all: 24),
+              padding: context.responsivePadding(all: 16), // Reduced from 24
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    padding: context.responsivePadding(all: 16),
+                    padding: context.responsivePadding(all: 12), // Reduced from 16
                     decoration: BoxDecoration(
-                      color: MethodistTheme.primaryRed.withValues(
-                        alpha: 0.1,
-                      ),
-                      borderRadius: BorderRadius.circular(
-                        context.responsiveRadius(24),
-                      ),
+                      color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(context.responsiveRadius(16)), // Reduced from 24
                     ),
                     child: Icon(
                       Icons.church,
-                      size: context.responsiveIconSize(56),
+                      size: context.responsiveIconSize(40), // Reduced from 56
                       color: MethodistTheme.primaryRed,
                     ),
                   ),
-                  SizedBox(height: context.spacing(20)),
+                  SizedBox(height: context.spacing(12)), // Reduced from 20
                   Text(
                     'Welcome to Methodist Connect',
-                    style: context.responsiveHeadlineMedium.copyWith(
+                    style: context.responsiveTitleLarge.copyWith( // Changed from responsiveHeadlineMedium
                       color: MethodistTheme.darkGray,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: context.spacing(12)),
+                  SizedBox(height: context.spacing(8)), // Reduced from 12
                   Text(
                     'Connect with camps and MYF groups',
-                    style: context.responsiveBodyMedium.copyWith(
+                    style: context.responsiveBodySmall.copyWith( // Changed from responsiveBodyMedium
                       color: MethodistTheme.mediumGray,
                     ),
                     textAlign: TextAlign.center,
@@ -137,6 +132,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                 ],
               ),
             ),
+
 
             SizedBox(height: context.spacing(28)),
 

@@ -569,7 +569,6 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  /// ✅ FIXED: Your Rating - Score under label properly aligned
   Widget _buildYourRatingSection(BuildContext context) {
     if (userRating != null) {
       return Column(
@@ -604,34 +603,38 @@ class _EventCardState extends State<EventCard> {
         ],
       );
     } else {
-      return ElevatedButton.icon(
-        onPressed: () => _showRatingDialog(context),
-        icon: Icon(
-          Icons.star_rate,
-          size: context.responsiveIconSize(16),
-        ),
-        label: Text(
-          'Rate',
-          style: TextStyle(
-            fontSize: context.responsiveFontSize(14),
+      // ✅ NORMAL BUTTON: Standard size
+      return SizedBox(
+        height: 36, // Normal height
+        child: OutlinedButton.icon(
+          onPressed: () => _showRatingDialog(context),
+          icon: Icon(
+            Icons.star_border,
+            size: 18, // Normal icon
+            color: MethodistTheme.primaryRed,
           ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: MethodistTheme.primaryRed,
-          foregroundColor: MethodistTheme.white,
-          padding: context.responsivePadding(
-            horizontal: 12,
-            vertical: 8,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              context.responsiveRadius(8),
+          label: Text(
+            'Rate Event',
+            style: TextStyle(
+              fontSize: 14, // Normal text
+              color: MethodistTheme.primaryRed,
+              fontWeight: FontWeight.w600,
             ),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: MethodistTheme.primaryRed,
+            side: BorderSide(color: MethodistTheme.primaryRed, width: 1.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           ),
         ),
       );
     }
   }
+
+
 
   Future<void> _showRatingDialog(BuildContext context) async {
     int selectedRating = 0;
@@ -666,28 +669,44 @@ class _EventCardState extends State<EventCard> {
                     ),
                   )
                 else
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(5, (index) {
-                        return IconButton(
+                // ✅ FIXED: Smaller stars with proper constraints to prevent overflow
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min, // Prevent overflow
+                    children: List.generate(5, (index) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2), // Minimal spacing
+                        child: IconButton(
+                          padding: EdgeInsets.zero, // Remove default padding
+                          constraints: BoxConstraints(
+                            minWidth: 36, // Reduced from 48
+                            minHeight: 36, // Reduced from 48
+                          ),
+                          iconSize: 32, // Reduced star size
                           icon: Icon(
                             index < selectedRating
                                 ? Icons.star
                                 : Icons.star_border,
                             color: MethodistTheme.warningOrange,
-                            size: context.responsiveIconSize(40),
                           ),
                           onPressed: () {
                             setDialogState(() {
                               selectedRating = index + 1;
                             });
                           },
-                        );
-                      }),
-                    ),
+                        ),
+                      );
+                    }),
                   ),
+                SizedBox(height: context.spacing(12)),
+                Text(
+                  selectedRating > 0
+                      ? '$selectedRating Star${selectedRating > 1 ? 's' : ''}'
+                      : 'Tap to rate',
+                  style: context.responsiveBodySmall.copyWith(
+                    color: MethodistTheme.mediumGray,
+                  ),
+                ),
               ],
             ),
           ),
@@ -730,6 +749,7 @@ class _EventCardState extends State<EventCard> {
       ),
     );
   }
+
 
   Future<void> _submitRating(BuildContext context, int rating) async {
     try {
