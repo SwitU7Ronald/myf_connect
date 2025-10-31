@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
 import '../../../models/district_data.dart';
@@ -194,6 +195,29 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     }
   }
 
+  /// ✅ FIXED: Cancel button now properly logs out and navigates to welcome
+  Future<void> _handleCancel() async {
+    try {
+      // Sign out from Firebase
+      await FirebaseAuth.instance.signOut();
+      // Sign out from Google
+      await GoogleSignIn().signOut();
+
+      if (mounted) {
+        // Navigate back to Welcome screen
+        Navigator.pushReplacementNamed(context, AppRoutes.welcome);
+      }
+    } catch (e) {
+      debugPrint('Error during cancel: $e');
+      if (mounted) {
+        MethodistTheme.showErrorSnackBar(
+          context,
+          'Error canceling signup: $e',
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -313,7 +337,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     setState(() => _birthdate = date);
                   },
                 ),
-
 
                 SizedBox(height: context.spacing(16)),
 
@@ -515,7 +538,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     SizedBox(height: context.spacing(12)),
                     PrimaryButton.secondary(
                       label: 'Cancel',
-                      onPressed: _loading ? null : () => Navigator.pop(context),
+                      /// ✅ FIXED: Changed from Navigator.pop(context) to _handleCancel()
+                      onPressed: _loading ? null : _handleCancel,
                       fullWidth: true,
                       icon: Icons.cancel,
                     ),
