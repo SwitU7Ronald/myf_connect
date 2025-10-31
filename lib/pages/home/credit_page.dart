@@ -112,7 +112,52 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(48)),
 
-                // Team Members Section
+                // ============================================
+                // OUR TEAM SECTION HEADER
+                // ============================================
+                Text(
+                  'Team Leader',
+                  style: context.responsiveHeadlineMedium.copyWith(
+                    color: MethodistTheme.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(height: context.spacing(24)),
+
+                // ============================================
+                // ✅ FIXED: HONORED GUESTS - Top Section (2 Images Side by Side - No Text Cutting)
+                // ============================================
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 1. Honourable Bishop A. Simeon
+                      _buildRoundedTeamMemberCard(
+                        context,
+                        imagePath: 'assets/team/Honourable_A.Simeon-Bishop.jpeg',
+                        name: 'Honourable Bishop A. Simeon',
+                      ),
+
+                      SizedBox(width: context.spacing(20)),
+
+                      // 2. Madam Leena Gloria
+                      _buildRoundedTeamMemberCard(
+                        context,
+                        imagePath: 'assets/team/Leena_Gloria-Madam.jpeg',
+                        name: 'Madam Leena Gloria',
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: context.spacing(48)),
+
+                // ============================================
+                // TEAM LEADERS SECTION
+                // ============================================
                 Text(
                   'Our Team',
                   style: context.responsiveHeadlineMedium.copyWith(
@@ -124,9 +169,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // Team Members List - Priority Order
-
-                // 1. Youth Director (First)
+                // 1. Youth Director (Ankur Thakor)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Ankur_Thakor-GRC-MYF-Youth-Director.jpg',
@@ -136,7 +179,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // 2. Advisor (Second)
+                // 2. Advisor (Akash Khristi)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Akash_Khristi-GRC-MYF-Advisor.jpg',
@@ -146,6 +189,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
+                // 3. Advisor (Nevil Christian)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Nevil_Christian-Advisor.jpg',
@@ -155,7 +199,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // 3. President (Third)
+                // 4. President (Chris Christian)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Chris_Christian-President.jpg',
@@ -165,7 +209,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // 4. Secretary (Fourth)
+                // 5. Secretary (Chris Khristi)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Chris_Khristi-Secretary.jpg',
@@ -175,7 +219,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // 5. Treasurer (Fifth)
+                // 6. Treasurer (Morlins Macwan)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Morlins_Macwan-Treasurer.jpg',
@@ -185,7 +229,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // Rest of the team members
+                // 7. Sports & Entertainment Lead
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Chris_Christian-Sports-Entertainment-President.jpg',
@@ -195,6 +239,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
+                // 8. Convenor - Physical Arrangements
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Kuldeep_Gohel-Convenor-Physical-Arrangements.jpg',
@@ -204,6 +249,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
+                // 9. App Designer (Maxwell Parmar)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Maxwell_Parmar-Frontend-Designer.jpg',
@@ -213,6 +259,7 @@ class _CreditPageState extends State<CreditPage> {
 
                 SizedBox(height: context.spacing(16)),
 
+                // 10. App Developer (Kshitij Parmar)
                 _buildTeamMemberCard(
                   context,
                   imagePath: 'assets/team/Kshitij_Parmar-Developer.jpeg',
@@ -244,7 +291,79 @@ class _CreditPageState extends State<CreditPage> {
     );
   }
 
-  /// ✅ RESPONSIVE: Build team member card with responsive sizing
+  /// ✅ FIXED: Build rounded team member card with image and name (Side by Side) - NO TEXT CUTTING
+  Widget _buildRoundedTeamMemberCard(
+      BuildContext context, {
+        required String imagePath,
+        required String name,
+      }) {
+    // ✅ RESPONSIVE: Use context.responsiveIconSize for circular avatar
+    final avatarSize = context.responsiveIconSize(110);
+    final nameContainerWidth = context.responsiveIconSize(150); // ✅ WIDER for names - FIX
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // ✅ Rounded Circular Image Container
+        Container(
+          width: avatarSize,
+          height: avatarSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: MethodistTheme.white.withValues(alpha: 0.3),
+              width: 3,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: MethodistTheme.black.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipOval(
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: MethodistTheme.primaryRed,
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: context.responsiveIconSize(60),
+                    color: MethodistTheme.white,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+
+        SizedBox(height: context.spacing(14)),
+
+        // ✅ FIXED: Name Below Image with Wider Container & More Lines - NO CUTTING
+        SizedBox(
+          width: nameContainerWidth, // ✅ Increased width to prevent cutting
+          child: Text(
+            name,
+            style: context.responsiveTitleSmall.copyWith(
+              color: MethodistTheme.white,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 3, // ✅ Allow up to 3 lines for longer names
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// ✅ RESPONSIVE: Build team member card with responsive sizing (Original format)
   Widget _buildTeamMemberCard(
       BuildContext context, {
         required String imagePath,
