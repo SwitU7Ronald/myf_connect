@@ -402,6 +402,8 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                 // ========== District Dropdown ==========
                 DropdownButtonFormField<String>(
                   value: _selectedDistrict,
+                  isExpanded: true,  // ✅ ADD THIS
+                  menuMaxHeight: 300,  // ✅ ADD THIS
                   decoration: InputDecoration(
                     labelText: 'District',
                     labelStyle: TextStyle(
@@ -433,7 +435,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   items: DistrictData.districts.map((district) {
                     return DropdownMenuItem(
                       value: district,
-                      child: Flexible(
+                      child: SizedBox(
+                        // ✅ ADD THIS - Constrain width
+                        width: MediaQuery.of(context).size.width - 80,
                         child: Text(
                           district,
                           style: TextStyle(
@@ -448,19 +452,22 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   onChanged: (value) {
                     setState(() {
                       _selectedDistrict = value;
-                      _selectedMyf = null; // Reset MYF when district changes
-                      _otherMyfCtrl.clear(); // Clear the text field too
+                      _selectedMyf = null;
+                      _otherMyfCtrl.clear();
                     });
                   },
                   validator: _validateDistrict,
                 ),
 
+
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Church/MYF Field (conditional dropdown for regular districts) ==========
+                // ========== Church/MYF Field (conditional dropdown) ==========
                 if (_selectedDistrict != null && !isOtherDistrictSelected)
                   DropdownButtonFormField<String>(
                     value: _selectedMyf,
+                    isExpanded: true,  // ✅ ADD THIS
+                    menuMaxHeight: 300,  // ✅ ADD THIS
                     decoration: InputDecoration(
                       labelText: 'Church/MYF',
                       labelStyle: TextStyle(
@@ -493,7 +500,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                         .map((myf) {
                       return DropdownMenuItem(
                         value: myf,
-                        child: Flexible(
+                        child: SizedBox(
+                          // ✅ ADD THIS - Constrain width
+                          width: MediaQuery.of(context).size.width - 80,
                           child: Text(
                             myf,
                             style: TextStyle(
@@ -510,6 +519,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     },
                     validator: _validateMyf,
                   )
+
                 // ========== Church/MYF Text Field (for "Other" district) ==========
                 else if (_selectedDistrict != null && isOtherDistrictSelected)
                   AppTextField(
