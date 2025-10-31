@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
-import '../../app/theme.dart';
 import '../../widgets/widgets.dart';
 
 class MainMenuPage extends StatefulWidget {

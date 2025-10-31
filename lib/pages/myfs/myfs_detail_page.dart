@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/event.dart';
 import '../../widgets/widgets.dart';
-import '../../app/theme.dart';
 
 class MyfsDetailPage extends StatefulWidget {
   final String myfId;

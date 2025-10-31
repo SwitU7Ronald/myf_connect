@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
-import '../../../app/theme.dart';
 import 'camps_create_page.dart';
 import './camps_events_management_page.dart';
 

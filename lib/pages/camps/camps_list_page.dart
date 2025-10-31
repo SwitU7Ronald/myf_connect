@@ -26,7 +26,7 @@ class CampsListPage extends StatelessWidget {
         return [];
       }
 
-      final data = userDoc.data() as Map<String, dynamic>?;
+      final data = userDoc.data();
       final permissions = (data?['permissions'] as List?)?.cast<String>() ?? [];
 
       debugPrint('CampsListPage: User permissions: $permissions');

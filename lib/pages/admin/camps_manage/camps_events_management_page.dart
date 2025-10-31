@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/event.dart';
 import '../../../widgets/widgets.dart';
-import '../../../app/theme.dart';
 
 class CampsEventsManagementPage extends StatefulWidget {
   final String campId;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart';
-import '../../../app/theme.dart';
 
 class CampsCreatePage extends StatefulWidget {
   const CampsCreatePage({super.key});
