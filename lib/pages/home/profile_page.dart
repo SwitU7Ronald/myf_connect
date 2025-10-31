@@ -187,19 +187,36 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Container(
               padding: MethodistTheme.paddingM,
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: PrimaryButton.secondary(
-                      label: 'Credits',
-                      onPressed: () =>
-                          Navigator.pushNamed(context, AppRoutes.credit),
-                      fullWidth: true,
-                      icon: Icons.info_outline,
-                    ),
+                  // Top Row: Credits and Team buttons side by side
+                  Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton.secondary(
+                          label: 'Credits',
+                          onPressed: () =>
+                              Navigator.pushNamed(context, AppRoutes.credit),
+                          fullWidth: true,
+                          icon: Icons.info_outline,
+                        ),
+                      ),
+                      SizedBox(width: MethodistTheme.spacingM),
+                      Expanded(
+                        child: PrimaryButton.secondary(
+                          label: 'Team',
+                          onPressed: () =>
+                              Navigator.pushNamed(context, AppRoutes.team),
+                          fullWidth: true,
+                          icon: Icons.people,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: MethodistTheme.spacingM),
-                  Expanded(
+                  SizedBox(height: MethodistTheme.spacingM),
+                  // Bottom: Logout button - Full Width and Centered
+                  SizedBox(
+                    width: double.infinity,
                     child: PrimaryButton.danger(
                       label: 'Logout',
                       onPressed: loggingOut ? null : logout,
@@ -386,9 +403,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-
-
-
   Widget _buildPermissionColumn({
     required String title,
     required IconData icon,
@@ -501,10 +515,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
-
-
-
-
 
   Widget _buildEmptyPermissionState(String message, Color color) {
     return Column(

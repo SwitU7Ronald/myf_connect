@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/home/credit_page.dart';
+import '../pages/home/team_page.dart';
 import '../pages/auth/welcome_page.dart';
 import '../pages/auth/signup_details_page.dart';
 import '../pages/home/main_menu_page.dart';
@@ -15,6 +16,7 @@ class AppRoutes {
   // Route names
   static const String root = '/';
   static const String credit = '/credit';
+  static const String team = '/team';
   static const String welcome = '/welcome';
   static const String signupDetails = '/signup-details';
   static const String mainMenu = '/main-menu';
@@ -39,6 +41,12 @@ class AppRoutes {
       case credit:
         return MaterialPageRoute(
           builder: (_) => const CreditPage(),
+          settings: settings,
+        );
+
+      case team:
+        return MaterialPageRoute(
+          builder: (_) => const TeamPage(),
           settings: settings,
         );
 
@@ -118,7 +126,7 @@ class AppRoutes {
 
   static Route<dynamic> _errorRoute(String message) {
     return MaterialPageRoute(
-      builder: (context) => Scaffold(  // FIXED: Use 'context' instead of '_'
+      builder: (context) => Scaffold(
         appBar: AppBar(
           title: const Text('Error'),
         ),
@@ -140,7 +148,7 @@ class AppRoutes {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                  context,  // FIXED: Now using 'context' instead of '_'
+                  context,
                   AppRoutes.root,
                       (route) => false,
                 ),

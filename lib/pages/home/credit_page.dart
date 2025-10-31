@@ -97,54 +97,16 @@ class _CreditPageState extends State<CreditPage> {
                 textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: MethodistTheme.spacingM),
+              SizedBox(height: MethodistTheme.spacingL),
 
-              // Subtitle
-              Text(
-                'Connect with Methodist Camps & MYF',
-                style: MethodistTheme.bodyLarge.copyWith(
-                  color: MethodistTheme.white.withValues(alpha: 0.8),
-                ),
-                textAlign: TextAlign.center,
-              ),
 
-              SizedBox(height: MethodistTheme.spacingXL),
 
-              // Credits section
-              MethodistCard(
-                color: MethodistTheme.white.withValues(alpha: 0.1),
-                child: Column(
-                  children: [
-                    Text(
-                      'Developed by',
-                      style: MethodistTheme.bodyMedium.copyWith(
-                        color: MethodistTheme.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    SizedBox(height: MethodistTheme.spacingS),
-                    Text(
-                      'Methodist Connect Team',
-                      style: MethodistTheme.titleLarge.copyWith(
-                        color: MethodistTheme.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: MethodistTheme.spacingXS),
-                    Text(
-                      'Version 1.0.0',
-                      style: MethodistTheme.bodySmall.copyWith(
-                        color: MethodistTheme.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-              SizedBox(height: MethodistTheme.spacingXL),
+
 
               // ✅ TEAM LEADERS SECTION - TOP SECTION WITH ROUNDED IMAGES
               Text(
-                'Team Leaders',
+                'Leaders',
                 style: MethodistTheme.headlineMedium.copyWith(
                   color: MethodistTheme.white,
                   fontWeight: FontWeight.bold,
@@ -178,7 +140,7 @@ class _CreditPageState extends State<CreditPage> {
                 ],
               ),
 
-              SizedBox(height: MethodistTheme.spacingXL),
+              SizedBox(height: MethodistTheme.spacingL),
 
               // Team Members Section
               Text(
