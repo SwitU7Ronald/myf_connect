@@ -59,7 +59,7 @@ ios/Runner/GoogleService-Info.plist
 **/firebase-debug.log
 # Firebase options contain API keys - DO NOT COMMIT
 lib/firebase_options.dart
-lib/app/firebase_options.dart
+lib/firebase_options.dart
 # But DO commit google-services.json (public config)
 
 # Environment files
