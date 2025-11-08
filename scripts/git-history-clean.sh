@@ -2,120 +2,167 @@
 set -euo pipefail
 
 echo "=== 1) Currently tracked files that match ignore rules ==="
-# Tracked AND matched by .gitignore/.git/info/exclude/global ignores:
+# Shows tracked files that are now ignored by .gitignore / exclude
 git ls-files -ci --exclude-standard || true
 echo
 
 echo "=== 2) Historical audit for ignored/sensitive files ==="
 
-# List of patterns to audit (from your .gitignore)
+# Patterns aligned with your current .gitignore
 PATTERNS=(
-  # Flutter/Dart
+  # -----------------------------
+  # Flutter / Dart
+  # -----------------------------
   ".dart_tool/**"
   ".packages"
-  ".pub-cache/**"
   ".pub/**"
-  "build/**"
+  ".pub-cache/**"
+  ".melos_tool/**"
   ".flutter-plugins"
   ".flutter-plugins-dependencies"
-  ".melos_tool/**"
+  ".metadata"
   "coverage/**"
+  "build/**"
+  ".buildlog/**"
   "*.iml"
+  "flutter_*.log"
+  ".fvm/**"
 
+  # -----------------------------
   # Android
+  # -----------------------------
   "**/android/.gradle/**"
+  "**/android/.cxx/**"
   "**/android/captures/**"
   "**/android/local.properties"
   "**/android/**/GeneratedPluginRegistrant.java"
-  "**/android/app/**/output.json"
-  "**/android/app/build/**"
   "**/android/build/**"
+  "**/android/app/build/**"
+  "**/android/app/**/output.json"
+  ".gradle/**"  # root gradle cache
+
+  # Signing / Security
   "**/android/app/*.keystore"
   "**/android/app/*.jks"
   "**/android/key.properties"
-  "**/android/app/src/main/assets/crashlytics-build.properties"
+  "*.keystore"
+  "*.jks"
 
+  # Crashlytics / Native Symbols
+  "**/android/app/src/main/assets/crashlytics-build.properties"
+  "**/android/app/src/main/assets/native-debug-symbols/**"
+
+  # -----------------------------
   # iOS
+  # -----------------------------
   "**/ios/Pods/**"
   "**/ios/.symlinks/**"
-  "**/ios/Flutter/Flutter.podspec"
-  "**/ios/Flutter/Generated.xcconfig"
   "**/ios/Flutter/ephemeral/**"
   "**/ios/Flutter/App.framework"
   "**/ios/Flutter/Flutter.framework"
+  "**/ios/Flutter/Generated.xcconfig"
+  "**/ios/Flutter/Flutter.podspec"
   "**/ios/**/GeneratedPluginRegistrant.*"
-  "**/ios/Runner.xcodeproj/project.xcworkspace/**"
-  "**/ios/Runner.xcworkspace/**"
-  "**/ios/Runner/GeneratedPluginRegistrant.*"
   "**/ios/build/**"
+  "**/ios/Flutter/.last_build_id"
+  "**/ios/DerivedData/**"
+
+  # Xcode user noise
+  "**/ios/Runner.xcworkspace/**"
+  "**/ios/Runner.xcodeproj/project.xcworkspace/**"
+  "**/ios/Runner.xcodeproj/xcuserdata/**"
+  "**/ios/Runner.xcworkspace/xcuserdata/**"
+  "*.xcuserstate"
+
+  # Firebase iOS
   "ios/Runner/GoogleService-Info.plist"
 
+  # -----------------------------
   # macOS
+  # -----------------------------
   "**/macos/Pods/**"
   "**/macos/Flutter/ephemeral/**"
   "**/macos/Runner.xcworkspace/**"
+  "**/macos/**/GeneratedPluginRegistrant.*"
 
+  # -----------------------------
   # Windows
+  # -----------------------------
   "**/windows/flutter/ephemeral/**"
+  "**/windows/**/generated_plugin_registrant.*"
 
+  # -----------------------------
   # Linux
+  # -----------------------------
   "**/linux/flutter/ephemeral/**"
+  "**/linux/**/generated_plugin_registrant.*"
 
+  # -----------------------------
   # Web
+  # -----------------------------
   "**/web/flutter_service_worker.js"
   "**/web/flutter_service_worker.js.manifest"
   "**/web/flutter.js"
   "**/web/flutter_assets/**"
+  "**/web/**/generated_plugin_registrant.dart"
+  "build/web/**"
 
-  # IDEs and Editors
-  ".vscode/**"
-  ".idea/**"
-  "*.ipr"
-  "*.iws"
-
-  # Firebase / secrets
+  # -----------------------------
+  # Firebase / Secrets
+  # -----------------------------
   "**/firebase-debug.log"
   "lib/firebase_options.dart"
   "android/app/google-services.json"
-
-  # Environment files
   "*.env"
   ".env.*"
   ".envrc"
 
-  # OS generated
+  # -----------------------------
+  # IDE / Editor
+  # -----------------------------
+  ".vscode/**"
+  ".idea/**"
+  ".fleet/**"
+  "*.ipr"
+  "*.iws"
+
+  # -----------------------------
+  # OS Garbage
+  # -----------------------------
   ".DS_Store"
+  "**/.DS_Store"
   "Thumbs.db"
 
+  # -----------------------------
   # Fastlane
+  # -----------------------------
   "**/fastlane/report.xml"
   "**/fastlane/Preview.html"
   "**/fastlane/screenshots/**"
   "**/fastlane/test_output/**"
 
-  # Crashlytics/perf (duplicate included intentionally)
-  "**/android/app/src/main/assets/crashlytics-build.properties"
-
-  # Local dev tools
+  # -----------------------------
+  # Local Dev Tool Configs
+  # -----------------------------
   "devtools_options.yaml"
+
+  # -----------------------------
+  # Misc Safety
+  # -----------------------------
+  "*.orig"
+  "*.lock.json"
 )
 
-# Function: find the FIRST commit that added a pathspec (if any)
 first_commit_for() {
   local spec="$1"
-  # --diff-filter=A shows only additions; -n 1 gives the earliest by reversing order.
-  # We reverse the log so earliest is first, then pick one.
   git log --all --reverse --date=short --pretty=format:'%h|%ad|%an|%s' --diff-filter=A -- "$spec" 2>/dev/null | head -n 1
 }
 
-# Function: check if the pathspec ever appeared in history at all
 ever_in_history() {
   local spec="$1"
-  # --name-only to show file paths touched; grep to confirm any match.
   git log --all --name-only --pretty=format: -- "$spec" 2>/dev/null | head -n 1
 }
 
-# Report header
 printf "%-55s | %-6s | %s\n" "PATTERN" "STATUS" "DETAILS"
 printf -- "--------------------------------------------------------------------------\n"
 
@@ -128,7 +175,6 @@ for p in "${PATTERNS[@]}"; do
       author="${rest2%%|*}"; msg="${rest2#*|}"
       printf "%-55s | %-6s | first added in %s (%s) by %s — %s\n" "$p" "FOUND" "$hash" "$date" "$author" "$msg"
     else
-      # Found in history, but couldn't isolate first-add commit (e.g., renames). Show any touching commit:
       any="$(git log --all --date=short --pretty=format:'%h (%ad) %an — %s' -- "$p" 2>/dev/null | tail -n 1)"
       printf "%-55s | %-6s | seen in history; e.g., %s\n" "$p" "FOUND" "${any:-unknown}"
     fi
@@ -138,4 +184,4 @@ for p in "${PATTERNS[@]}"; do
 done
 
 echo
-echo "Tip: If anything sensitive was ever committed (e.g., *.jks, key.properties, google-services.json, GoogleService-Info.plist, .env), rotate those credentials and purge history if needed."
+echo "✅ Done. If sensitive files ever appear in history, ROTATE credentials and consider a history rewrite."

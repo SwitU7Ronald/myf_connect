@@ -1,91 +1,141 @@
-# Flutter/Dart
+# -----------------------------
+# Flutter / Dart
+# -----------------------------
 .dart_tool/
 .packages
-.pub-cache/
 .pub/
-build/
+.pub-cache/
+.melos_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.melos_tool/
+.metadata
 coverage/
+build/
+.buildlog/
 *.iml
+flutter_*.log
+.fvm/
 
+# -----------------------------
 # Android
+# -----------------------------
 **/android/.gradle/
+**/android/.cxx/
 **/android/captures/
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
-**/android/app/**/output.json
-**/android/app/build/
 **/android/build/
+**/android/app/build/
+**/android/app/**/output.json
+.gradle/
+
+# Signing / Security
 **/android/app/*.keystore
 **/android/app/*.jks
 **/android/key.properties
-**/android/app/src/main/assets/crashlytics-build.properties
+*.keystore
+*.jks
 
+# Crashlytics / Native Symbols
+**/android/app/src/main/assets/crashlytics-build.properties
+**/android/app/src/main/assets/native-debug-symbols/
+
+# -----------------------------
 # iOS
+# -----------------------------
 **/ios/Pods/
 **/ios/.symlinks/
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/ephemeral/
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/Flutter.podspec
 **/ios/**/GeneratedPluginRegistrant.*
-**/ios/Runner.xcodeproj/project.xcworkspace/
-**/ios/Runner.xcworkspace/
-**/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/build/
+**/ios/Flutter/.last_build_id
+**/ios/DerivedData/
+
+# Xcode user noise
+**/ios/Runner.xcworkspace/
+**/ios/Runner.xcodeproj/project.xcworkspace/
+**/ios/Runner.xcodeproj/xcuserdata/
+**/ios/Runner.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# Firebase iOS
 ios/Runner/GoogleService-Info.plist
 
+# -----------------------------
 # macOS
+# -----------------------------
 **/macos/Pods/
 **/macos/Flutter/ephemeral/
 **/macos/Runner.xcworkspace/
+**/macos/**/GeneratedPluginRegistrant.*
 
+# -----------------------------
 # Windows
+# -----------------------------
 **/windows/flutter/ephemeral/
+**/windows/**/generated_plugin_registrant.*
 
+# -----------------------------
 # Linux
+# -----------------------------
 **/linux/flutter/ephemeral/
+**/linux/**/generated_plugin_registrant.*
 
+# -----------------------------
 # Web
+# -----------------------------
 **/web/flutter_service_worker.js
 **/web/flutter_service_worker.js.manifest
 **/web/flutter.js
 **/web/flutter_assets/
+**/web/**/generated_plugin_registrant.dart
+build/web/
 
-# IDEs and Editors
-.vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Firebase
+# -----------------------------
+# Firebase / Secrets
+# -----------------------------
 **/firebase-debug.log
-# Firebase options file contains sensitive keys - ignore
 lib/firebase_options.dart
-# Ignore google-services.json to force regeneration by flutterfire configure
 android/app/google-services.json
-
-# Environment files
 *.env
 .env.*
 .envrc
 
-# OS generated files
+# -----------------------------
+# IDE / Editor
+# -----------------------------
+.vscode/
+.idea/
+.fleet/
+*.ipr
+*.iws
+
+# -----------------------------
+# OS Garbage
+# -----------------------------
 .DS_Store
+**/.DS_Store
 Thumbs.db
 
-# Fastlane outputs (if used)
+# -----------------------------
+# Fastlane
+# -----------------------------
 **/fastlane/report.xml
 **/fastlane/Preview.html
 **/fastlane/screenshots/
 **/fastlane/test_output/
 
-# Crashlytics/Perf files
-**/android/app/src/main/assets/crashlytics-build.properties
-
-# Local development tools
+# -----------------------------
+# Local Dev Tool Configs
+# -----------------------------
 devtools_options.yaml
+
+# -----------------------------
+# Misc Safety
+# -----------------------------
+*.orig
+*.lock.json
