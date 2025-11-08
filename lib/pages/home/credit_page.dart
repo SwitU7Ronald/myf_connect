@@ -90,7 +90,7 @@ class _CreditPageState extends State<CreditPage> {
 
               // Title
               Text(
-                'Methodist Connect',
+                'MYF Connect',
                 style: MethodistTheme.displayMedium.copyWith(
                   color: MethodistTheme.white,
                 ),

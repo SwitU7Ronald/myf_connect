@@ -10,16 +10,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   debugPrintBeginFrameBanner = false;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MethodistConnectApp());
+  runApp(const MYFConnectApp());
 }
 
-class MethodistConnectApp extends StatelessWidget {
-  const MethodistConnectApp({super.key});
+class MYFConnectApp extends StatelessWidget {
+  const MYFConnectApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Methodist Connect',
+      title: 'MYF Connect',
       theme: MethodistTheme.theme, // Changed from themeData to theme
       onGenerateRoute: AppRoutes.onGenerateRoute,
       initialRoute: AppRoutes.root,

@@ -159,7 +159,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
               // Title
               Text(
-                'Methodist Connect',
+                'MYF Connect',
                 // ✅ RESPONSIVE: Use responsive text style
                 style: context.responsiveDisplayMedium.copyWith(
                   color: MethodistTheme.white,

@@ -16,6 +16,12 @@ coverage/
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 **/android/app/**/output.json
+**/android/app/build/
+**/android/build/
+**/android/app/*.keystore
+**/android/app/*.jks
+**/android/key.properties
+**/android/app/src/main/assets/crashlytics-build.properties
 
 # iOS
 **/ios/Pods/
@@ -29,6 +35,7 @@ coverage/
 **/ios/Runner.xcodeproj/project.xcworkspace/
 **/ios/Runner.xcworkspace/
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/build/
 ios/Runner/GoogleService-Info.plist
 
 # macOS
@@ -57,10 +64,10 @@ ios/Runner/GoogleService-Info.plist
 
 # Firebase
 **/firebase-debug.log
-# Firebase options contain API keys - DO NOT COMMIT
+# Firebase options file contains sensitive keys - ignore
 lib/firebase_options.dart
-lib/firebase_options.dart
-# But DO commit google-services.json (public config)
+# Ignore google-services.json to force regeneration by flutterfire configure
+android/app/google-services.json
 
 # Environment files
 *.env
@@ -77,18 +84,8 @@ Thumbs.db
 **/fastlane/screenshots/
 **/fastlane/test_output/
 
-# Android signing files - CRITICAL - NEVER COMMIT
-**/android/app/*.keystore
-**/android/app/*.jks
-**/android/key.properties
-
 # Crashlytics/Perf files
 **/android/app/src/main/assets/crashlytics-build.properties
 
 # Local development tools
 devtools_options.yaml
-
-# Build folders
-**/android/app/build/
-**/android/build/
-**/ios/build/

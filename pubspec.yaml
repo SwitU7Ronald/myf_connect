@@ -1,5 +1,5 @@
-name: methodist_connect
-description: "A Methodist Connect app for community communication and organization management."
+name: myf_connect
+description: "A MYF Connect app for community communication and organization management."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1

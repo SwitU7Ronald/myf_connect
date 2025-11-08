@@ -47,7 +47,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
         title: Text(
-          'Methodist Connect',
+          'MYF Connect',
           style: context.responsiveHeadlineSmall.copyWith(
             color: MethodistTheme.white,
             fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                   ),
                   SizedBox(height: context.spacing(12)), // Reduced from 20
                   Text(
-                    'Welcome to Methodist Connect',
+                    'Welcome to MYF Connect',
                     style: context.responsiveTitleLarge.copyWith( // Changed from responsiveHeadlineMedium
                       color: MethodistTheme.darkGray,
                       fontWeight: FontWeight.bold,
