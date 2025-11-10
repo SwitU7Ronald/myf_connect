@@ -135,6 +135,12 @@ Thumbs.db
 devtools_options.yaml
 
 # -----------------------------
+# Temporary Project Dumps
+# -----------------------------
+*_dump.txt
+all_dart_files.txt
+
+# -----------------------------
 # Misc Safety
 # -----------------------------
 *.orig
