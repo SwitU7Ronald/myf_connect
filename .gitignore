@@ -137,8 +137,8 @@ devtools_options.yaml
 # -----------------------------
 # Temporary Project Dumps
 # -----------------------------
+dump/
 *_dump.txt
-all_dart_files.txt
 
 # -----------------------------
 # Misc Safety
