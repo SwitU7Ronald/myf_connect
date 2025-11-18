@@ -4,21 +4,16 @@ import '../app/theme.dart';
 class LoadingWidget extends StatelessWidget {
   final String? message;
 
-  const LoadingWidget({
-    super.key,
-    this.message,
-  });
+  const LoadingWidget({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisSize: MainAxisSize.min,  // ✅ ADDED - Prevents overflow
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            color: MethodistTheme.primaryRed,
-          ),
+          CircularProgressIndicator(color: MethodistTheme.primaryRed),
           if (message != null) ...[
             SizedBox(height: context.spacing(16)),
             Text(
@@ -35,9 +30,6 @@ class LoadingWidget extends StatelessWidget {
   }
 }
 
-// ========================================
-// EMPTY STATE WIDGET - Already good, minor optimization
-// ========================================
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -53,10 +45,10 @@ class EmptyStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SingleChildScrollView(  // ✅ ADDED: Allows scrolling if content is tall
+      child: SingleChildScrollView(
         padding: context.responsivePadding(all: 32),
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // ✅ ADDED: Prevents overflow
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
@@ -82,7 +74,7 @@ class EmptyStateWidget extends StatelessWidget {
                 color: MethodistTheme.darkGray,
               ),
               textAlign: TextAlign.center,
-              maxLines: 2,  // ✅ ADDED: Limit title lines
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: context.spacing(12)),
@@ -94,7 +86,7 @@ class EmptyStateWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
               maxLines: 4,
-              overflow: TextOverflow.ellipsis,  // ✅ ADDED: Handle overflow
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -103,9 +95,6 @@ class EmptyStateWidget extends StatelessWidget {
   }
 }
 
-// ========================================
-// ERROR STATE WIDGET - Fixed for keyboard safety
-// ========================================
 class ErrorStateWidget extends StatelessWidget {
   final String title;
   final String? description;
@@ -123,10 +112,10 @@ class ErrorStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SingleChildScrollView(  // ✅ ADDED: Keyboard-safe
+      child: SingleChildScrollView(
         padding: context.responsivePadding(all: 32),
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // ✅ ADDED: Prevents overflow
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
@@ -138,7 +127,7 @@ class ErrorStateWidget extends StatelessWidget {
                 ),
               ),
               child: Icon(
-                Icons.error_outline,  // ✅ CHANGED: Better icon for errors
+                Icons.error_outline,
                 size: context.responsiveIconSize(64),
                 color: MethodistTheme.errorRed,
               ),
@@ -152,7 +141,7 @@ class ErrorStateWidget extends StatelessWidget {
                 color: MethodistTheme.darkGray,
               ),
               textAlign: TextAlign.center,
-              maxLines: 2,  // ✅ ADDED: Limit title lines
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             if (description != null) ...[
@@ -165,7 +154,7 @@ class ErrorStateWidget extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 4,
-                overflow: TextOverflow.ellipsis,  // ✅ ADDED: Handle overflow
+                overflow: TextOverflow.ellipsis,
               ),
             ],
             if (onRetry != null && retryLabel != null) ...[
@@ -175,12 +164,10 @@ class ErrorStateWidget extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: Text(
                   retryLabel!,
-                  style: TextStyle(
-                    fontSize: context.responsiveFontSize(14),
-                  ),
+                  style: TextStyle(fontSize: context.responsiveFontSize(14)),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: MethodistTheme.primaryRed,  // ✅ ADDED: Consistent theming
+                  backgroundColor: MethodistTheme.primaryRed,
                   foregroundColor: MethodistTheme.white,
                   padding: context.responsivePadding(
                     horizontal: 24,
@@ -201,9 +188,6 @@ class ErrorStateWidget extends StatelessWidget {
   }
 }
 
-// ========================================
-// LOADING OVERLAY - Fixed for keyboard safety
-// ========================================
 class LoadingOverlay extends StatelessWidget {
   final bool isLoading;
   final String loadingMessage;
@@ -227,7 +211,6 @@ class LoadingOverlay extends StatelessWidget {
               color: Colors.black.withValues(alpha: 0.3),
               child: Center(
                 child: Container(
-                  // ✅ ADDED: Card background for better visibility
                   padding: context.responsivePadding(all: 32),
                   margin: context.responsivePadding(all: 24),
                   decoration: BoxDecoration(

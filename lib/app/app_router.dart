@@ -13,7 +13,6 @@ import '../pages/admin/admin_dashboard_page.dart';
 import '../main.dart';
 
 class AppRoutes {
-  // Route names
   static const String root = '/';
   static const String credit = '/credit';
   static const String team = '/team';
@@ -27,7 +26,6 @@ class AppRoutes {
   static const String myfsDetail = '/myfs-detail';
   static const String adminDashboard = '/admin-dashboard';
 
-  // Route generator
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     debugPrint('Navigating to route: ${settings.name}');
 
@@ -127,18 +125,12 @@ class AppRoutes {
   static Route<dynamic> _errorRoute(String message) {
     return MaterialPageRoute(
       builder: (context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Error'),
-        ),
+        appBar: AppBar(title: const Text('Error')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error,
-                size: 64,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text(
                 message,
@@ -150,7 +142,7 @@ class AppRoutes {
                 onPressed: () => Navigator.pushNamedAndRemoveUntil(
                   context,
                   AppRoutes.root,
-                      (route) => false,
+                  (route) => false,
                 ),
                 child: const Text('Go Home'),
               ),

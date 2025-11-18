@@ -5,34 +5,29 @@ class ResponsiveUtils {
 
   ResponsiveUtils(this.context);
 
-  // Screen dimensions
   double get screenWidth => MediaQuery.sizeOf(context).width;
   double get screenHeight => MediaQuery.sizeOf(context).height;
 
-  // Device type checks
   bool get isSmallPhone => screenWidth < 360;
   bool get isPhone => screenWidth < 600;
   bool get isTablet => screenWidth >= 600 && screenWidth < 900;
   bool get isDesktop => screenWidth >= 900;
 
-  // Orientation
-  bool get isPortrait => MediaQuery.orientationOf(context) == Orientation.portrait;
-  bool get isLandscape => MediaQuery.orientationOf(context) == Orientation.landscape;
+  bool get isPortrait =>
+      MediaQuery.orientationOf(context) == Orientation.portrait;
+  bool get isLandscape =>
+      MediaQuery.orientationOf(context) == Orientation.landscape;
 
-  // Responsive sizing based on screen width
   double wp(double percentage) => screenWidth * percentage / 100;
   double hp(double percentage) => screenHeight * percentage / 100;
 
-  // Responsive font sizes
   double get textScaleFactor => MediaQuery.textScaleFactorOf(context);
 
   double responsiveFontSize(double baseFontSize) {
-    // Scale font based on screen width
-    double scaleFactor = screenWidth / 375; // 375 is base width (iPhone SE)
+    double scaleFactor = screenWidth / 375;
     return baseFontSize * scaleFactor.clamp(0.8, 1.3);
   }
 
-  // Responsive padding
   EdgeInsets responsivePadding({
     double? all,
     double? horizontal,
@@ -51,27 +46,22 @@ class ResponsiveUtils {
     );
   }
 
-  // Responsive spacing
   double spacing(double baseSpacing) {
     return baseSpacing * (screenWidth / 375).clamp(0.8, 1.2);
   }
 
-  // Responsive border radius
   double borderRadius(double baseRadius) {
     return baseRadius * (screenWidth / 375).clamp(0.8, 1.2);
   }
 
-  // Safe area padding
   EdgeInsets get safeAreaPadding => MediaQuery.paddingOf(context);
   double get topSafeArea => safeAreaPadding.top;
   double get bottomSafeArea => safeAreaPadding.bottom;
 
-  // Responsive icon size
   double iconSize(double baseSize) {
     return baseSize * (screenWidth / 375).clamp(0.9, 1.3);
   }
 
-  // Grid columns based on screen size
   int get gridColumns {
     if (isSmallPhone) return 1;
     if (isPhone) return 2;
@@ -79,36 +69,31 @@ class ResponsiveUtils {
     return 4;
   }
 
-  // List item height
   double get listItemHeight {
     if (isSmallPhone) return 140;
     if (isPhone) return 160;
     return 180;
   }
 
-  // Button height
   double get buttonHeight {
     if (isSmallPhone) return 44;
     if (isPhone) return 48;
     return 52;
   }
 
-  // Card elevation
   double get cardElevation => isSmallPhone ? 1 : 2;
 }
 
-// Extension for easy access
 extension ResponsiveExtension on BuildContext {
   ResponsiveUtils get responsive => ResponsiveUtils(this);
 
-  // Quick access methods
   double wp(double percentage) => ResponsiveUtils(this).wp(percentage);
   double hp(double percentage) => ResponsiveUtils(this).hp(percentage);
-  double responsiveFont(double size) => ResponsiveUtils(this).responsiveFontSize(size);
+  double responsiveFont(double size) =>
+      ResponsiveUtils(this).responsiveFontSize(size);
   double spacing(double value) => ResponsiveUtils(this).spacing(value);
 }
 
-// Responsive Text Widget
 class ResponsiveText extends StatelessWidget {
   final String text;
   final double baseFontSize;
@@ -119,15 +104,15 @@ class ResponsiveText extends StatelessWidget {
   final TextOverflow? overflow;
 
   const ResponsiveText(
-      this.text, {
-        super.key,
-        required this.baseFontSize,
-        this.fontWeight,
-        this.color,
-        this.textAlign,
-        this.maxLines,
-        this.overflow,
-      });
+    this.text, {
+    super.key,
+    required this.baseFontSize,
+    this.fontWeight,
+    this.color,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +130,6 @@ class ResponsiveText extends StatelessWidget {
   }
 }
 
-// Responsive Padding Widget
 class ResponsivePadding extends StatelessWidget {
   final Widget child;
   final double? all;
@@ -185,18 +169,12 @@ class ResponsivePadding extends StatelessWidget {
   }
 }
 
-// Responsive Sized Box
 class ResponsiveSizedBox extends StatelessWidget {
   final double? width;
   final double? height;
   final Widget? child;
 
-  const ResponsiveSizedBox({
-    super.key,
-    this.width,
-    this.height,
-    this.child,
-  });
+  const ResponsiveSizedBox({super.key, this.width, this.height, this.child});
 
   @override
   Widget build(BuildContext context) {

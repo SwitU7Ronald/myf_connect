@@ -27,17 +27,12 @@ class MethodistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsivePadding = padding ?? context.responsivePadding(all: 16);
-    final responsiveMargin = margin ?? EdgeInsets.symmetric(
-      vertical: context.spacing(8),
-    );
-    final responsiveRadius = borderRadius ?? BorderRadius.circular(
-      context.responsiveRadius(16),
-    );
+    final responsiveMargin =
+        margin ?? EdgeInsets.symmetric(vertical: context.spacing(8));
+    final responsiveRadius =
+        borderRadius ?? BorderRadius.circular(context.responsiveRadius(16));
 
-    Widget cardChild = Container(
-      padding: responsivePadding,
-      child: child,
-    );
+    Widget cardChild = Container(padding: responsivePadding, child: child);
 
     if (onTap != null) {
       cardChild = InkWell(
@@ -149,8 +144,9 @@ class InfoCard extends StatelessWidget {
                         Container(
                           padding: context.responsivePadding(all: 8),
                           decoration: BoxDecoration(
-                            color:
-                            MethodistTheme.errorRed.withValues(alpha: 0.1),
+                            color: MethodistTheme.errorRed.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(
                               context.responsiveRadius(8),
                             ),
@@ -184,18 +180,14 @@ class InfoCard extends StatelessWidget {
             if (isLocked) ...[
               SizedBox(height: context.spacing(8)),
               Container(
-                padding: context.responsivePadding(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
+                padding: context.responsivePadding(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: MethodistTheme.warningOrange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(
                     context.responsiveRadius(8),
                   ),
                   border: Border.all(
-                    color:
-                    MethodistTheme.warningOrange.withValues(alpha: 0.3),
+                    color: MethodistTheme.warningOrange.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -223,10 +215,7 @@ class InfoCard extends StatelessWidget {
             ],
             if (actions != null && actions!.isNotEmpty) ...[
               SizedBox(height: context.spacing(16)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: actions!,
-              ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: actions!),
             ],
           ],
         ),
@@ -260,9 +249,7 @@ class FeatureCard extends StatelessWidget {
             padding: context.responsivePadding(all: 24),
             decoration: BoxDecoration(
               color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(
-                context.responsiveRadius(20),
-              ),
+              borderRadius: BorderRadius.circular(context.responsiveRadius(20)),
             ),
             child: Icon(
               icon,
@@ -386,7 +373,7 @@ class _EventCardState extends State<EventCard> {
       'Thu',
       'Fri',
       'Sat',
-      'Sun'
+      'Sun',
     ][widget.dateTime.weekday - 1];
 
     return MethodistCard(
@@ -443,10 +430,7 @@ class _EventCardState extends State<EventCard> {
                   color: MethodistTheme.mediumGray,
                 ),
                 SizedBox(width: context.spacing(4)),
-                Text(
-                  timeStr,
-                  style: context.responsiveBodySmall,
-                ),
+                Text(timeStr, style: context.responsiveBodySmall),
               ],
             ),
           ),
@@ -510,8 +494,7 @@ class _EventCardState extends State<EventCard> {
                   } else {
                     return Row(
                       children: [
-                        Expanded(
-                            child: _buildAverageRatingSection(context)),
+                        Expanded(child: _buildAverageRatingSection(context)),
                         SizedBox(width: context.spacing(12)),
                         Expanded(child: _buildYourRatingSection(context)),
                       ],
@@ -525,7 +508,6 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  /// ✅ FIXED: Average Rating - Score under label properly aligned
   Widget _buildAverageRatingSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,20 +585,19 @@ class _EventCardState extends State<EventCard> {
         ],
       );
     } else {
-      // ✅ NORMAL BUTTON: Standard size
       return SizedBox(
-        height: 36, // Normal height
+        height: 36,
         child: OutlinedButton.icon(
           onPressed: () => _showRatingDialog(context),
           icon: Icon(
             Icons.star_border,
-            size: 18, // Normal icon
+            size: 18,
             color: MethodistTheme.primaryRed,
           ),
           label: Text(
             'Rate Event',
             style: TextStyle(
-              fontSize: 14, // Normal text
+              fontSize: 14,
               color: MethodistTheme.primaryRed,
               fontWeight: FontWeight.w600,
             ),
@@ -634,8 +615,6 @@ class _EventCardState extends State<EventCard> {
     }
   }
 
-
-
   Future<void> _showRatingDialog(BuildContext context) async {
     int selectedRating = 0;
     bool isSubmitting = false;
@@ -644,10 +623,7 @@ class _EventCardState extends State<EventCard> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(
-            'Rate Event',
-            style: context.responsiveHeadlineSmall,
-          ),
+          title: Text('Rate Event', style: context.responsiveHeadlineSmall),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -669,20 +645,19 @@ class _EventCardState extends State<EventCard> {
                     ),
                   )
                 else
-                // ✅ FIXED: Smaller stars with proper constraints to prevent overflow
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min, // Prevent overflow
+                    mainAxisSize: MainAxisSize.min,
                     children: List.generate(5, (index) {
                       return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2), // Minimal spacing
+                        padding: EdgeInsets.symmetric(horizontal: 2),
                         child: IconButton(
-                          padding: EdgeInsets.zero, // Remove default padding
+                          padding: EdgeInsets.zero,
                           constraints: BoxConstraints(
-                            minWidth: 36, // Reduced from 48
-                            minHeight: 36, // Reduced from 48
+                            minWidth: 36,
+                            minHeight: 36,
                           ),
-                          iconSize: 32, // Reduced star size
+                          iconSize: 32,
                           icon: Icon(
                             index < selectedRating
                                 ? Icons.star
@@ -712,26 +687,26 @@ class _EventCardState extends State<EventCard> {
           ),
           actions: [
             TextButton(
-              onPressed: isSubmitting ? null : () => Navigator.pop(dialogContext),
+              onPressed: isSubmitting
+                  ? null
+                  : () => Navigator.pop(dialogContext),
               child: Text(
                 'Cancel',
-                style: TextStyle(
-                  fontSize: context.responsiveFontSize(14),
-                ),
+                style: TextStyle(fontSize: context.responsiveFontSize(14)),
               ),
             ),
             SizedBox(width: context.spacing(8)),
             ElevatedButton(
               onPressed: (selectedRating > 0 && !isSubmitting)
                   ? () async {
-                setDialogState(() {
-                  isSubmitting = true;
-                });
-                await _submitRating(context, selectedRating);
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext);
-                }
-              }
+                      setDialogState(() {
+                        isSubmitting = true;
+                      });
+                      await _submitRating(context, selectedRating);
+                      if (dialogContext.mounted) {
+                        Navigator.pop(dialogContext);
+                      }
+                    }
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: MethodistTheme.primaryRed,
@@ -739,9 +714,7 @@ class _EventCardState extends State<EventCard> {
               ),
               child: Text(
                 'Submit',
-                style: TextStyle(
-                  fontSize: context.responsiveFontSize(14),
-                ),
+                style: TextStyle(fontSize: context.responsiveFontSize(14)),
               ),
             ),
           ],
@@ -749,7 +722,6 @@ class _EventCardState extends State<EventCard> {
       ),
     );
   }
-
 
   Future<void> _submitRating(BuildContext context, int rating) async {
     try {
@@ -855,28 +827,22 @@ class _EventCardState extends State<EventCard> {
         }
 
         final eventData = freshEventSnapshot.data();
-        final oldAvgRating =
-        _safeToDouble(eventData?['avgRating'], 0.0);
-        final oldCount =
-        _safeToInt(eventData?['ratingCount'], 0);
+        final oldAvgRating = _safeToDouble(eventData?['avgRating'], 0.0);
+        final oldCount = _safeToInt(eventData?['ratingCount'], 0);
 
         final newCount = oldCount + 1;
-        final newAvgRating =
-            (oldAvgRating * oldCount + rating) / newCount;
+        final newAvgRating = (oldAvgRating * oldCount + rating) / newCount;
 
         transaction.update(eventRef, {
           'avgRating': newAvgRating,
           'ratingCount': newCount,
         });
 
-        transaction.set(
-          eventRef.collection('ratings').doc(user.uid),
-          {
-            'userId': user.uid,
-            'rating': rating,
-            'timestamp': FieldValue.serverTimestamp(),
-          },
-        );
+        transaction.set(eventRef.collection('ratings').doc(user.uid), {
+          'userId': user.uid,
+          'rating': rating,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
       });
 
       setState(() {

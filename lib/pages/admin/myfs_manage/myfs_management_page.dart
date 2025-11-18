@@ -15,24 +15,15 @@ class MyfsManagementPage extends StatelessWidget {
   }
 
   Future<void> _deleteMyf(BuildContext context, String id, String title) async {
-    // Step 1: Show confirmation dialog - ✅ RESPONSIVE
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(
-          'Delete MYF',
-          // ✅ RESPONSIVE: Use responsive text style
-          style: context.responsiveHeadlineSmall,
-        ),
+        title: Text('Delete MYF', style: context.responsiveHeadlineSmall),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveBodyMedium,
         ),
-        actionsPadding: context.responsivePadding(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
@@ -49,10 +40,8 @@ class MyfsManagementPage extends StatelessWidget {
 
     if (confirmed != true) return;
 
-    // Step 2: Store navigator BEFORE showing loading dialog
     final navigator = Navigator.of(context);
 
-    // Step 3: Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -63,7 +52,6 @@ class MyfsManagementPage extends StatelessWidget {
     );
 
     try {
-      // Step 4: Delete all events first
       final eventsRef = FirebaseFirestore.instance
           .collection('myfs')
           .doc(id)
@@ -84,13 +72,10 @@ class MyfsManagementPage extends StatelessWidget {
         await batch.commit();
       }
 
-      // Step 5: Delete the MYF document
       await FirebaseFirestore.instance.collection('myfs').doc(id).delete();
 
-      // Step 6: Close loading dialog using stored navigator
       navigator.pop();
 
-      // Step 7: Show success message
       if (context.mounted) {
         MethodistTheme.showSuccessSnackBar(
           context,
@@ -100,10 +85,8 @@ class MyfsManagementPage extends StatelessWidget {
     } catch (e) {
       debugPrint('❌ MYF Delete Error: $e');
 
-      // Close loading dialog using stored navigator
       navigator.pop();
 
-      // Show error message
       if (context.mounted) {
         MethodistTheme.showErrorSnackBar(
           context,
@@ -114,10 +97,10 @@ class MyfsManagementPage extends StatelessWidget {
   }
 
   Future<void> _showEditMyfDialog(
-      BuildContext context,
-      String myfId,
-      Map<String, dynamic> data,
-      ) async {
+    BuildContext context,
+    String myfId,
+    Map<String, dynamic> data,
+  ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final descCtrl = TextEditingController(text: data['description'] ?? '');
@@ -127,21 +110,15 @@ class MyfsManagementPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(
-            'Edit MYF',
-            // ✅ RESPONSIVE: Use responsive text style
-            style: context.responsiveHeadlineSmall,
-          ),
+          title: Text('Edit MYF', style: context.responsiveHeadlineSmall),
           content: SingleChildScrollView(
             child: SizedBox(
-              // ✅ RESPONSIVE: Make dialog width responsive
               width: MediaQuery.of(context).size.width * 0.85,
               child: Form(
                 key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // MYF Title Field
                     AppTextField(
                       controller: titleCtrl,
                       label: 'MYF Title',
@@ -151,10 +128,8 @@ class MyfsManagementPage extends StatelessWidget {
                           ? 'Title is required'
                           : null,
                     ),
-                    // ✅ RESPONSIVE: Use context.spacing
                     SizedBox(height: context.spacing(16)),
 
-                    // MYF Description Field
                     AppTextField(
                       controller: descCtrl,
                       label: 'Description',
@@ -193,20 +168,24 @@ class MyfsManagementPage extends StatelessWidget {
                       .collection('myfs')
                       .doc(myfId)
                       .update({
-                    'title': titleCtrl.text.trim(),
-                    'description': descCtrl.text.trim(),
-                    'updatedAt': FieldValue.serverTimestamp(),
-                  });
+                        'title': titleCtrl.text.trim(),
+                        'description': descCtrl.text.trim(),
+                        'updatedAt': FieldValue.serverTimestamp(),
+                      });
 
                   if (dialogContext.mounted) {
                     Navigator.pop(dialogContext);
                     MethodistTheme.showSuccessSnackBar(
-                        context, 'MYF updated successfully');
+                      context,
+                      'MYF updated successfully',
+                    );
                   }
                 } catch (e) {
                   debugPrint('❌ MYF Update Error: $e');
                   MethodistTheme.showErrorSnackBar(
-                      context, 'Error updating MYF: $e');
+                    context,
+                    'Error updating MYF: $e',
+                  );
                 } finally {
                   setDialogState(() => loading = false);
                 }
@@ -225,7 +204,6 @@ class MyfsManagementPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'MYF Management',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveHeadlineSmall.copyWith(
             color: MethodistTheme.white,
           ),
@@ -238,15 +216,10 @@ class MyfsManagementPage extends StatelessWidget {
         tooltip: 'Add MYF',
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        // ✅ RESPONSIVE: Use responsive icon size
-        child: Icon(
-          Icons.add,
-          size: context.responsiveIconSize(28),
-        ),
+        child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream:
-        FirebaseFirestore.instance.collection('myfs').snapshots(),
+        stream: FirebaseFirestore.instance.collection('myfs').snapshots(),
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
             return const LoadingWidget(message: 'Loading MYF groups...');
@@ -259,8 +232,7 @@ class MyfsManagementPage extends StatelessWidget {
               onRetry: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const MyfsManagementPage()),
+                  MaterialPageRoute(builder: (_) => const MyfsManagementPage()),
                 );
               },
             );
@@ -273,12 +245,11 @@ class MyfsManagementPage extends StatelessWidget {
               icon: Icons.group,
               title: 'No MYF Groups Found',
               description:
-              'No MYF groups have been created yet. Tap the + button to create your first MYF group.',
+                  'No MYF groups have been created yet. Tap the + button to create your first MYF group.',
             );
           }
 
           return ListView.builder(
-            // ✅ RESPONSIVE: Use context.responsivePadding
             padding: context.responsivePadding(all: 16),
             itemCount: myfDocs.length,
             itemBuilder: (context, index) {
@@ -297,21 +268,18 @@ class MyfsManagementPage extends StatelessWidget {
                         : 'No description available',
                     icon: Icons.group,
                     actions: [
-                      // Edit Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Edit MYF',
                         child: IconButton(
                           icon: Icon(
                             Icons.edit,
                             color: MethodistTheme.warningOrange,
-                            // ✅ RESPONSIVE: Use responsive icon size
                             size: context.responsiveIconSize(20),
                           ),
                           onPressed: () =>
                               _showEditMyfDialog(context, myfId, data),
                         ),
                       ),
-                      // Events Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Manage Events',
                         child: IconButton(
@@ -324,17 +292,15 @@ class MyfsManagementPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    MyfsEventsManagementPage(
-                                      myfId: myfId,
-                                      myfTitle: title,
-                                    ),
+                                builder: (_) => MyfsEventsManagementPage(
+                                  myfId: myfId,
+                                  myfTitle: title,
+                                ),
                               ),
                             );
                           },
                         ),
                       ),
-                      // Delete Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Delete MYF',
                         child: IconButton(
@@ -343,13 +309,11 @@ class MyfsManagementPage extends StatelessWidget {
                             color: MethodistTheme.errorRed,
                             size: context.responsiveIconSize(20),
                           ),
-                          onPressed: () =>
-                              _deleteMyf(context, myfId, title),
+                          onPressed: () => _deleteMyf(context, myfId, title),
                         ),
                       ),
                     ],
                   ),
-                  // ✅ RESPONSIVE: Use context.spacing between items
                   if (index < myfDocs.length - 1)
                     SizedBox(height: context.spacing(12)),
                 ],

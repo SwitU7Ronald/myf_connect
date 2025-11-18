@@ -1,6 +1,4 @@
-// lib/models/district_data.dart
 class DistrictData {
-  // Original district list
   static const List<String> _baseDistricts = [
     'Ahmedabad North District',
     'Ahmedabad East District',
@@ -14,10 +12,8 @@ class DistrictData {
     'Vadodara District',
   ];
 
-  // District list with "Other" option
   static List<String> get districts => [..._baseDistricts, 'Other'];
 
-  // Base districts without "Other" (for validation)
   static List<String> get baseDistricts => _baseDistricts;
 
   static const Map<String, List<String>> districtMyfMap = {
@@ -38,12 +34,8 @@ class DistrictData {
       'Agape Methodist Church MYF',
       'Shahpur Methodist Church MYF',
     ],
-    'Bharuch District': [
-      'Eben Ezer Methodist Church MYF',
-    ],
-    'Surat District': [
-      'Epworth Methodist Church MYF',
-    ],
+    'Bharuch District': ['Eben Ezer Methodist Church MYF'],
+    'Surat District': ['Epworth Methodist Church MYF'],
     'Anand District': [
       'Hebron Badapura Methodist Church MYF',
       'Ajarpura/ Karasan Pura MYF',
@@ -87,11 +79,10 @@ class DistrictData {
     ],
   };
 
-  // Statistics
   static int get totalDistricts => _baseDistricts.length;
-  static int get totalMyfs => districtMyfMap.values.fold(0, (sum, myfs) => sum + myfs.length);
+  static int get totalMyfs =>
+      districtMyfMap.values.fold(0, (sum, myfs) => sum + myfs.length);
 
-  // Helper methods
   static List<String> getMyfsByDistrict(String district) {
     return districtMyfMap[district] ?? [];
   }
@@ -101,7 +92,7 @@ class DistrictData {
   }
 
   static bool isValidMyfForDistrict(String district, String myf) {
-    if (district == 'Other') return true; // Allow any MYF for "Other" district
+    if (district == 'Other') return true;
     return getMyfsByDistrict(district).contains(myf);
   }
 

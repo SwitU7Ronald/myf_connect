@@ -36,25 +36,20 @@ class CampsManagementPage extends StatelessWidget {
     }
   }
 
-  Future<void> _deleteCamp(BuildContext context, String id, String title) async {
-    // Step 1: Show confirmation dialog - ✅ RESPONSIVE
+  Future<void> _deleteCamp(
+    BuildContext context,
+    String id,
+    String title,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(
-          'Delete Camp',
-          // ✅ RESPONSIVE: Use responsive text style
-          style: context.responsiveHeadlineSmall,
-        ),
+        title: Text('Delete Camp', style: context.responsiveHeadlineSmall),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveBodyMedium,
         ),
-        actionsPadding: context.responsivePadding(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
@@ -71,10 +66,8 @@ class CampsManagementPage extends StatelessWidget {
 
     if (confirmed != true) return;
 
-    // Step 2: Store the navigator state BEFORE showing loading
     final navigator = Navigator.of(context);
 
-    // Step 3: Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -85,16 +78,12 @@ class CampsManagementPage extends StatelessWidget {
     );
 
     try {
-      // Step 4: Delete events
       await _deleteCampEventsCascade(id);
 
-      // Step 5: Delete camp
       await FirebaseFirestore.instance.collection('camps').doc(id).delete();
 
-      // Step 6: Close loading dialog using stored navigator
       navigator.pop();
 
-      // Step 7: Show success message
       if (context.mounted) {
         MethodistTheme.showSuccessSnackBar(
           context,
@@ -104,10 +93,8 @@ class CampsManagementPage extends StatelessWidget {
     } catch (e) {
       debugPrint('❌ Camp Delete Error: $e');
 
-      // Close loading dialog using stored navigator
       navigator.pop();
 
-      // Show error message
       if (context.mounted) {
         MethodistTheme.showErrorSnackBar(
           context,
@@ -118,10 +105,10 @@ class CampsManagementPage extends StatelessWidget {
   }
 
   Future<void> _showEditCampDialog(
-      BuildContext context,
-      String campId,
-      Map<String, dynamic> data,
-      ) async {
+    BuildContext context,
+    String campId,
+    Map<String, dynamic> data,
+  ) async {
     final formKey = GlobalKey<FormState>();
     final titleCtrl = TextEditingController(text: data['title'] ?? '');
     final placeCtrl = TextEditingController(text: data['place'] ?? '');
@@ -140,21 +127,15 @@ class CampsManagementPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(
-            'Edit Camp',
-            // ✅ RESPONSIVE: Use responsive text style
-            style: context.responsiveHeadlineSmall,
-          ),
+          title: Text('Edit Camp', style: context.responsiveHeadlineSmall),
           content: SingleChildScrollView(
             child: SizedBox(
-              // ✅ RESPONSIVE: Make dialog width responsive
               width: MediaQuery.of(context).size.width * 0.85,
               child: Form(
                 key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Camp Title Field
                     AppTextField(
                       controller: titleCtrl,
                       label: 'Camp Title',
@@ -164,10 +145,8 @@ class CampsManagementPage extends StatelessWidget {
                           ? 'Title is required'
                           : null,
                     ),
-                    // ✅ RESPONSIVE: Use context.spacing
                     SizedBox(height: context.spacing(16)),
 
-                    // Camp Place Field
                     AppTextField(
                       controller: placeCtrl,
                       label: 'Place',
@@ -179,20 +158,19 @@ class CampsManagementPage extends StatelessWidget {
                     ),
                     SizedBox(height: context.spacing(16)),
 
-                    // Camp Date Field
                     DatePickerField.dateOnly(
                       selectedDateTime: selectedDate,
                       label: 'Camp Date',
                       hint: 'Select camp date',
-                      firstDate:
-                      DateTime.now().subtract(const Duration(days: 365)),
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 365),
+                      ),
                       lastDate: DateTime.now().add(const Duration(days: 730)),
                       onDateTimeSelected: (date) =>
                           setDialogState(() => selectedDate = date),
                     ),
                     SizedBox(height: context.spacing(16)),
 
-                    // Camp Description Field
                     AppTextField(
                       controller: descCtrl,
                       label: 'Description',
@@ -225,7 +203,9 @@ class CampsManagementPage extends StatelessWidget {
                 if (!formKey.currentState!.validate() || selectedDate == null) {
                   if (selectedDate == null) {
                     MethodistTheme.showErrorSnackBar(
-                        context, 'Please select a date');
+                      context,
+                      'Please select a date',
+                    );
                   }
                   return;
                 }
@@ -233,7 +213,6 @@ class CampsManagementPage extends StatelessWidget {
                 setDialogState(() => loading = true);
 
                 try {
-                  // Calculate day of week
                   final dayOfWeek = [
                     'Monday',
                     'Tuesday',
@@ -241,7 +220,7 @@ class CampsManagementPage extends StatelessWidget {
                     'Thursday',
                     'Friday',
                     'Saturday',
-                    'Sunday'
+                    'Sunday',
                   ];
                   final day = dayOfWeek[selectedDate!.weekday - 1];
 
@@ -249,23 +228,27 @@ class CampsManagementPage extends StatelessWidget {
                       .collection('camps')
                       .doc(campId)
                       .update({
-                    'title': titleCtrl.text.trim(),
-                    'place': placeCtrl.text.trim(),
-                    'date': Timestamp.fromDate(selectedDate!),
-                    'day': day, // ✅ Add day field
-                    'description': descCtrl.text.trim(),
-                    'updatedAt': FieldValue.serverTimestamp(),
-                  });
+                        'title': titleCtrl.text.trim(),
+                        'place': placeCtrl.text.trim(),
+                        'date': Timestamp.fromDate(selectedDate!),
+                        'day': day,
+                        'description': descCtrl.text.trim(),
+                        'updatedAt': FieldValue.serverTimestamp(),
+                      });
 
                   if (dialogContext.mounted) {
                     Navigator.pop(dialogContext);
                     MethodistTheme.showSuccessSnackBar(
-                        context, 'Camp updated successfully');
+                      context,
+                      'Camp updated successfully',
+                    );
                   }
                 } catch (e) {
                   debugPrint('Camp Update Error: $e');
                   MethodistTheme.showErrorSnackBar(
-                      context, 'Error updating camp: $e');
+                    context,
+                    'Error updating camp: $e',
+                  );
                 } finally {
                   setDialogState(() => loading = false);
                 }
@@ -284,7 +267,6 @@ class CampsManagementPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Camps Management',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveHeadlineSmall.copyWith(
             color: MethodistTheme.white,
           ),
@@ -297,11 +279,7 @@ class CampsManagementPage extends StatelessWidget {
         tooltip: 'Add Camp',
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        // ✅ RESPONSIVE: Use responsive icon size
-        child: Icon(
-          Icons.add,
-          size: context.responsiveIconSize(28),
-        ),
+        child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -321,7 +299,8 @@ class CampsManagementPage extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const CampsManagementPage()),
+                    builder: (_) => const CampsManagementPage(),
+                  ),
                 );
               },
             );
@@ -334,12 +313,11 @@ class CampsManagementPage extends StatelessWidget {
               icon: Icons.campaign,
               title: 'No Camps Found',
               description:
-              'No camps have been created yet. Tap the + button to create your first camp.',
+                  'No camps have been created yet. Tap the + button to create your first camp.',
             );
           }
 
           return ListView.builder(
-            // ✅ RESPONSIVE: Use context.responsivePadding
             padding: context.responsivePadding(all: 16),
             itemCount: camps.length,
             itemBuilder: (context, index) {
@@ -349,15 +327,19 @@ class CampsManagementPage extends StatelessWidget {
               final title = data['title'] ?? 'Unnamed Camp';
               final place = data['place'] ?? '';
 
-              // Parse date
               String dateStr = '';
               final dateVal = data['date'];
               if (dateVal is Timestamp) {
-                dateStr =
-                    dateVal.toDate().toLocal().toString().split(' ').first;
+                dateStr = dateVal
+                    .toDate()
+                    .toLocal()
+                    .toString()
+                    .split(' ')
+                    .first;
               } else if (dateVal is String) {
                 final parsedDate = DateTime.tryParse(dateVal);
-                dateStr = parsedDate?.toLocal().toString().split(' ').first ?? '';
+                dateStr =
+                    parsedDate?.toLocal().toString().split(' ').first ?? '';
               }
 
               return Column(
@@ -365,11 +347,9 @@ class CampsManagementPage extends StatelessWidget {
                   InfoCard(
                     title: title,
                     subtitle: place.isNotEmpty ? place : null,
-                    description:
-                    dateStr.isNotEmpty ? 'Date: $dateStr' : null,
+                    description: dateStr.isNotEmpty ? 'Date: $dateStr' : null,
                     icon: Icons.campaign,
                     actions: [
-                      // Edit Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Edit Camp',
                         child: IconButton(
@@ -382,7 +362,6 @@ class CampsManagementPage extends StatelessWidget {
                               _showEditCampDialog(context, campId, data),
                         ),
                       ),
-                      // Events Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Manage Events',
                         child: IconButton(
@@ -395,17 +374,15 @@ class CampsManagementPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    CampsEventsManagementPage(
-                                      campId: campId,
-                                      campTitle: title,
-                                    ),
+                                builder: (_) => CampsEventsManagementPage(
+                                  campId: campId,
+                                  campTitle: title,
+                                ),
                               ),
                             );
                           },
                         ),
                       ),
-                      // Delete Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Delete Camp',
                         child: IconButton(
@@ -414,13 +391,11 @@ class CampsManagementPage extends StatelessWidget {
                             color: MethodistTheme.errorRed,
                             size: context.responsiveIconSize(20),
                           ),
-                          onPressed: () =>
-                              _deleteCamp(context, campId, title),
+                          onPressed: () => _deleteCamp(context, campId, title),
                         ),
                       ),
                     ],
                   ),
-                  // ✅ RESPONSIVE: Use context.spacing between items
                   if (index < camps.length - 1)
                     SizedBox(height: context.spacing(12)),
                 ],

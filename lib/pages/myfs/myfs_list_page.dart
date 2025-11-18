@@ -7,7 +7,6 @@ import 'myfs_detail_page.dart';
 class MyfsListPage extends StatelessWidget {
   const MyfsListPage({super.key});
 
-  /// Fetch current user's permissions from Firestore
   Future<List<String>> _getUserPermissions() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -37,7 +36,6 @@ class MyfsListPage extends StatelessWidget {
     }
   }
 
-  /// Get average rating for a MYF from all its past events
   Stream<Map<String, double>> getMyfAverageRating(String myfId) {
     return FirebaseFirestore.instance
         .collection('myfs')
@@ -46,53 +44,46 @@ class MyfsListPage extends StatelessWidget {
         .where('dateTime', isLessThan: Timestamp.now())
         .snapshots()
         .map((snapshot) {
-      if (snapshot.docs.isEmpty) {
-        return {'avgRating': 0.0, 'count': 0.0};
-      }
+          if (snapshot.docs.isEmpty) {
+            return {'avgRating': 0.0, 'count': 0.0};
+          }
 
-      double totalRating = 0.0;
-      int eventCount = 0;
+          double totalRating = 0.0;
+          int eventCount = 0;
 
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final avgRating = (data['avgRating'] ?? 0.0).toDouble();
-        final numRatings = data['numRatings'] ?? 0;
+          for (var doc in snapshot.docs) {
+            final data = doc.data();
+            final avgRating = (data['avgRating'] ?? 0.0).toDouble();
+            final numRatings = data['numRatings'] ?? 0;
 
-        if (numRatings > 0) {
-          totalRating += avgRating;
-          eventCount++;
-        }
-      }
+            if (numRatings > 0) {
+              totalRating += avgRating;
+              eventCount++;
+            }
+          }
 
-      return {
-        'avgRating': eventCount > 0 ? totalRating / eventCount : 0.0,
-        'count': eventCount.toDouble(),
-      };
-    });
+          return {
+            'avgRating': eventCount > 0 ? totalRating / eventCount : 0.0,
+            'count': eventCount.toDouble(),
+          };
+        });
   }
 
-  /// Handle MYF tap with permission check
   void _handleMyfTap(
-      BuildContext context,
-      String myfId,
-      String myfTitle,
-      List<String> userPermissions,
-      ) {
-    // Check if user has permission for this specific MYF
+    BuildContext context,
+    String myfId,
+    String myfTitle,
+    List<String> userPermissions,
+  ) {
     if (userPermissions.contains(myfId)) {
-      // User has permission - navigate to MYF detail page
       debugPrint('MyfsListPage: User has permission for $myfTitle');
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => MyfsDetailPage(
-            myfId: myfId,
-            myfTitle: myfTitle,
-          ),
+          builder: (_) => MyfsDetailPage(myfId: myfId, myfTitle: myfTitle),
         ),
       );
     } else {
-      // User doesn't have permission - show error message
       debugPrint('MyfsListPage: User lacks permission for $myfTitle');
       MethodistTheme.showErrorSnackBar(
         context,
@@ -108,19 +99,16 @@ class MyfsListPage extends StatelessWidget {
       body: FutureBuilder<List<String>>(
         future: _getUserPermissions(),
         builder: (context, permSnapshot) {
-          // Show loading while fetching permissions
           if (permSnapshot.connectionState == ConnectionState.waiting) {
             return const LoadingWidget(message: 'Loading permissions...');
           }
 
-          // Handle permission fetch error
           if (permSnapshot.hasError) {
             return ErrorStateWidget(
               title: 'Error Loading Permissions',
               description:
-              'Failed to load your permissions: ${permSnapshot.error}',
+                  'Failed to load your permissions: ${permSnapshot.error}',
               onRetry: () {
-                // Trigger rebuild to retry
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const MyfsListPage()),
@@ -131,7 +119,6 @@ class MyfsListPage extends StatelessWidget {
 
           final userPermissions = permSnapshot.data ?? [];
 
-          // Now fetch MYF groups list
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('myfs')
@@ -147,7 +134,6 @@ class MyfsListPage extends StatelessWidget {
                   title: 'Error Loading MYF Groups',
                   description: 'Error: ${snapshot.error}',
                   onRetry: () {
-                    // Trigger rebuild by navigating
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) => const MyfsListPage()),
@@ -176,7 +162,6 @@ class MyfsListPage extends StatelessWidget {
                   final title = data['title'] ?? 'Untitled MYF';
                   final description = data['description'] ?? '';
 
-                  // Check if user has permission for this MYF
                   final hasPermission = userPermissions.contains(myfId);
 
                   return InfoCard(

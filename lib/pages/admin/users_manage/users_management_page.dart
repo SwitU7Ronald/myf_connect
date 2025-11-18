@@ -12,7 +12,6 @@ class UsersManagementPage extends StatefulWidget {
 }
 
 class _UsersManagementPageState extends State<UsersManagementPage> {
-  // ========== FILTER STATE ==========
   String _search = '';
   SortBy _sortBy = SortBy.name;
   SortOrder _sortOrder = SortOrder.asc;
@@ -23,19 +22,15 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   PermissionFilter _permFilter = PermissionFilter.all;
   PermissionType _permissionType = PermissionType.camps;
 
-  // ========== UI STATE ==========
   bool _showFilters = true;
 
-  // ========== CONTROLLERS ==========
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
 
-  // ========== DEBOUNCING ==========
   Timer? _debounceTimer;
   static const Duration _debounceDuration = Duration(milliseconds: 300);
 
-  // ========== CACHED DATA ==========
   List<Map<String, Object>> _campsCache = [];
   List<Map<String, Object>> _myfsCache = [];
   List<AppUser> _usersCache = [];
@@ -55,7 +50,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     super.dispose();
   }
 
-  // ========== SEARCH DEBOUNCING ==========
   void _onSearchChanged() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounceDuration, () {
@@ -67,7 +61,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     });
   }
 
-  // ========== FIRESTORE OPERATIONS ==========
   Future<void> _setCampPermission({
     required String uid,
     required String campId,
@@ -128,7 +121,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     }
   }
 
-  // ========== FIRESTORE STREAMS ==========
   Stream<QuerySnapshot> get _campsStream =>
       FirebaseFirestore.instance.collection('camps').snapshots();
 
@@ -138,7 +130,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   Stream<QuerySnapshot> get _usersStream =>
       FirebaseFirestore.instance.collection('users').snapshots();
 
-  // ========== FILTER MANAGEMENT ==========
   void _clearFilters() {
     _searchFocus.unfocus();
 
@@ -155,7 +146,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     });
   }
 
-  // ========== BUILD METHODS ==========
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -208,10 +198,12 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
                     if (usersSnap.hasData) {
                       _usersCache = usersSnap.data!.docs
-                          .map((d) => AppUser.fromMap(
-                        d.id,
-                        d.data() as Map<String, dynamic>,
-                      ))
+                          .map(
+                            (d) => AppUser.fromMap(
+                              d.id,
+                              d.data() as Map<String, dynamic>,
+                            ),
+                          )
                           .toList();
                     }
 
@@ -220,10 +212,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
                     return Column(
                       children: [
-                        // Stats Summary Card
                         _buildStatsCard(_usersCache.length, filtered.length),
 
-                        // Filter Bar
                         if (_showFilters)
                           UserFilterBar(
                             searchController: _searchController,
@@ -275,12 +265,14 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                             onClear: _clearFilters,
                           ),
 
-                        // User List
                         Expanded(
                           child: filtered.isEmpty
                               ? _buildEmptyState()
                               : _buildUserList(
-                              filtered, _campsCache, _myfsCache),
+                                  filtered,
+                                  _campsCache,
+                                  _myfsCache,
+                                ),
                         ),
                       ],
                     );
@@ -328,7 +320,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   }
 
   Widget _buildStatsCard(int total, int filtered) {
-    final hasFilters = _search.isNotEmpty ||
+    final hasFilters =
+        _search.isNotEmpty ||
         _selectedGender != null ||
         _selectedDistrict != null ||
         _selectedCampId != null ||
@@ -365,8 +358,9 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
               padding: context.responsivePadding(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: MethodistTheme.white.withValues(alpha: 0.2),
-                borderRadius:
-                BorderRadius.circular(context.responsiveRadius(20)),
+                borderRadius: BorderRadius.circular(
+                  context.responsiveRadius(20),
+                ),
               ),
               child: Row(
                 children: [
@@ -392,10 +386,10 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   }
 
   Widget _buildUserList(
-      List<AppUser> users,
-      List<Map<String, Object>> camps,
-      List<Map<String, Object>> myfs,
-      ) {
+    List<AppUser> users,
+    List<Map<String, Object>> camps,
+    List<Map<String, Object>> myfs,
+  ) {
     return ListView.separated(
       controller: _scrollController,
       padding: context.responsivePadding(all: 16),
@@ -411,10 +405,10 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   }
 
   Widget _buildUserCard(
-      AppUser user,
-      List<Map<String, Object>> camps,
-      List<Map<String, Object>> myfs,
-      ) {
+    AppUser user,
+    List<Map<String, Object>> camps,
+    List<Map<String, Object>> myfs,
+  ) {
     final name = _fullName(user);
     final perms = user.permissions;
 
@@ -486,19 +480,17 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
             type: perms.isEmpty ? StatusType.neutral : StatusType.success,
             isSmall: true,
           ),
-          children: [
-            _buildUserDetails(user, camps, myfs),
-          ],
+          children: [_buildUserDetails(user, camps, myfs)],
         ),
       ),
     );
   }
 
   Widget _buildUserDetails(
-      AppUser user,
-      List<Map<String, Object>> camps,
-      List<Map<String, Object>> myfs,
-      ) {
+    AppUser user,
+    List<Map<String, Object>> camps,
+    List<Map<String, Object>> myfs,
+  ) {
     return Container(
       width: double.infinity,
       padding: context.responsivePadding(all: 16),
@@ -512,13 +504,15 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User Info Section
           _buildSectionHeader(Icons.person, 'User Information'),
           SizedBox(height: context.spacing(8)),
           _buildInfoCard([
             if ((user.district ?? '').isNotEmpty)
               _buildInfoRow(
-                  Icons.location_city, 'District', user.district ?? ''),
+                Icons.location_city,
+                'District',
+                user.district ?? '',
+              ),
             if ((user.church ?? '').isNotEmpty)
               _buildInfoRow(Icons.church, 'Church', user.church ?? ''),
             if ((user.gender ?? '').isNotEmpty)
@@ -527,7 +521,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
           SizedBox(height: context.spacing(20)),
 
-          // Permissions Section
           _buildSectionHeader(
             Icons.security,
             'Permissions Manager',
@@ -535,7 +528,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
           ),
           SizedBox(height: context.spacing(12)),
 
-          // Camp Permissions
           if (camps.isEmpty)
             _buildNoItemsAvailable(
               'Camps',
@@ -558,7 +550,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
           SizedBox(height: context.spacing(16)),
 
-          // MYF Permissions
           if (myfs.isEmpty)
             _buildNoItemsAvailable(
               'MYF Groups',
@@ -572,11 +563,8 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
               icon: Icons.group,
               items: myfs,
               userPermissions: user.permissions,
-              onPermissionChanged: (id, enabled) => _setMyfPermission(
-                uid: user.uid,
-                myfId: id,
-                enabled: enabled,
-              ),
+              onPermissionChanged: (id, enabled) =>
+                  _setMyfPermission(uid: user.uid, myfId: id, enabled: enabled),
             ),
         ],
       ),
@@ -638,8 +626,12 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value,
-      {bool isMonospace = false}) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isMonospace = false,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: context.spacing(6)),
       child: Row(
@@ -676,7 +668,10 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   }
 
   Widget _buildNoItemsAvailable(
-      String itemType, String message, IconData icon) {
+    String itemType,
+    String message,
+    IconData icon,
+  ) {
     return Container(
       padding: context.responsivePadding(all: 16),
       decoration: BoxDecoration(
@@ -734,8 +729,9 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     required List<String> userPermissions,
     required Function(String id, bool enabled) onPermissionChanged,
   }) {
-    final grantedCount =
-        items.where((item) => userPermissions.contains(item['id'])).length;
+    final grantedCount = items
+        .where((item) => userPermissions.contains(item['id']))
+        .length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -815,9 +811,9 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     );
   }
 
-  // ========== HELPER METHODS ==========
   List<Map<String, Object>> _processCollection(
-      List<QueryDocumentSnapshot> docs) {
+    List<QueryDocumentSnapshot> docs,
+  ) {
     return docs.map((d) {
       final data = d.data() as Map<String, dynamic>? ?? {};
       final title = (data['title'] as String?)?.trim();
@@ -825,10 +821,11 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
         'id': d.id,
         'title': (title == null || title.isEmpty) ? d.id : title,
       };
-    }).toList()
-      ..sort((a, b) => (a['title'] as String)
-          .toLowerCase()
-          .compareTo((b['title'] as String).toLowerCase()));
+    }).toList()..sort(
+      (a, b) => (a['title'] as String).toLowerCase().compareTo(
+        (b['title'] as String).toLowerCase(),
+      ),
+    );
   }
 
   (List<String>, List<String>) _extractFilters(List<AppUser> users) {
@@ -854,11 +851,11 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
   List<AppUser> _applyFilters(List<AppUser> allUsers) {
     List<AppUser> filtered = allUsers.where((u) {
-      // Search filter
       if (_search.isNotEmpty) {
         final q = _search.toLowerCase();
         final name = _fullName(u).toLowerCase();
-        final matches = name.contains(q) ||
+        final matches =
+            name.contains(q) ||
             (u.firstName ?? '').toLowerCase().contains(q) ||
             (u.lastName ?? '').toLowerCase().contains(q) ||
             u.phone.toLowerCase().contains(q) ||
@@ -868,22 +865,18 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
         if (!matches) return false;
       }
 
-      // Gender filter
       if (_selectedGender != null && u.gender != _selectedGender) {
         return false;
       }
 
-      // District filter
       if (_selectedDistrict != null && u.district != _selectedDistrict) {
         return false;
       }
 
-      // ✅ UPDATED: Permission filter (simplified - no "All" option logic)
       final selectedId = _permissionType == PermissionType.camps
           ? _selectedCampId
           : _selectedMyfId;
 
-      // Only apply permission filter if a specific camp/MYF is selected AND filter is not "all"
       if (selectedId != null && _permFilter != PermissionFilter.all) {
         final has = u.permissions.contains(selectedId);
         if (_permFilter == PermissionFilter.has && !has) return false;
@@ -893,7 +886,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
       return true;
     }).toList();
 
-    // Apply sorting
     filtered.sort((a, b) {
       int r = 0;
       switch (_sortBy) {
@@ -904,9 +896,9 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
           r = a.phone.toLowerCase().compareTo(b.phone.toLowerCase());
           break;
         case SortBy.district:
-          r = (a.district ?? '')
-              .toLowerCase()
-              .compareTo((b.district ?? '').toLowerCase());
+          r = (a.district ?? '').toLowerCase().compareTo(
+            (b.district ?? '').toLowerCase(),
+          );
           break;
         case SortBy.permissions:
           r = a.permissions.length.compareTo(b.permissions.length);
@@ -917,8 +909,6 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 
     return filtered;
   }
-
-
 
   String _fullName(AppUser u) =>
       '${u.firstName ?? ''} ${u.lastName ?? ''}'.trim();

@@ -4,7 +4,7 @@ class Rating {
   final String id;
   final String userId;
   final String userName;
-  final int rating; // 1-5 stars
+  final int rating;
   final DateTime timestamp;
 
   Rating({

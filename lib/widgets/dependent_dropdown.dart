@@ -1,4 +1,3 @@
-// lib/widgets/dependent_dropdown.dart
 import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
@@ -31,11 +30,13 @@ class DependentDropdownField<T> extends StatelessWidget {
       items: items.map((T item) {
         return DropdownMenuItem<T>(
           value: item,
-          child: itemBuilder?.call(item) ?? Text(
-            item.toString(),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
+          child:
+              itemBuilder?.call(item) ??
+              Text(
+                item.toString(),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
         );
       }).toList(),
       onChanged: enabled ? onChanged : null,
@@ -101,7 +102,6 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
   bool get isOtherDistrictSelected => widget.selectedDistrict == 'Other';
 
   void _handleDistrictChange(String? newDistrict) {
-    // Clear MYF selection when district changes
     widget.onMyfChanged?.call(null);
     _customMyfController.clear();
     widget.onDistrictChanged?.call(newDistrict);
@@ -110,7 +110,6 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
   @override
   void initState() {
     super.initState();
-    // Initialize custom MYF controller if "Other" is selected
     if (isOtherDistrictSelected && widget.selectedMyf != null) {
       _customMyfController.text = widget.selectedMyf!;
     }
@@ -126,7 +125,6 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // District Dropdown
         DependentDropdownField<String>(
           value: widget.selectedDistrict,
           items: widget.districts,
@@ -144,9 +142,7 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
 
         SizedBox(height: MethodistTheme.spacingM),
 
-        // MYF Field - Dropdown or Text Input based on district selection
         if (isOtherDistrictSelected)
-        // Manual text input for "Other" district
           TextFormField(
             controller: _customMyfController,
             decoration: InputDecoration(
@@ -167,7 +163,6 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
             validator: widget.myfValidator,
           )
         else
-        // Dropdown for predefined districts
           DependentDropdownField<String>(
             value: availableMyfs.contains(widget.selectedMyf)
                 ? widget.selectedMyf
@@ -179,7 +174,8 @@ class _DistrictMyfDropdownsState extends State<DistrictMyfDropdowns> {
                 : 'Select your church/MYF',
             onChanged: widget.onMyfChanged,
             validator: widget.myfValidator,
-            enabled: widget.selectedDistrict != null &&
+            enabled:
+                widget.selectedDistrict != null &&
                 widget.selectedDistrict != 'Other' &&
                 availableMyfs.isNotEmpty,
             itemBuilder: (myf) => Text(

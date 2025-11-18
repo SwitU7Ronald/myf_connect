@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import './widgets.dart';
 
-/// Enums for User Filter Bar
 enum SortBy { name, phone, district, permissions }
+
 enum SortOrder { asc, desc }
+
 enum PermissionFilter { all, has, not }
+
 enum PermissionType { camps, myfs }
 
-/// Production-ready User Filter Bar Widget
-/// Collapsible permission filters with clean, minimal design
 class UserFilterBar extends StatefulWidget {
   final TextEditingController searchController;
   final FocusNode searchFocus;
@@ -142,37 +142,48 @@ class _UserFilterBarState extends State<UserFilterBar> {
       decoration: InputDecoration(
         hintText: 'Search users',
         hintStyle: const TextStyle(
-            fontSize: 14, color: MethodistTheme.mediumGray),
+          fontSize: 14,
+          color: MethodistTheme.mediumGray,
+        ),
         prefixIcon: const Icon(
-            Icons.search, size: 20, color: MethodistTheme.mediumGray),
+          Icons.search,
+          size: 20,
+          color: MethodistTheme.mediumGray,
+        ),
         suffixIcon: widget.searchController.text.isNotEmpty
             ? IconButton(
-          icon: const Icon(Icons.clear, size: 18),
-          onPressed: () {
-            widget.searchController.clear();
-            widget.searchFocus.unfocus();
-          },
-        )
+                icon: const Icon(Icons.clear, size: 18),
+                onPressed: () {
+                  widget.searchController.clear();
+                  widget.searchFocus.unfocus();
+                },
+              )
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-              color: MethodistTheme.mediumGray.withValues(alpha: 0.3)),
+            color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-              color: MethodistTheme.mediumGray.withValues(alpha: 0.3)),
+            color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(
-              color: MethodistTheme.primaryRed, width: 1.5),
+            color: MethodistTheme.primaryRed,
+            width: 1.5,
+          ),
         ),
         filled: true,
         fillColor: MethodistTheme.white,
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12, vertical: 12),
+          horizontal: 12,
+          vertical: 12,
+        ),
         isDense: true,
       ),
       textInputAction: TextInputAction.search,
@@ -212,24 +223,30 @@ class _UserFilterBarState extends State<UserFilterBar> {
                     DropdownMenuItem(value: SortBy.name, child: Text('Name')),
                     DropdownMenuItem(value: SortBy.phone, child: Text('Phone')),
                     DropdownMenuItem(
-                        value: SortBy.district, child: Text('District')),
+                      value: SortBy.district,
+                      child: Text('District'),
+                    ),
                     DropdownMenuItem(
-                        value: SortBy.permissions, child: Text('Permissions')),
+                      value: SortBy.permissions,
+                      child: Text('Permissions'),
+                    ),
                   ],
                   onChanged: (v) =>
-                  v != null
-                      ? widget.onSortByChanged(v)
-                      : null,
+                      v != null ? widget.onSortByChanged(v) : null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     isDense: true,
                   ),
                   isExpanded: true,
                   menuMaxHeight: 250,
                   style: const TextStyle(
-                      fontSize: 14, color: MethodistTheme.darkGray),
+                    fontSize: 14,
+                    color: MethodistTheme.darkGray,
+                  ),
                   icon: const Icon(
                     Icons.arrow_drop_down,
                     size: 20,
@@ -257,12 +274,11 @@ class _UserFilterBarState extends State<UserFilterBar> {
                   size: 18,
                   color: MethodistTheme.primaryRed,
                 ),
-                onPressed: () =>
-                    widget.onSortOrderChanged(
-                      widget.sortOrder == SortOrder.asc
-                          ? SortOrder.desc
-                          : SortOrder.asc,
-                    ),
+                onPressed: () => widget.onSortOrderChanged(
+                  widget.sortOrder == SortOrder.asc
+                      ? SortOrder.desc
+                      : SortOrder.asc,
+                ),
                 tooltip: widget.sortOrder == SortOrder.asc
                     ? 'A-Z / Low-High'
                     : 'Z-A / High-Low',
@@ -284,8 +300,9 @@ class _UserFilterBarState extends State<UserFilterBar> {
             value: widget.selectedGender,
             items: [
               const DropdownMenuItem<String?>(value: null, child: Text('All')),
-              ...widget.genders.map((g) =>
-                  DropdownMenuItem<String?>(value: g, child: Text(g))),
+              ...widget.genders.map(
+                (g) => DropdownMenuItem<String?>(value: g, child: Text(g)),
+              ),
             ],
             onChanged: widget.onGenderChanged,
           ),
@@ -297,8 +314,9 @@ class _UserFilterBarState extends State<UserFilterBar> {
             value: widget.selectedDistrict,
             items: [
               const DropdownMenuItem<String?>(value: null, child: Text('All')),
-              ...widget.districts.map((d) =>
-                  DropdownMenuItem<String?>(value: d, child: Text(d))),
+              ...widget.districts.map(
+                (d) => DropdownMenuItem<String?>(value: d, child: Text(d)),
+              ),
             ],
             onChanged: widget.onDistrictChanged,
           ),
@@ -313,7 +331,6 @@ class _UserFilterBarState extends State<UserFilterBar> {
         setState(() {
           _showPermissionFilters = !_showPermissionFilters;
 
-          // ✅ NEW: Clear permission filters when collapsing
           if (!_showPermissionFilters) {
             widget.onPermFilterChanged(PermissionFilter.all);
             widget.onCampChanged(null);
@@ -371,14 +388,15 @@ class _UserFilterBarState extends State<UserFilterBar> {
     );
   }
 
-  Widget _buildPermissionFilters(List<Map<String, Object>> activeItems,
-      String? selectedId,
-      ValueChanged<String?> onChanged,) {
+  Widget _buildPermissionFilters(
+    List<Map<String, Object>> activeItems,
+    String? selectedId,
+    ValueChanged<String?> onChanged,
+  ) {
     return Column(
       children: [
         const SizedBox(height: 12),
 
-        // Permission Type Toggle Buttons with Clear Logic
         Row(
           children: [
             Expanded(
@@ -387,7 +405,6 @@ class _UserFilterBarState extends State<UserFilterBar> {
                 icon: Icons.campaign,
                 isSelected: widget.permissionType == PermissionType.camps,
                 onTap: () {
-                  // ✅ NEW: Clear MYF filter when switching to Camps
                   if (widget.permissionType != PermissionType.camps) {
                     widget.onMyfChanged(null);
                     widget.onPermFilterChanged(PermissionFilter.all);
@@ -403,7 +420,6 @@ class _UserFilterBarState extends State<UserFilterBar> {
                 icon: Icons.group,
                 isSelected: widget.permissionType == PermissionType.myfs,
                 onTap: () {
-                  // ✅ NEW: Clear Camp filter when switching to MYF
                   if (widget.permissionType != PermissionType.myfs) {
                     widget.onCampChanged(null);
                     widget.onPermFilterChanged(PermissionFilter.all);
@@ -417,7 +433,6 @@ class _UserFilterBarState extends State<UserFilterBar> {
 
         const SizedBox(height: 12),
 
-        // Permission Dropdowns
         Row(
           children: [
             Expanded(
@@ -450,11 +465,17 @@ class _UserFilterBarState extends State<UserFilterBar> {
                 value: widget.permFilter,
                 items: const [
                   DropdownMenuItem(
-                      value: PermissionFilter.all, child: Text('All')),
+                    value: PermissionFilter.all,
+                    child: Text('All'),
+                  ),
                   DropdownMenuItem(
-                      value: PermissionFilter.has, child: Text('Has')),
+                    value: PermissionFilter.has,
+                    child: Text('Has'),
+                  ),
                   DropdownMenuItem(
-                      value: PermissionFilter.not, child: Text('Missing')),
+                    value: PermissionFilter.not,
+                    child: Text('Missing'),
+                  ),
                 ],
                 onChanged: (v) {
                   if (v != null) {
@@ -469,8 +490,6 @@ class _UserFilterBarState extends State<UserFilterBar> {
     );
   }
 }
-
-// ========== REUSABLE COMPONENTS ==========
 
 class _FilterDropdown<T> extends StatelessWidget {
   final String label;
@@ -504,7 +523,9 @@ class _FilterDropdown<T> extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: MethodistTheme.white,
-            border: Border.all(color: MethodistTheme.mediumGray.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
           child: DropdownButtonFormField<T>(
@@ -513,13 +534,23 @@ class _FilterDropdown<T> extends StatelessWidget {
             onChanged: onChanged,
             decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               isDense: true,
             ),
             isExpanded: true,
             menuMaxHeight: 250,
-            style: const TextStyle(fontSize: 14, color: MethodistTheme.darkGray),
-            icon: const Icon(Icons.arrow_drop_down, size: 20, color: MethodistTheme.mediumGray),
+            style: const TextStyle(
+              fontSize: 14,
+              color: MethodistTheme.darkGray,
+            ),
+            icon: const Icon(
+              Icons.arrow_drop_down,
+              size: 20,
+              color: MethodistTheme.mediumGray,
+            ),
           ),
         ),
       ],
@@ -562,7 +593,9 @@ class _PermissionTypeButton extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? MethodistTheme.white : MethodistTheme.mediumGray,
+              color: isSelected
+                  ? MethodistTheme.white
+                  : MethodistTheme.mediumGray,
             ),
             const SizedBox(width: 6),
             Flexible(
@@ -570,7 +603,9 @@ class _PermissionTypeButton extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  color: isSelected ? MethodistTheme.white : MethodistTheme.darkGray,
+                  color: isSelected
+                      ? MethodistTheme.white
+                      : MethodistTheme.darkGray,
                   fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,

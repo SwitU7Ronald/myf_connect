@@ -1,4 +1,3 @@
-// ./lib/pages/home/credit_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
@@ -72,7 +71,6 @@ class _CreditPageState extends State<CreditPage> {
             children: [
               SizedBox(height: MethodistTheme.spacingL),
 
-              // Logo/Icon
               Container(
                 padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
@@ -88,7 +86,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingL),
 
-              // Title
               Text(
                 'MYF Connect',
                 style: MethodistTheme.displayMedium.copyWith(
@@ -99,12 +96,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingL),
 
-
-
-
-
-
-              // ✅ TEAM LEADERS SECTION - TOP SECTION WITH ROUNDED IMAGES
               Text(
                 'Leaders',
                 style: MethodistTheme.headlineMedium.copyWith(
@@ -116,11 +107,9 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingL),
 
-              // ✅ Team Leaders - Side by Side with Rounded Images
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ✅ Team Leader 1 - Honourable Bishop A Simeon
                   Expanded(
                     child: _buildRoundedTeamLeaderCard(
                       imagePath: 'assets/team/Honourable_A.Simeon-Bishop.jpeg',
@@ -130,7 +119,6 @@ class _CreditPageState extends State<CreditPage> {
 
                   SizedBox(width: MethodistTheme.spacingL),
 
-                  // ✅ Team Leader 2 - Madam Leena Gloria
                   Expanded(
                     child: _buildRoundedTeamLeaderCard(
                       imagePath: 'assets/team/Leena_Gloria-Madam.jpeg',
@@ -142,7 +130,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingL),
 
-              // Team Members Section
               Text(
                 'Our Team',
                 style: MethodistTheme.headlineMedium.copyWith(
@@ -154,18 +141,15 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingM),
 
-              // Team Members List - Priority Order
-
-              // 1. Youth Director (First)
               _buildTeamMemberCard(
-                imagePath: 'assets/team/Ankur_Thakor-GRC-MYF-Youth-Director.jpg',
+                imagePath:
+                    'assets/team/Ankur_Thakor-GRC-MYF-Youth-Director.jpg',
                 name: 'Ankur Thakor',
                 position: 'GRC MYF Youth Director',
               ),
 
               SizedBox(height: MethodistTheme.spacingM),
 
-              // 2. Advisor (Second)
               _buildTeamMemberCard(
                 imagePath: 'assets/team/Akash_Khristi-GRC-MYF-Advisor.jpg',
                 name: 'Akash Khristi',
@@ -182,7 +166,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingM),
 
-              // 3. President (Third)
               _buildTeamMemberCard(
                 imagePath: 'assets/team/Chris_Christian-President.jpg',
                 name: 'Chris Christian',
@@ -191,7 +174,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingM),
 
-              // 4. Secretary (Fourth)
               _buildTeamMemberCard(
                 imagePath: 'assets/team/Chris_Khristi-Secretary.jpg',
                 name: 'Chris Khristi',
@@ -200,7 +182,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingM),
 
-              // 5. Treasurer (Fifth)
               _buildTeamMemberCard(
                 imagePath: 'assets/team/Morlins_Mekwan-Treasurer.jpg',
                 name: 'Morlins Mekwan',
@@ -209,9 +190,9 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingM),
 
-              // Rest of the team members
               _buildTeamMemberCard(
-                imagePath: 'assets/team/Chris_Christian-Sports-Entertainment-President.jpg',
+                imagePath:
+                    'assets/team/Chris_Christian-Sports-Entertainment-President.jpg',
                 name: 'Chris Christian',
                 position: 'Sports & Entertainment Lead',
               ),
@@ -219,7 +200,8 @@ class _CreditPageState extends State<CreditPage> {
               SizedBox(height: MethodistTheme.spacingM),
 
               _buildTeamMemberCard(
-                imagePath: 'assets/team/Kuldeep_Gohel-Convenor-Physical-Arrangements.jpg',
+                imagePath:
+                    'assets/team/Kuldeep_Gohel-Convenor-Physical-Arrangements.jpg',
                 name: 'Kuldeep Gohel',
                 position: 'Convenor - Physical Arrangements',
               ),
@@ -242,7 +224,6 @@ class _CreditPageState extends State<CreditPage> {
 
               SizedBox(height: MethodistTheme.spacingXL),
 
-              // Continue button
               PrimaryButton.secondary(
                 label: _loading
                     ? 'Loading...'
@@ -263,7 +244,6 @@ class _CreditPageState extends State<CreditPage> {
     );
   }
 
-  /// ✅ NEW: Build rounded team leader card with circular image and name below
   Widget _buildRoundedTeamLeaderCard({
     required String imagePath,
     required String name,
@@ -272,7 +252,6 @@ class _CreditPageState extends State<CreditPage> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // ✅ Circular Image Container
         Container(
           width: 120,
           height: 120,
@@ -313,7 +292,6 @@ class _CreditPageState extends State<CreditPage> {
 
         SizedBox(height: MethodistTheme.spacingM),
 
-        // ✅ Name Below Image
         Text(
           name,
           style: MethodistTheme.titleSmall.copyWith(
@@ -328,7 +306,6 @@ class _CreditPageState extends State<CreditPage> {
     );
   }
 
-  /// Existing: Build rectangular team member card
   Widget _buildTeamMemberCard({
     required String imagePath,
     required String name,
@@ -338,7 +315,6 @@ class _CreditPageState extends State<CreditPage> {
       color: MethodistTheme.white.withValues(alpha: 0.1),
       child: Row(
         children: [
-          // Profile Image
           ClipRRect(
             borderRadius: BorderRadius.circular(MethodistTheme.radiusL),
             child: Image.asset(
@@ -366,7 +342,6 @@ class _CreditPageState extends State<CreditPage> {
 
           SizedBox(width: MethodistTheme.spacingM),
 
-          // Name and Position
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

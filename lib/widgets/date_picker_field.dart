@@ -1,4 +1,3 @@
-// lib/widgets/date_picker_field.dart
 import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
@@ -11,7 +10,6 @@ class DatePickerField extends StatefulWidget {
   final void Function(DateTime)? onDateTimeSelected;
   final bool _isDateOnly;
 
-  /// For birthdate - date only
   const DatePickerField.dateOnly({
     super.key,
     this.selectedDateTime,
@@ -22,7 +20,6 @@ class DatePickerField extends StatefulWidget {
     this.onDateTimeSelected,
   }) : _isDateOnly = true;
 
-  /// For events - date + time
   const DatePickerField.dateTime({
     super.key,
     this.selectedDateTime,
@@ -42,8 +39,8 @@ class _DatePickerFieldState extends State<DatePickerField> {
   Widget build(BuildContext context) {
     final selectedText = widget.selectedDateTime != null
         ? widget._isDateOnly
-        ? widget.selectedDateTime!.toLocal().toString().split(' ').first
-        : widget.selectedDateTime!.toLocal().toString().split('.').first
+              ? widget.selectedDateTime!.toLocal().toString().split(' ').first
+              : widget.selectedDateTime!.toLocal().toString().split('.').first
         : 'Select ${widget._isDateOnly ? 'date' : 'date & time'}';
 
     return InkWell(
@@ -52,10 +49,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
           : () => _showDateTimePicker(context),
       borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
       child: Container(
-        padding: context.responsivePadding(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        padding: context.responsivePadding(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           border: Border.all(
             color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
@@ -104,23 +98,17 @@ class _DatePickerFieldState extends State<DatePickerField> {
     );
   }
 
-  /// ✅ COMPLETE FIX: Properly handle initialDate within valid range
   Future<void> _showDatePicker(BuildContext context) async {
     final now = DateTime.now();
 
-    // ✅ Set proper date constraints for birthdate
     final effectiveFirstDate = widget.firstDate ?? DateTime(1900);
     final effectiveLastDate = widget.lastDate ?? now;
 
-    // ✅ CRITICAL: Calculate safe initialDate within range
     late DateTime effectiveInitialDate;
 
     if (widget.selectedDateTime != null) {
-      // Use selected date if provided
       effectiveInitialDate = widget.selectedDateTime!;
     } else {
-      // For new selection: start from a middle year (e.g., 2000) if no previous selection
-      // This ensures the year picker shows a reasonable range
       if (now.year > 2000) {
         effectiveInitialDate = DateTime(2000);
       } else {
@@ -128,7 +116,6 @@ class _DatePickerFieldState extends State<DatePickerField> {
       }
     }
 
-    // Ensure initialDate is within valid range
     if (effectiveInitialDate.isBefore(effectiveFirstDate)) {
       effectiveInitialDate = effectiveFirstDate;
     }
@@ -150,11 +137,9 @@ class _DatePickerFieldState extends State<DatePickerField> {
     }
   }
 
-  /// Date + Time picker for events
   Future<void> _showDateTimePicker(BuildContext context) async {
     final now = DateTime.now();
 
-    // First pick date
     final date = await showDatePicker(
       context: context,
       initialDate: widget.selectedDateTime ?? now,
@@ -165,7 +150,6 @@ class _DatePickerFieldState extends State<DatePickerField> {
 
     if (date == null || !context.mounted) return;
 
-    // Then pick time
     final time = await showTimePicker(
       context: context,
       initialTime: widget.selectedDateTime != null

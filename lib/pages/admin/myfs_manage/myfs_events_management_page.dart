@@ -30,8 +30,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   Future<void> _showEventDialog({
     DocumentSnapshot<Map<String, dynamic>>? doc,
   }) async {
-    final titleCtrl =
-    TextEditingController(text: doc?.data()?['title'] ?? '');
+    final titleCtrl = TextEditingController(text: doc?.data()?['title'] ?? '');
     final descCtrl = TextEditingController(
       text: doc?.data()?['description'] ?? '',
     );
@@ -82,19 +81,16 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
           builder: (context, setDialogState) => AlertDialog(
             title: Text(
               doc == null ? 'Add MYF Event' : 'Edit MYF Event',
-              // ✅ RESPONSIVE: Use responsive text style
               style: context.responsiveHeadlineSmall,
             ),
             content: SingleChildScrollView(
               child: SizedBox(
-                // ✅ RESPONSIVE: Make dialog width responsive
                 width: MediaQuery.of(context).size.width * 0.85,
                 child: Form(
                   key: formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Event Title Field
                       AppTextField(
                         controller: titleCtrl,
                         label: 'Event Title',
@@ -105,10 +101,8 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                             : null,
                       ),
 
-                      // ✅ RESPONSIVE: Use context.spacing
                       SizedBox(height: context.spacing(16)),
 
-                      // Event Description Field
                       AppTextField(
                         controller: descCtrl,
                         label: 'Description',
@@ -122,7 +116,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
 
                       SizedBox(height: context.spacing(16)),
 
-                      // Date & Time Picker - ✅ RESPONSIVE
                       InkWell(
                         onTap: () async {
                           await pickDateTime(dialogContext);
@@ -138,8 +131,9 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: MethodistTheme.mediumGray
-                                  .withValues(alpha: 0.3),
+                              color: MethodistTheme.mediumGray.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                             borderRadius: BorderRadius.circular(
                               context.responsiveRadius(12),
@@ -150,41 +144,35 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                               Icon(
                                 Icons.calendar_today,
                                 color: MethodistTheme.primaryRed,
-                                // ✅ RESPONSIVE: Use responsive icon size
                                 size: context.responsiveIconSize(20),
                               ),
                               SizedBox(width: context.spacing(16)),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Date & Time',
-                                      style: context
-                                          .responsiveLabelMedium
+                                      style: context.responsiveLabelMedium
                                           .copyWith(
-                                        color: MethodistTheme.mediumGray,
-                                      ),
+                                            color: MethodistTheme.mediumGray,
+                                          ),
                                     ),
-                                    SizedBox(
-                                      height: context.spacing(4),
-                                    ),
+                                    SizedBox(height: context.spacing(4)),
                                     Text(
                                       selected == null
                                           ? 'Select date & time'
                                           : selected!
-                                          .toLocal()
-                                          .toString()
-                                          .split('.')
-                                          .first,
-                                      style: context
-                                          .responsiveBodyMedium
+                                                .toLocal()
+                                                .toString()
+                                                .split('.')
+                                                .first,
+                                      style: context.responsiveBodyMedium
                                           .copyWith(
-                                        color: selected == null
-                                            ? MethodistTheme.mediumGray
-                                            : MethodistTheme.darkGray,
-                                      ),
+                                            color: selected == null
+                                                ? MethodistTheme.mediumGray
+                                                : MethodistTheme.darkGray,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -215,7 +203,9 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                   if (!formKey.currentState!.validate() || selected == null) {
                     if (selected == null) {
                       MethodistTheme.showErrorSnackBar(
-                          context, 'Please select date and time');
+                        context,
+                        'Please select date and time',
+                      );
                     }
                     return;
                   }
@@ -268,24 +258,15 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   }
 
   Future<void> _handleDeleteEvent(String id, String title) async {
-    // ✅ RESPONSIVE: Delete confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          'Delete Event',
-          // ✅ RESPONSIVE: Use responsive text style
-          style: context.responsiveHeadlineSmall,
-        ),
+        title: Text('Delete Event', style: context.responsiveHeadlineSmall),
         content: Text(
           'Are you sure you want to delete "$title"? This cannot be undone.',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveBodyMedium,
         ),
-        actionsPadding: context.responsivePadding(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
@@ -312,12 +293,13 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
 
       if (mounted) {
         MethodistTheme.showSuccessSnackBar(
-            context, 'Event deleted successfully');
+          context,
+          'Event deleted successfully',
+        );
       }
     } catch (e) {
       if (mounted) {
-        MethodistTheme.showErrorSnackBar(
-            context, 'Failed to delete event: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Failed to delete event: $e');
       }
     }
   }
@@ -329,7 +311,6 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       appBar: AppBar(
         title: Text(
           'Manage Events - ${widget.myfTitle}',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveHeadlineSmall.copyWith(
             color: MethodistTheme.white,
           ),
@@ -344,11 +325,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
         tooltip: 'Add Event',
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        // ✅ RESPONSIVE: Use responsive icon size
-        child: Icon(
-          Icons.add,
-          size: context.responsiveIconSize(28),
-        ),
+        child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _eventsStream(),
@@ -372,12 +349,11 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
               icon: Icons.event,
               title: 'No Events Found',
               description:
-              'No events have been created for this MYF group yet. Tap the + button to add the first event.',
+                  'No events have been created for this MYF group yet. Tap the + button to add the first event.',
             );
           }
 
           return ListView.builder(
-            // ✅ RESPONSIVE: Use context.responsivePadding
             padding: context.responsivePadding(all: 16),
             itemCount: docs.length,
             itemBuilder: (context, index) {
@@ -399,21 +375,17 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                     description: data['description'] ?? 'No description',
                     icon: Icons.event,
                     actions: [
-                      // Edit Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Edit Event',
                         child: IconButton(
                           icon: Icon(
                             Icons.edit,
                             color: MethodistTheme.warningOrange,
-                            // ✅ RESPONSIVE: Use responsive icon size
                             size: context.responsiveIconSize(20),
                           ),
-                          onPressed: () =>
-                              _showEventDialog(doc: d),
+                          onPressed: () => _showEventDialog(doc: d),
                         ),
                       ),
-                      // Delete Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Delete Event',
                         child: IconButton(
@@ -423,12 +395,13 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                             size: context.responsiveIconSize(20),
                           ),
                           onPressed: () => _handleDeleteEvent(
-                              d.id, data['title'] ?? 'Untitled Event'),
+                            d.id,
+                            data['title'] ?? 'Untitled Event',
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  // ✅ RESPONSIVE: Use context.spacing between items
                   if (index < docs.length - 1)
                     SizedBox(height: context.spacing(12)),
                 ],

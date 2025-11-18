@@ -27,7 +27,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   String? _selectedMyf;
   bool _loading = false;
 
-  // Initialize with India as default
   CountryData? _selectedCountry = const CountryData(
     name: 'India',
     code: 'IN',
@@ -36,7 +35,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     maxLength: 10,
   );
 
-  // Check if "Other" district is selected
   bool get isOtherDistrictSelected => _selectedDistrict == 'Other';
 
   @override
@@ -46,13 +44,11 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
   }
 
   void _autoFillFromArguments() {
-    // Get the arguments passed from welcome page
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args =
-      ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null) {
         setState(() {
-          // Auto-fill from Google account data with proper formatting
           _firstNameCtrl.text = args['firstName'] ?? '';
           _lastNameCtrl.text = args['lastName'] ?? '';
           _nicknameCtrl.text = args['nickname'] ?? '';
@@ -153,14 +149,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     setState(() => _loading = true);
 
     try {
-      final userRef =
-      FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid);
+      final userRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseUser.uid);
 
-      // ✅ Create user document with all required fields
       await userRef.set({
         'email': firebaseUser.email,
-        'phone':
-        '${_selectedCountry!.dialCode}${_phoneCtrl.text.trim()}',
+        'phone': '${_selectedCountry!.dialCode}${_phoneCtrl.text.trim()}',
         'firstName': _firstNameCtrl.text.trim(),
         'lastName': _lastNameCtrl.text.trim(),
         'nickname': _nicknameCtrl.text.trim().isNotEmpty
@@ -171,7 +166,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         'district': _selectedDistrict,
         'church': _selectedMyf,
         'countryCode': _selectedCountry!.code,
-        'permissions': [], // ✅ CRITICAL: Empty array for new users
+        'permissions': [],
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -180,7 +175,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.mainMenu,
-              (_) => false,
+          (_) => false,
         );
       }
     } catch (e) {
@@ -195,25 +190,18 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     }
   }
 
-  /// ✅ FIXED: Cancel button now properly logs out and navigates to welcome
   Future<void> _handleCancel() async {
     try {
-      // Sign out from Firebase
       await FirebaseAuth.instance.signOut();
-      // Sign out from Google
       await GoogleSignIn().signOut();
 
       if (mounted) {
-        // Navigate back to Welcome screen
         Navigator.pushReplacementNamed(context, AppRoutes.welcome);
       }
     } catch (e) {
       debugPrint('Error during cancel: $e');
       if (mounted) {
-        MethodistTheme.showErrorSnackBar(
-          context,
-          'Error canceling signup: $e',
-        );
+        MethodistTheme.showErrorSnackBar(context, 'Error canceling signup: $e');
       }
     }
   }
@@ -225,7 +213,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
       appBar: AppBar(
         title: Text(
           'Complete Your Profile',
-          // ✅ RESPONSIVE: Use responsive font size
           style: context.responsiveHeadlineSmall.copyWith(
             color: MethodistTheme.white,
           ),
@@ -237,13 +224,11 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
         isLoading: _loading,
         loadingMessage: 'Saving profile...',
         child: SingleChildScrollView(
-          // ✅ RESPONSIVE: Use context.responsivePadding
           padding: context.responsivePadding(all: 24),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                // ========== Header Card ==========
                 MethodistCard(
                   padding: context.responsivePadding(all: 20),
                   child: Column(
@@ -251,13 +236,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       Container(
                         padding: context.responsivePadding(all: 16),
                         decoration: BoxDecoration(
-                          color:
-                          MethodistTheme.primaryRed.withValues(alpha: 0.1),
+                          color: MethodistTheme.primaryRed.withValues(
+                            alpha: 0.1,
+                          ),
                           borderRadius: BorderRadius.circular(
                             context.responsiveRadius(20),
                           ),
                         ),
-                        // ✅ RESPONSIVE: Use responsiveIconSize
                         child: Icon(
                           Icons.person_add,
                           size: context.responsiveIconSize(48),
@@ -267,14 +252,12 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                       SizedBox(height: context.spacing(16)),
                       Text(
                         'Complete Your Profile',
-                        // ✅ RESPONSIVE: Use responsive text style
                         style: context.responsiveHeadlineSmall,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: context.spacing(8)),
                       Text(
                         'We\'ve pre-filled some details from your Google account',
-                        // ✅ RESPONSIVE: Use responsive text style
                         style: context.responsiveBodyMedium.copyWith(
                           color: MethodistTheme.mediumGray,
                         ),
@@ -286,7 +269,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(24)),
 
-                // ========== First Name Field ==========
                 AppTextField(
                   controller: _firstNameCtrl,
                   label: 'First Name',
@@ -297,7 +279,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Last Name Field ==========
                 AppTextField(
                   controller: _lastNameCtrl,
                   label: 'Last Name',
@@ -308,7 +289,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Nickname Field (Optional) ==========
                 AppTextField(
                   controller: _nicknameCtrl,
                   label: 'Nickname (Optional)',
@@ -318,7 +298,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== International Phone Number Field ==========
                 InternationalPhoneField(
                   controller: _phoneCtrl,
                   onCountryChanged: (country) {
@@ -328,7 +307,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Birthdate Field ==========
                 DatePickerField.dateOnly(
                   selectedDateTime: _birthdate,
                   label: 'Birthdate',
@@ -340,7 +318,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Gender Dropdown ==========
                 DropdownButtonFormField<String>(
                   value: _gender,
                   decoration: InputDecoration(
@@ -399,11 +376,10 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== District Dropdown ==========
                 DropdownButtonFormField<String>(
                   value: _selectedDistrict,
-                  isExpanded: true,  // ✅ ADD THIS
-                  menuMaxHeight: 300,  // ✅ ADD THIS
+                  isExpanded: true,
+                  menuMaxHeight: 300,
                   decoration: InputDecoration(
                     labelText: 'District',
                     labelStyle: TextStyle(
@@ -436,7 +412,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     return DropdownMenuItem(
                       value: district,
                       child: SizedBox(
-                        // ✅ ADD THIS - Constrain width
                         width: MediaQuery.of(context).size.width - 80,
                         child: Text(
                           district,
@@ -459,15 +434,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                   validator: _validateDistrict,
                 ),
 
-
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Church/MYF Field (conditional dropdown) ==========
                 if (_selectedDistrict != null && !isOtherDistrictSelected)
                   DropdownButtonFormField<String>(
                     value: _selectedMyf,
-                    isExpanded: true,  // ✅ ADD THIS
-                    menuMaxHeight: 300,  // ✅ ADD THIS
+                    isExpanded: true,
+                    menuMaxHeight: 300,
                     decoration: InputDecoration(
                       labelText: 'Church/MYF',
                       labelStyle: TextStyle(
@@ -498,29 +471,27 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     ),
                     items: DistrictData.getMyfsByDistrict(_selectedDistrict!)
                         .map((myf) {
-                      return DropdownMenuItem(
-                        value: myf,
-                        child: SizedBox(
-                          // ✅ ADD THIS - Constrain width
-                          width: MediaQuery.of(context).size.width - 80,
-                          child: Text(
-                            myf,
-                            style: TextStyle(
-                              fontSize: context.responsiveFontSize(14),
+                          return DropdownMenuItem(
+                            value: myf,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width - 80,
+                              child: Text(
+                                myf,
+                                style: TextStyle(
+                                  fontSize: context.responsiveFontSize(14),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                          );
+                        })
+                        .toList(),
                     onChanged: (value) {
                       setState(() => _selectedMyf = value);
                     },
                     validator: _validateMyf,
                   )
-
-                // ========== Church/MYF Text Field (for "Other" district) ==========
                 else if (_selectedDistrict != null && isOtherDistrictSelected)
                   AppTextField(
                     controller: _otherMyfCtrl,
@@ -535,7 +506,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
 
                 SizedBox(height: context.spacing(24)),
 
-                // ========== Action Buttons ==========
                 Column(
                   children: [
                     PrimaryButton(
@@ -548,7 +518,6 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     SizedBox(height: context.spacing(12)),
                     PrimaryButton.secondary(
                       label: 'Cancel',
-                      /// ✅ FIXED: Changed from Navigator.pop(context) to _handleCancel()
                       onPressed: _loading ? null : _handleCancel,
                       fullWidth: true,
                       icon: Icons.cancel,

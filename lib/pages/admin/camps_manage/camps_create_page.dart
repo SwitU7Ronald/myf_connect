@@ -46,7 +46,10 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
       });
 
       if (mounted) {
-        MethodistTheme.showSuccessSnackBar(context, 'Camp created successfully');
+        MethodistTheme.showSuccessSnackBar(
+          context,
+          'Camp created successfully',
+        );
         navigator.pop();
       }
     } catch (e) {
@@ -65,7 +68,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        // ✅ RESPONSIVE: Use responsive text style
         title: Text(
           'Create New Camp',
           style: context.responsiveHeadlineSmall.copyWith(
@@ -79,13 +81,11 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
         isLoading: _loading,
         loadingMessage: 'Creating camp...',
         child: SingleChildScrollView(
-          // ✅ RESPONSIVE: Use context.responsivePadding
           padding: context.responsivePadding(all: 24),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                // ========== Header Card ==========
                 MethodistCard(
                   padding: context.responsivePadding(all: 20),
                   child: Column(
@@ -93,31 +93,28 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
                       Container(
                         padding: context.responsivePadding(all: 16),
                         decoration: BoxDecoration(
-                          color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                          // ✅ RESPONSIVE: Use context.responsiveRadius
+                          color: MethodistTheme.primaryRed.withValues(
+                            alpha: 0.1,
+                          ),
                           borderRadius: BorderRadius.circular(
                             context.responsiveRadius(20),
                           ),
                         ),
-                        // ✅ RESPONSIVE: Use context.responsiveIconSize
                         child: Icon(
                           Icons.add_business,
                           size: context.responsiveIconSize(48),
                           color: MethodistTheme.primaryRed,
                         ),
                       ),
-                      // ✅ RESPONSIVE: Use context.spacing
                       SizedBox(height: context.spacing(16)),
                       Text(
                         'Create New Camp',
-                        // ✅ RESPONSIVE: Use responsive text style
                         style: context.responsiveHeadlineSmall,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: context.spacing(8)),
                       Text(
                         'Fill in the details to create a new Methodist camp',
-                        // ✅ RESPONSIVE: Use responsive text style
                         style: context.responsiveBodyMedium.copyWith(
                           color: MethodistTheme.mediumGray,
                         ),
@@ -129,31 +126,30 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: context.spacing(24)),
 
-                // ========== Camp Title Field ==========
                 AppTextField(
                   controller: _titleController,
                   label: 'Camp Title',
                   hint: 'Enter camp title',
                   textCapitalization: TextCapitalization.words,
-                  validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Title is required' : null,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Title is required'
+                      : null,
                 ),
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Place Field ==========
                 AppTextField(
                   controller: _placeController,
                   label: 'Place',
                   hint: 'Enter camp location',
                   textCapitalization: TextCapitalization.words,
-                  validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Place is required' : null,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Place is required'
+                      : null,
                 ),
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Camp Date Field ==========
                 DatePickerField.dateOnly(
                   selectedDateTime: _selectedDate,
                   label: 'Camp Date',
@@ -166,7 +162,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== Description Field ==========
                 AppTextField(
                   controller: _descriptionController,
                   label: 'Description',
@@ -180,7 +175,6 @@ class _CampsCreatePageState extends State<CampsCreatePage> {
 
                 SizedBox(height: context.spacing(32)),
 
-                // ========== Action Buttons ==========
                 Column(
                   children: [
                     PrimaryButton(

@@ -1,4 +1,3 @@
-// lib/pages/home/team_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app/app_router.dart';
@@ -75,7 +74,6 @@ class _TeamPageState extends State<TeamPage> {
           child: Column(
             children: [
               SizedBox(height: MethodistTheme.spacingL),
-              // Logo Icon
               Container(
                 padding: MethodistTheme.paddingL,
                 decoration: BoxDecoration(
@@ -89,7 +87,6 @@ class _TeamPageState extends State<TeamPage> {
                 ),
               ),
               SizedBox(height: MethodistTheme.spacingL),
-              // Title
               Text(
                 'Methodist MYF Team',
                 style: MethodistTheme.displayMedium.copyWith(
@@ -98,7 +95,6 @@ class _TeamPageState extends State<TeamPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: MethodistTheme.spacingS),
-              // Subtitle
               Text(
                 'Meet the Leadership',
                 style: MethodistTheme.bodyLarge.copyWith(
@@ -107,7 +103,6 @@ class _TeamPageState extends State<TeamPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: MethodistTheme.spacingXL),
-              // Team Description Card
               MethodistCard(
                 color: MethodistTheme.white.withValues(alpha: 0.1),
                 child: Column(
@@ -132,7 +127,6 @@ class _TeamPageState extends State<TeamPage> {
                 ),
               ),
               SizedBox(height: MethodistTheme.spacingXL),
-              // All Team Members Section Title
               Text(
                 'Our Team',
                 style: MethodistTheme.headlineSmall.copyWith(
@@ -142,7 +136,6 @@ class _TeamPageState extends State<TeamPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: MethodistTheme.spacingL),
-              // Row 1: President and Vice President
               Row(
                 children: [
                   Expanded(
@@ -163,7 +156,6 @@ class _TeamPageState extends State<TeamPage> {
                 ],
               ),
               SizedBox(height: MethodistTheme.spacingM),
-              // Row 2: Secretary and Treasurer
               Row(
                 children: [
                   Expanded(
@@ -184,7 +176,6 @@ class _TeamPageState extends State<TeamPage> {
                 ],
               ),
               SizedBox(height: MethodistTheme.spacingM),
-              // Row 3: Evangelism & Worship and Nutrition & Stewardship
               Row(
                 children: [
                   Expanded(
@@ -205,7 +196,6 @@ class _TeamPageState extends State<TeamPage> {
                 ],
               ),
               SizedBox(height: MethodistTheme.spacingM),
-              // Row 4: Music & Entertainment and Outreach & Mission
               Row(
                 children: [
                   Expanded(
@@ -226,7 +216,6 @@ class _TeamPageState extends State<TeamPage> {
                 ],
               ),
               SizedBox(height: MethodistTheme.spacingM),
-              // Row 5: Regional & International Social Affairs and Sports & Games
               Row(
                 children: [
                   Expanded(
@@ -247,7 +236,6 @@ class _TeamPageState extends State<TeamPage> {
                 ],
               ),
               SizedBox(height: MethodistTheme.spacingXL),
-              // Continue Button
               PrimaryButton.secondary(
                 label: loading
                     ? 'Loading...'
@@ -269,7 +257,6 @@ class _TeamPageState extends State<TeamPage> {
     );
   }
 
-  /// Build Team Member Card - Uniform style for all team members
   Widget _buildTeamMemberCard({
     required String position,
     required String name,
@@ -282,7 +269,6 @@ class _TeamPageState extends State<TeamPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top section - Position (Flexible, equal 1/3)
             Expanded(
               child: Align(
                 alignment: Alignment.topLeft,
@@ -301,7 +287,6 @@ class _TeamPageState extends State<TeamPage> {
                 ),
               ),
             ),
-            // Middle section - Name (Flexible, equal 1/3)
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -317,7 +302,6 @@ class _TeamPageState extends State<TeamPage> {
                 ),
               ),
             ),
-            // Bottom section - Location (Flexible, equal 1/3)
             Expanded(
               child: Align(
                 alignment: Alignment.bottomLeft,

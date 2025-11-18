@@ -20,7 +20,7 @@ class MYFConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MYF Connect',
-      theme: MethodistTheme.theme, // Changed from themeData to theme
+      theme: MethodistTheme.theme,
       onGenerateRoute: AppRoutes.onGenerateRoute,
       initialRoute: AppRoutes.root,
       debugShowCheckedModeBanner: false,
@@ -43,11 +43,12 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        debugPrint('AuthGateWrapper: Connection state: ${snapshot.connectionState}');
+        debugPrint(
+          'AuthGateWrapper: Connection state: ${snapshot.connectionState}',
+        );
         debugPrint('AuthGateWrapper: Has data: ${snapshot.hasData}');
         debugPrint('AuthGateWrapper: User: ${snapshot.data?.uid}');
 
-        // Show loading while waiting for auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             backgroundColor: MethodistTheme.lightGray,
@@ -56,20 +57,18 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      MethodistTheme.primaryRed,
+                    ),
                   ),
                   SizedBox(height: MethodistTheme.spacingM),
-                  Text(
-                    'Loading...',
-                    style: MethodistTheme.bodyMedium,
-                  ),
+                  Text('Loading...', style: MethodistTheme.bodyMedium),
                 ],
               ),
             ),
           );
         }
 
-        // Handle auth stream errors
         if (snapshot.hasError) {
           return Scaffold(
             backgroundColor: MethodistTheme.lightGray,
@@ -96,10 +95,9 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
                   SizedBox(height: MethodistTheme.spacingM),
                   ElevatedButton(
                     onPressed: () {
-                      // Force restart the auth check
                       Navigator.of(context).pushNamedAndRemoveUntil(
                         AppRoutes.root,
-                            (route) => false,
+                        (route) => false,
                       );
                     },
                     style: MethodistTheme.primaryButtonStyle,
@@ -111,7 +109,6 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
           );
         }
 
-        // Prevent multiple navigation calls
         if (_navigated) {
           return Scaffold(
             backgroundColor: MethodistTheme.lightGray,
@@ -120,24 +117,23 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      MethodistTheme.primaryRed,
+                    ),
                   ),
                   SizedBox(height: MethodistTheme.spacingM),
-                  Text(
-                    'Navigating...',
-                    style: MethodistTheme.bodyMedium,
-                  ),
+                  Text('Navigating...', style: MethodistTheme.bodyMedium),
                 ],
               ),
             ),
           );
         }
 
-        // User is authenticated
         if (snapshot.hasData && snapshot.data != null) {
-          debugPrint('AuthGateWrapper: User is authenticated, navigating to main menu');
+          debugPrint(
+            'AuthGateWrapper: User is authenticated, navigating to main menu',
+          );
 
-          // Use addPostFrameCallback to avoid navigation during build
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && !_navigated) {
               setState(() => _navigated = true);
@@ -152,21 +148,21 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      MethodistTheme.primaryRed,
+                    ),
                   ),
                   SizedBox(height: MethodistTheme.spacingM),
-                  Text(
-                    'Signing in...',
-                    style: MethodistTheme.bodyMedium,
-                  ),
+                  Text('Signing in...', style: MethodistTheme.bodyMedium),
                 ],
               ),
             ),
           );
         }
 
-        // User is not authenticated - show credit page first
-        debugPrint('AuthGateWrapper: User is not authenticated, showing credit page');
+        debugPrint(
+          'AuthGateWrapper: User is not authenticated, showing credit page',
+        );
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && !_navigated) {
@@ -182,13 +178,12 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(MethodistTheme.primaryRed),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    MethodistTheme.primaryRed,
+                  ),
                 ),
                 SizedBox(height: MethodistTheme.spacingM),
-                Text(
-                  'Initializing...',
-                  style: MethodistTheme.bodyMedium,
-                ),
+                Text('Initializing...', style: MethodistTheme.bodyMedium),
               ],
             ),
           ),

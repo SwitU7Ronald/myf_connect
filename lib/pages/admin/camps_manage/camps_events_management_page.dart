@@ -26,16 +26,19 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         .collection('events')
         .orderBy('dateTime')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-        .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
-        .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => CampEvent.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
   Future<void> _showEventDialog({CampEvent? event}) async {
     final formKey = GlobalKey<FormState>();
     final titleController = TextEditingController(text: event?.title ?? '');
-    final descriptionController =
-    TextEditingController(text: event?.description ?? '');
+    final descriptionController = TextEditingController(
+      text: event?.description ?? '',
+    );
     final venueController = TextEditingController(text: event?.venue ?? '');
 
     DateTime? selectedDateTime = event?.dateTime;
@@ -47,19 +50,16 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         builder: (context, setDialogState) => AlertDialog(
           title: Text(
             event == null ? 'Add Event' : 'Edit Event',
-            // ✅ RESPONSIVE: Use responsive text style
             style: context.responsiveHeadlineSmall,
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              // ✅ RESPONSIVE: Make dialog width responsive
               width: MediaQuery.of(context).size.width * 0.85,
               child: Form(
                 key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Event Title Field
                     AppTextField(
                       controller: titleController,
                       label: 'Event Title',
@@ -69,10 +69,8 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                           ? 'Title is required'
                           : null,
                     ),
-                    // ✅ RESPONSIVE: Use context.spacing
                     SizedBox(height: context.spacing(16)),
 
-                    // Event Venue Field
                     AppTextField(
                       controller: venueController,
                       label: 'Venue',
@@ -81,7 +79,6 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                     ),
                     SizedBox(height: context.spacing(16)),
 
-                    // Event Description Field
                     AppTextField(
                       controller: descriptionController,
                       label: 'Description',
@@ -94,13 +91,13 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                     ),
                     SizedBox(height: context.spacing(16)),
 
-                    // Event Date & Time Picker
                     DatePickerField.dateTime(
                       selectedDateTime: selectedDateTime,
                       label: 'Event Date & Time',
                       hint: 'Select date and time',
-                      firstDate:
-                      DateTime.now().subtract(const Duration(days: 365)),
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 365),
+                      ),
                       lastDate: DateTime.now().add(const Duration(days: 730)),
                       onDateTimeSelected: (dateTime) {
                         setDialogState(() => selectedDateTime = dateTime);
@@ -129,7 +126,9 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                     selectedDateTime == null) {
                   if (selectedDateTime == null) {
                     MethodistTheme.showErrorSnackBar(
-                        context, 'Please select date and time');
+                      context,
+                      'Please select date and time',
+                    );
                   }
                   return;
                 }
@@ -187,24 +186,15 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
   }
 
   Future<void> _deleteEvent(String eventId, String eventTitle) async {
-    // ✅ RESPONSIVE: Delete confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          'Delete Event',
-          // ✅ RESPONSIVE: Use responsive text style
-          style: context.responsiveHeadlineSmall,
-        ),
+        title: Text('Delete Event', style: context.responsiveHeadlineSmall),
         content: Text(
           'Are you sure you want to delete "$eventTitle"? This cannot be undone.',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveBodyMedium,
         ),
-        actionsPadding: context.responsivePadding(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
@@ -231,12 +221,13 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
 
       if (mounted) {
         MethodistTheme.showSuccessSnackBar(
-            context, 'Event deleted successfully');
+          context,
+          'Event deleted successfully',
+        );
       }
     } catch (e) {
       if (mounted) {
-        MethodistTheme.showErrorSnackBar(
-            context, 'Error deleting event: $e');
+        MethodistTheme.showErrorSnackBar(context, 'Error deleting event: $e');
       }
     }
   }
@@ -248,7 +239,6 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
       appBar: AppBar(
         title: Text(
           'Manage Events - ${widget.campTitle}',
-          // ✅ RESPONSIVE: Use responsive text style
           style: context.responsiveHeadlineSmall.copyWith(
             color: MethodistTheme.white,
           ),
@@ -263,11 +253,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
         tooltip: 'Add Event',
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        // ✅ RESPONSIVE: Use responsive icon size
-        child: Icon(
-          Icons.add,
-          size: context.responsiveIconSize(28),
-        ),
+        child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: StreamBuilder<List<CampEvent>>(
         stream: _getEvents(),
@@ -291,18 +277,20 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
               icon: Icons.event,
               title: 'No Events Found',
               description:
-              'No events have been created for this camp yet. Tap the + button to add the first event.',
+                  'No events have been created for this camp yet. Tap the + button to add the first event.',
             );
           }
 
           return ListView.builder(
-            // ✅ RESPONSIVE: Use context.responsivePadding
             padding: context.responsivePadding(all: 16),
             itemCount: events.length,
             itemBuilder: (context, index) {
               final event = events[index];
-              final dateStr =
-                  event.dateTime.toLocal().toString().split('.').first;
+              final dateStr = event.dateTime
+                  .toLocal()
+                  .toString()
+                  .split('.')
+                  .first;
 
               return Column(
                 children: [
@@ -312,21 +300,17 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                     description: event.description,
                     icon: Icons.event,
                     actions: [
-                      // Edit Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Edit Event',
                         child: IconButton(
                           icon: Icon(
                             Icons.edit,
                             color: MethodistTheme.warningOrange,
-                            // ✅ RESPONSIVE: Use responsive icon size
                             size: context.responsiveIconSize(20),
                           ),
-                          onPressed: () =>
-                              _showEventDialog(event: event),
+                          onPressed: () => _showEventDialog(event: event),
                         ),
                       ),
-                      // Delete Button - ✅ RESPONSIVE
                       Tooltip(
                         message: 'Delete Event',
                         child: IconButton(
@@ -335,13 +319,11 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                             color: MethodistTheme.errorRed,
                             size: context.responsiveIconSize(20),
                           ),
-                          onPressed: () =>
-                              _deleteEvent(event.id, event.title),
+                          onPressed: () => _deleteEvent(event.id, event.title),
                         ),
                       ),
                     ],
                   ),
-                  // ✅ RESPONSIVE: Use context.spacing between items
                   if (index < events.length - 1)
                     SizedBox(height: context.spacing(12)),
                 ],

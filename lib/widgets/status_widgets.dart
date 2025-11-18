@@ -27,17 +27,11 @@ class StatusBadge extends StatelessWidget {
     this.isSmall = false,
   }) : type = StatusType.warning;
 
-  const StatusBadge.error({
-    super.key,
-    required this.text,
-    this.isSmall = false,
-  }) : type = StatusType.error;
+  const StatusBadge.error({super.key, required this.text, this.isSmall = false})
+    : type = StatusType.error;
 
-  const StatusBadge.info({
-    super.key,
-    required this.text,
-    this.isSmall = false,
-  }) : type = StatusType.info;
+  const StatusBadge.info({super.key, required this.text, this.isSmall = false})
+    : type = StatusType.info;
 
   const StatusBadge.neutral({
     super.key,
@@ -92,11 +86,7 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(
-              icon,
-              size: isSmall ? 12 : 14,
-              color: MethodistTheme.white,
-            ),
+            Icon(icon, size: isSmall ? 12 : 14, color: MethodistTheme.white),
             SizedBox(width: MethodistTheme.spacingXS),
           ],
           Text(
@@ -186,7 +176,7 @@ class CountBadge extends StatelessWidget {
 class ProgressCard extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final double progress; // 0.0 to 1.0
+  final double progress;
   final String? progressText;
   final Color? progressColor;
 

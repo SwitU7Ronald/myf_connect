@@ -1,4 +1,3 @@
-// lib/widgets/app_text_field.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/theme.dart';
@@ -75,62 +74,38 @@ class _AppTextFieldState extends State<AppTextField> {
       focusNode: _focusNode,
       decoration: InputDecoration(
         labelText: widget.label,
-        labelStyle: TextStyle(
-          fontSize: context.responsiveFontSize(14),
-        ),
+        labelStyle: TextStyle(fontSize: context.responsiveFontSize(14)),
         hintText: widget.hint,
-        hintStyle: TextStyle(
-          fontSize: context.responsiveFontSize(13),
-        ),
+        hintStyle: TextStyle(fontSize: context.responsiveFontSize(13)),
         prefixIcon: widget.prefixIcon != null
             ? Transform.scale(
-          scale: MediaQuery.sizeOf(context).width / 375,
-          child: widget.prefixIcon!,
-        )
+                scale: MediaQuery.sizeOf(context).width / 375,
+                child: widget.prefixIcon!,
+              )
             : null,
         suffixIcon: widget.suffixIcon,
         counterText: widget.maxLength != null ? null : '',
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            context.responsiveRadius(12),
-          ),
+          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: MethodistTheme.primaryRed,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(
-            context.responsiveRadius(12),
-          ),
+          borderSide: BorderSide(color: MethodistTheme.primaryRed, width: 2),
+          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
         ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
           ),
-          borderRadius: BorderRadius.circular(
-            context.responsiveRadius(12),
-          ),
+          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
         ),
         errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: MethodistTheme.errorRed,
-          ),
-          borderRadius: BorderRadius.circular(
-            context.responsiveRadius(12),
-          ),
+          borderSide: BorderSide(color: MethodistTheme.errorRed),
+          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
         ),
-        contentPadding: context.responsivePadding(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        errorStyle: TextStyle(
-          fontSize: context.responsiveFontSize(12),
-        ),
+        contentPadding: context.responsivePadding(horizontal: 16, vertical: 14),
+        errorStyle: TextStyle(fontSize: context.responsiveFontSize(12)),
       ),
-      style: TextStyle(
-        fontSize: context.responsiveFontSize(15),
-      ),
+      style: TextStyle(fontSize: context.responsiveFontSize(15)),
       textCapitalization: widget.textCapitalization,
       onChanged: widget.onChanged,
       validator: widget.validator,
@@ -150,9 +125,9 @@ class _AppTextFieldState extends State<AppTextField> {
 class _FirstLetterCapitalFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (newValue.text.isEmpty) {
       return newValue;
     }

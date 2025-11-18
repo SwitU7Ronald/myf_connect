@@ -37,8 +37,7 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
       });
 
       if (mounted) {
-        MethodistTheme.showSuccessSnackBar(
-            context, 'MYF created successfully');
+        MethodistTheme.showSuccessSnackBar(context, 'MYF created successfully');
         navigator.pop();
       }
     } catch (e) {
@@ -57,7 +56,6 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
     return Scaffold(
       backgroundColor: MethodistTheme.lightGray,
       appBar: AppBar(
-        // ✅ RESPONSIVE: Use responsive text style
         title: Text(
           'Create New MYF',
           style: context.responsiveHeadlineSmall.copyWith(
@@ -71,13 +69,11 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
         isLoading: _loading,
         loadingMessage: 'Creating MYF...',
         child: SingleChildScrollView(
-          // ✅ RESPONSIVE: Use context.responsivePadding
           padding: context.responsivePadding(all: 24),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                // ========== Header Card ==========
                 MethodistCard(
                   padding: context.responsivePadding(all: 20),
                   child: Column(
@@ -85,31 +81,28 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
                       Container(
                         padding: context.responsivePadding(all: 16),
                         decoration: BoxDecoration(
-                          color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                          // ✅ RESPONSIVE: Use context.responsiveRadius
+                          color: MethodistTheme.primaryRed.withValues(
+                            alpha: 0.1,
+                          ),
                           borderRadius: BorderRadius.circular(
                             context.responsiveRadius(20),
                           ),
                         ),
-                        // ✅ RESPONSIVE: Use context.responsiveIconSize
                         child: Icon(
                           Icons.group_add,
                           size: context.responsiveIconSize(48),
                           color: MethodistTheme.primaryRed,
                         ),
                       ),
-                      // ✅ RESPONSIVE: Use context.spacing
                       SizedBox(height: context.spacing(16)),
                       Text(
                         'Create New MYF Group',
-                        // ✅ RESPONSIVE: Use responsive text style
                         style: context.responsiveHeadlineSmall,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: context.spacing(8)),
                       Text(
                         'Fill in the details to create a new Methodist Youth Fellowship group',
-                        // ✅ RESPONSIVE: Use responsive text style
                         style: context.responsiveBodyMedium.copyWith(
                           color: MethodistTheme.mediumGray,
                         ),
@@ -121,7 +114,6 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
 
                 SizedBox(height: context.spacing(24)),
 
-                // ========== MYF Title Field ==========
                 AppTextField(
                   controller: _titleController,
                   label: 'MYF Title',
@@ -134,7 +126,6 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
 
                 SizedBox(height: context.spacing(16)),
 
-                // ========== MYF Description Field ==========
                 AppTextField(
                   controller: _descriptionController,
                   label: 'Description',
@@ -148,7 +139,6 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
 
                 SizedBox(height: context.spacing(32)),
 
-                // ========== Action Buttons ==========
                 Column(
                   children: [
                     PrimaryButton(

@@ -33,7 +33,6 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
     super.dispose();
   }
 
-  /// Get events stream based on upcoming/past filter
   Stream<List<MyfEvent>> _getEvents({required bool upcoming}) {
     final nowTs = Timestamp.now();
     final collection = FirebaseFirestore.instance
@@ -43,20 +42,18 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
 
     final query = upcoming
         ? collection
-        .where('dateTime', isGreaterThanOrEqualTo: nowTs)
-        .orderBy('dateTime')
+              .where('dateTime', isGreaterThanOrEqualTo: nowTs)
+              .orderBy('dateTime')
         : collection
-        .where('dateTime', isLessThan: nowTs)
-        .orderBy('dateTime', descending: true);
+              .where('dateTime', isLessThan: nowTs)
+              .orderBy('dateTime', descending: true);
 
     return query.snapshots().map(
-          (snap) => snap.docs
-          .map((doc) => MyfEvent.fromMap(doc.id, doc.data()))
-          .toList(),
+      (snap) =>
+          snap.docs.map((doc) => MyfEvent.fromMap(doc.id, doc.data())).toList(),
     );
   }
 
-  /// Build event list widget for upcoming or past events
   Widget _buildEventList(bool upcoming) {
     return StreamBuilder<List<MyfEvent>>(
       stream: _getEvents(upcoming: upcoming),
@@ -95,7 +92,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
                 description: event.description,
                 dateTime: event.dateTime,
                 venue: event.venue,
-                showRating: !upcoming, // Show rating for past events only
+                showRating: !upcoming,
                 avgRating: event.avgRating,
                 numRatings: event.numRatings,
                 eventId: event.id,
@@ -124,7 +121,6 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
         ),
         backgroundColor: MethodistTheme.primaryRed,
         foregroundColor: MethodistTheme.white,
-        // ✅ FIXED: Proper TabBar styling with visible text
         bottom: TabBar(
           controller: _tabController,
           labelColor: MethodistTheme.white,
@@ -144,10 +140,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.upcoming,
-                    size: context.responsiveIconSize(18),
-                  ),
+                  Icon(Icons.upcoming, size: context.responsiveIconSize(18)),
                   SizedBox(width: context.spacing(6)),
                   const Text('Upcoming'),
                 ],
@@ -158,10 +151,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.history,
-                    size: context.responsiveIconSize(18),
-                  ),
+                  Icon(Icons.history, size: context.responsiveIconSize(18)),
                   SizedBox(width: context.spacing(6)),
                   const Text('Past'),
                 ],
@@ -172,10 +162,7 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEventList(true),
-          _buildEventList(false),
-        ],
+        children: [_buildEventList(true), _buildEventList(false)],
       ),
     );
   }

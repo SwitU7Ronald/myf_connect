@@ -1,4 +1,3 @@
-// lib/pages/home/profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -55,8 +54,9 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  /// Fetch permission titles organized by type (camps or MYFs)
-  Future<Map<String, List<String>>> getOrganizedPermissions(List<String> permissionIds) async {
+  Future<Map<String, List<String>>> getOrganizedPermissions(
+    List<String> permissionIds,
+  ) async {
     if (permissionIds.isEmpty) {
       return {'camps': [], 'myfs': []};
     }
@@ -65,17 +65,14 @@ class _ProfilePageState extends State<ProfilePage> {
       final campTitles = <String>[];
       final myfTitles = <String>[];
 
-      // Fetch all camps
       final campsSnapshot = await FirebaseFirestore.instance
           .collection('camps')
           .get();
 
-      // Fetch all MYFs
       final myfsSnapshot = await FirebaseFirestore.instance
           .collection('myfs')
           .get();
 
-      // Create maps for quick lookup
       final campMap = <String, String>{};
       for (final doc in campsSnapshot.docs) {
         final data = doc.data();
@@ -88,26 +85,20 @@ class _ProfilePageState extends State<ProfilePage> {
         myfMap[doc.id] = data['title'] ?? doc.id;
       }
 
-      // Categorize permissions
       for (final permId in permissionIds) {
         if (campMap.containsKey(permId)) {
           campTitles.add(campMap[permId]!);
         } else if (myfMap.containsKey(permId)) {
           myfTitles.add(myfMap[permId]!);
         } else {
-          // Unknown permission - could be deleted camp/myf
           debugPrint('Unknown permission ID: $permId');
         }
       }
 
-      // Sort alphabetically
       campTitles.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
       myfTitles.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
-      return {
-        'camps': campTitles,
-        'myfs': myfTitles,
-      };
+      return {'camps': campTitles, 'myfs': myfTitles};
     } catch (e) {
       debugPrint('Error fetching permission titles: $e');
       return {'camps': [], 'myfs': []};
@@ -138,10 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.of(
           context,
           rootNavigator: true,
-        ).pushNamedAndRemoveUntil(
-          AppRoutes.welcome,
-              (route) => false,
-        );
+        ).pushNamedAndRemoveUntil(AppRoutes.welcome, (route) => false);
       }
     } catch (e) {
       debugPrint('Logout error: $e');
@@ -169,68 +157,70 @@ class _ProfilePageState extends State<ProfilePage> {
       body: loading
           ? const LoadingWidget(message: 'Loading profile...')
           : SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: MethodistTheme.paddingL,
-                child: Column(
-                  children: [
-                    buildProfileCard(),
-                    SizedBox(height: MethodistTheme.spacingL),
-                    buildPersonalDetailsCard(),
-                    SizedBox(height: MethodistTheme.spacingL),
-                    buildPermissionsCard(),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: MethodistTheme.paddingM,
               child: Column(
                 children: [
-                  // Top Row: Credits and Team buttons side by side
-                  Row(
-                    children: [
-                      Expanded(
-                        child: PrimaryButton.secondary(
-                          label: 'Credits',
-                          onPressed: () =>
-                              Navigator.pushNamed(context, AppRoutes.credit),
-                          fullWidth: true,
-                          icon: Icons.info_outline,
-                        ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: MethodistTheme.paddingL,
+                      child: Column(
+                        children: [
+                          buildProfileCard(),
+                          SizedBox(height: MethodistTheme.spacingL),
+                          buildPersonalDetailsCard(),
+                          SizedBox(height: MethodistTheme.spacingL),
+                          buildPermissionsCard(),
+                        ],
                       ),
-                      SizedBox(width: MethodistTheme.spacingM),
-                      Expanded(
-                        child: PrimaryButton.secondary(
-                          label: 'Team',
-                          onPressed: () =>
-                              Navigator.pushNamed(context, AppRoutes.team),
-                          fullWidth: true,
-                          icon: Icons.people,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                  SizedBox(height: MethodistTheme.spacingM),
-                  // Bottom: Logout button - Full Width and Centered
-                  SizedBox(
-                    width: double.infinity,
-                    child: PrimaryButton.danger(
-                      label: 'Logout',
-                      onPressed: loggingOut ? null : logout,
-                      loading: loggingOut,
-                      fullWidth: true,
-                      icon: Icons.logout,
+                  Container(
+                    padding: MethodistTheme.paddingM,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton.secondary(
+                                label: 'Credits',
+                                onPressed: () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.credit,
+                                ),
+                                fullWidth: true,
+                                icon: Icons.info_outline,
+                              ),
+                            ),
+                            SizedBox(width: MethodistTheme.spacingM),
+                            Expanded(
+                              child: PrimaryButton.secondary(
+                                label: 'Team',
+                                onPressed: () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.team,
+                                ),
+                                fullWidth: true,
+                                icon: Icons.people,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: MethodistTheme.spacingM),
+                        SizedBox(
+                          width: double.infinity,
+                          child: PrimaryButton.danger(
+                            label: 'Logout',
+                            onPressed: loggingOut ? null : logout,
+                            loading: loggingOut,
+                            fullWidth: true,
+                            icon: Icons.logout,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -298,16 +288,16 @@ class _ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Personal Details',
-            style: MethodistTheme.titleLarge,
-          ),
+          Text('Personal Details', style: MethodistTheme.titleLarge),
           Divider(
             height: MethodistTheme.spacingL,
             thickness: 1.2,
             color: MethodistTheme.mediumGray.withValues(alpha: 0.3),
           ),
-          buildDetailRow('Birthdate', userModel?.birthdate?.toIso8601String().split('T').first ?? '-'),
+          buildDetailRow(
+            'Birthdate',
+            userModel?.birthdate?.toIso8601String().split('T').first ?? '-',
+          ),
           buildDetailRow('Gender', userModel?.gender ?? '-'),
           buildDetailRow('District', userModel?.district ?? '-'),
           buildDetailRow('Church', userModel?.church ?? '-'),
@@ -330,10 +320,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 size: 24,
               ),
               SizedBox(width: MethodistTheme.spacingS),
-              Text(
-                'Approved Permissions',
-                style: MethodistTheme.titleLarge,
-              ),
+              Text('Approved Permissions', style: MethodistTheme.titleLarge),
             ],
           ),
           Divider(
@@ -349,7 +336,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 future: getOrganizedPermissions(permissions),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const LoadingWidget(message: 'Loading permissions...');
+                    return const LoadingWidget(
+                      message: 'Loading permissions...',
+                    );
                   }
 
                   if (snapshot.hasError) {
@@ -360,16 +349,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   }
 
-                  final organizedPerms = snapshot.data ?? {'camps': [], 'myfs': []};
+                  final organizedPerms =
+                      snapshot.data ?? {'camps': [], 'myfs': []};
                   final campPerms = organizedPerms['camps'] ?? [];
                   final myfPerms = organizedPerms['myfs'] ?? [];
 
-                  // IntrinsicHeight makes both boxes match the taller one automatically
                   return IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Left Side - Camp Permissions
                         Expanded(
                           child: _buildPermissionColumn(
                             title: 'Camp Permissions',
@@ -381,7 +369,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(width: MethodistTheme.spacingM),
 
-                        // Right Side - MYF Permissions
                         Expanded(
                           child: _buildPermissionColumn(
                             title: 'MYF Permissions',
@@ -413,14 +400,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header
         Row(
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 18,
-            ),
+            Icon(icon, color: color, size: 18),
             SizedBox(width: MethodistTheme.spacingXS),
             Expanded(
               child: Text(
@@ -436,7 +418,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         SizedBox(height: MethodistTheme.spacingXS),
 
-        // Count Badge
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: MethodistTheme.spacingS,
@@ -456,7 +437,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         SizedBox(height: MethodistTheme.spacingS),
 
-        // Permissions List - ADAPTIVE HEIGHT with Expanded
         Expanded(
           child: Container(
             width: double.infinity,
@@ -464,52 +444,42 @@ class _ProfilePageState extends State<ProfilePage> {
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(MethodistTheme.radiusM),
-              border: Border.all(
-                color: color.withValues(alpha: 0.2),
-              ),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
             child: permissions.isEmpty
                 ? Center(child: _buildEmptyPermissionState(emptyMessage, color))
                 : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: permissions
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                  final index = entry.key;
-                  final permTitle = entry.value;
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index < permissions.length - 1
-                          ? MethodistTheme.spacingS
-                          : 0,
-                    ),
-                    child: Row(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          color: color,
-                          size: 16,
-                        ),
-                        SizedBox(width: MethodistTheme.spacingXS),
-                        Expanded(
-                          child: Text(
-                            permTitle,
-                            style: MethodistTheme.bodySmall.copyWith(
-                              color: MethodistTheme.darkGray,
-                              fontWeight: FontWeight.w500,
-                            ),
+                      children: permissions.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final permTitle = entry.value;
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: index < permissions.length - 1
+                                ? MethodistTheme.spacingS
+                                : 0,
                           ),
-                        ),
-                      ],
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.check_circle, color: color, size: 16),
+                              SizedBox(width: MethodistTheme.spacingXS),
+                              Expanded(
+                                child: Text(
+                                  permTitle,
+                                  style: MethodistTheme.bodySmall.copyWith(
+                                    color: MethodistTheme.darkGray,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
-                  );
-                })
-                    .toList(),
-              ),
-            ),
+                  ),
           ),
         ),
       ],
@@ -519,11 +489,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildEmptyPermissionState(String message, Color color) {
     return Column(
       children: [
-        Icon(
-          Icons.lock_outline,
-          color: color.withValues(alpha: 0.3),
-          size: 32,
-        ),
+        Icon(Icons.lock_outline, color: color.withValues(alpha: 0.3), size: 32),
         SizedBox(height: MethodistTheme.spacingS),
         Text(
           message,
@@ -554,10 +520,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           Expanded(
             flex: 5,
-            child: Text(
-              value,
-              style: MethodistTheme.bodyMedium,
-            ),
+            child: Text(value, style: MethodistTheme.bodyMedium),
           ),
         ],
       ),

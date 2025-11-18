@@ -1,4 +1,3 @@
-// lib/pages/admin/admin_dashboard_page.dart
 import 'package:flutter/material.dart';
 import '../../widgets/widgets.dart';
 import 'users_manage/users_management_page.dart';
@@ -21,7 +20,6 @@ class AdminDashboardPage extends StatelessWidget {
         padding: MethodistTheme.paddingM,
         child: Column(
           children: [
-            // Header Card
             MethodistCard(
               child: Column(
                 children: [
@@ -29,7 +27,9 @@ class AdminDashboardPage extends StatelessWidget {
                     padding: MethodistTheme.paddingM,
                     decoration: BoxDecoration(
                       color: MethodistTheme.primaryRed.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(MethodistTheme.radiusXL),
+                      borderRadius: BorderRadius.circular(
+                        MethodistTheme.radiusXL,
+                      ),
                     ),
                     child: Icon(
                       Icons.admin_panel_settings,
@@ -57,7 +57,6 @@ class AdminDashboardPage extends StatelessWidget {
 
             SizedBox(height: MethodistTheme.spacingL),
 
-            // Management Options
             InfoCard(
               title: 'Users Management',
               description: 'Approve users and manage permissions',
@@ -97,9 +96,7 @@ class AdminDashboardPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const MyfsManagementPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const MyfsManagementPage()),
                 );
               },
             ),

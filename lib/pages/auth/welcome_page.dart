@@ -17,10 +17,14 @@ class _WelcomePageState extends State<WelcomePage> {
 
   String _capitalizeEachWord(String str) {
     if (str.isEmpty) return '';
-    return str.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + (word.length > 1 ? word.substring(1).toLowerCase() : '');
-    }).join(' ');
+    return str
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() +
+              (word.length > 1 ? word.substring(1).toLowerCase() : '');
+        })
+        .join(' ');
   }
 
   Map<String, String> _extractNamesFromDisplayName(String displayName) {
@@ -28,7 +32,9 @@ class _WelcomePageState extends State<WelcomePage> {
     String lastName = '';
     String nickname = '';
 
-    if (displayName.isEmpty) return {'firstName': '', 'lastName': '', 'nickname': ''};
+    if (displayName.isEmpty) {
+      return {'firstName': '', 'lastName': '', 'nickname': ''};
+    }
 
     final nicknameRegExp = RegExp(r'\(([^)]+)\)');
     final nicknameMatch = nicknameRegExp.firstMatch(displayName);
@@ -39,7 +45,8 @@ class _WelcomePageState extends State<WelcomePage> {
 
     String cleanedName = displayName.replaceAll(nicknameRegExp, '').trim();
 
-    final List<String> nameParts = cleanedName.split(' ')
+    final List<String> nameParts = cleanedName
+        .split(' ')
         .where((part) => part.isNotEmpty)
         .toList();
 
@@ -55,12 +62,9 @@ class _WelcomePageState extends State<WelcomePage> {
       nickname = firstName;
     }
 
-    return {
-      'firstName': firstName,
-      'lastName': lastName,
-      'nickname': nickname,
-    };
+    return {'firstName': firstName, 'lastName': lastName, 'nickname': nickname};
   }
+
 
   Future<void> _continueWithGoogle() async {
     if (_loading) return;
@@ -80,7 +84,9 @@ class _WelcomePageState extends State<WelcomePage> {
         accessToken: googleAuth.accessToken,
       );
 
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
       final firebaseUser = userCredential.user!;
 
       if (!mounted) return;
@@ -130,24 +136,20 @@ class _WelcomePageState extends State<WelcomePage> {
       backgroundColor: MethodistTheme.primaryRed,
       body: SafeArea(
         child: Padding(
-          // ✅ RESPONSIVE: Use context.responsivePadding
           padding: context.responsivePadding(all: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
 
-              // Logo/Icon
               Container(
                 padding: context.responsivePadding(all: 24),
                 decoration: BoxDecoration(
                   color: MethodistTheme.white.withValues(alpha: 0.1),
-                  // ✅ RESPONSIVE: Use context.responsiveRadius
                   borderRadius: BorderRadius.circular(
                     context.responsiveRadius(20),
                   ),
                 ),
-                // ✅ RESPONSIVE: Use context.responsiveIconSize
                 child: Icon(
                   Icons.church,
                   size: context.responsiveIconSize(80),
@@ -157,10 +159,8 @@ class _WelcomePageState extends State<WelcomePage> {
 
               SizedBox(height: context.spacing(24)),
 
-              // Title
               Text(
                 'MYF Connect',
-                // ✅ RESPONSIVE: Use responsive text style
                 style: context.responsiveDisplayMedium.copyWith(
                   color: MethodistTheme.white,
                 ),
@@ -169,10 +169,8 @@ class _WelcomePageState extends State<WelcomePage> {
 
               SizedBox(height: context.spacing(12)),
 
-              // Subtitle
               Text(
                 'Connect with Methodist Camps & MYF',
-                // ✅ RESPONSIVE: Use responsive text style
                 style: context.responsiveBodyLarge.copyWith(
                   color: MethodistTheme.white.withValues(alpha: 0.8),
                 ),
@@ -181,7 +179,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
               SizedBox(height: context.spacing(48)),
 
-              // Description Card
               MethodistCard(
                 color: MethodistTheme.white.withValues(alpha: 0.1),
                 padding: context.responsivePadding(all: 20),
@@ -206,7 +203,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
               SizedBox(height: context.spacing(32)),
 
-              // Sign-in Button
               PrimaryButton(
                 label: 'Continue with Google',
                 onPressed: _continueWithGoogle,
@@ -217,19 +213,19 @@ class _WelcomePageState extends State<WelcomePage> {
 
               SizedBox(height: context.spacing(12)),
 
-              // Credits Button
               PrimaryButton.secondary(
                 label: 'Credits',
-                onPressed: _loading ? null : () {
-                  Navigator.pushNamed(context, AppRoutes.credit);
-                },
+                onPressed: _loading
+                    ? null
+                    : () {
+                        Navigator.pushNamed(context, AppRoutes.credit);
+                      },
                 fullWidth: true,
                 icon: Icons.info,
               ),
 
               const Spacer(),
 
-              // Version Info
               Text(
                 'Version 1.0.0',
                 style: context.responsiveBodySmall.copyWith(
