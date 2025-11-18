@@ -44,12 +44,14 @@ flutter_*.log
 # iOS
 # -----------------------------
 **/ios/Pods/
+**/ios/Podfile.lock
 **/ios/.symlinks/
 **/ios/Flutter/ephemeral/
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
 **/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/Flutter.podspec
+**/ios/Flutter/flutter_export_environment.sh
 **/ios/**/GeneratedPluginRegistrant.*
 **/ios/build/
 **/ios/Flutter/.last_build_id
@@ -61,9 +63,14 @@ flutter_*.log
 **/ios/Runner.xcodeproj/xcuserdata/
 **/ios/Runner.xcworkspace/xcuserdata/
 *.xcuserstate
+*.xccheckout
+*.moved-aside
+*.mode1v3
+*.mode2v3
+*.perspectivev3
 
 # Firebase iOS
-ios/Runner/GoogleService-Info.plist
+**/ios/Runner/GoogleService-Info.plist
 
 # -----------------------------
 # macOS
