@@ -202,8 +202,8 @@ class _CreditPageState extends State<CreditPage> {
 
               // 5. Treasurer (Fifth)
               _buildTeamMemberCard(
-                imagePath: 'assets/team/Morlins_Macwan-Treasurer.jpg',
-                name: 'Morlins Macwan',
+                imagePath: 'assets/team/Morlins_Mekwan-Treasurer.jpg',
+                name: 'Morlins Mekwan',
                 position: 'Team Treasurer',
               ),
 
@@ -229,7 +229,7 @@ class _CreditPageState extends State<CreditPage> {
               _buildTeamMemberCard(
                 imagePath: 'assets/team/Maxwell_Parmar-Frontend-Designer.jpg',
                 name: 'Maxwell Parmar',
-                position: 'App Designer',
+                position: 'App Convener',
               ),
 
               SizedBox(height: MethodistTheme.spacingM),
