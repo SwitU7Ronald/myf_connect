@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.methodist.myf_connect"
+    namespace = "com.myf.myf_connect"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.methodist.myf_connect"
+        applicationId = "com.myf.myf_connect"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -1,6 +1,6 @@
 # MYF Connect
 
-A Flutter application for Gujarat Methodist Camps and Methodist Youth Fellowship (MYF) community management.
+A Flutter application for Gujarat MYF Camps and MYF (MYF) community management.
 
 [![Dart](https://img.shields.io/badge/Dart-3.9+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
 [![Flutter](https://img.shields.io/badge/Flutter-Enabled-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
@@ -11,13 +11,13 @@ A Flutter application for Gujarat Methodist Camps and Methodist Youth Fellowship
 
 ## 📱 About
 
-**MYF Connect** is a comprehensive community management platform designed specifically for the Gujarat Methodist community. The app facilitates seamless camp management, event organization, and Methodist Youth Fellowship (MYF) activities with sophisticated role-based access control.
+**MYF Connect** is a comprehensive community management platform designed specifically for the Gujarat MYF community. The app facilitates seamless camp management, event organization, and MYF (MYF) activities with sophisticated role-based access control.
 
 ### ✨ Key Features
 
 -   🔐 **Google Sign-In Authentication** - Secure Firebase-based authentication
--   🏕️ **Camps Management** - Browse and manage Methodist camps with detailed information
--   🙋‍♂️ **MYF Management** - Organize and track Methodist Youth Fellowship activities
+-   🏕️ **Camps Management** - Browse and manage MYF camps with detailed information
+-   🙋‍♂️ **MYF Management** - Organize and track MYF activities
 -   📅 **Event Management** - View upcoming events and browse past event archives
 -   ⭐ **Event Rating System** - Rate past events with an intuitive 5-star rating system
 -   🛡️ **Admin Dashboard** - Complete administrative control for user and content management
@@ -179,7 +179,7 @@ assets/
 | Collection | Description |
 | :--- | :--- |
 | `users` | User profiles, roles, and camp-specific permissions |
-| `camps` | Methodist camp registry with details |
+| `camps` | MYF camp registry with details |
 | `events` | Camp events (upcoming & past) with venue info |
 | `myf` | MYF activity groups and membership |
 | `ratings` | User ratings for past events |
@@ -206,8 +206,8 @@ assets/
 
 ## 🙏 Acknowledgments
 
-  - Gujarat Methodist Community
-  - Methodist Youth Fellowship (MYF)
+  - Gujarat MYF Community
+  - MYF (MYF)
   - [Flutter Team](https://flutter.dev)
   - [Firebase Team](https://firebase.google.com)
 
@@ -222,7 +222,7 @@ For support, please open an issue or start a discussion in the repository.
 
 -----
 
-**Made with ❤️ for the Gujarat Methodist Community**
+**Made with ❤️ for the Gujarat MYF Community**
 
 ⭐ Star this repo if you find it helpful\!
 

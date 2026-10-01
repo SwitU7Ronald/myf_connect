@@ -145,3 +145,15 @@ dump/
 # -----------------------------
 *.orig
 *.lock.json
+
+# Sensitive Environment Configs
+lib/core/config/env_config.dart
+.env
+
+# Firebase Configs
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# CI/CD
+.github/

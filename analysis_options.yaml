@@ -2,12 +2,15 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     use_build_context_synchronously: ignore
-    deprecated_member_use: ignore
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "build/**"
+    - android/**
+    - macos/**
+    - ios/**
 linter:
   rules:
     - avoid_print
     - use_key_in_widget_constructors
+    - always_use_package_imports
