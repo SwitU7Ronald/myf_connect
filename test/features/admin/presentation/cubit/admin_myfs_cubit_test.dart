@@ -10,8 +10,9 @@ void main() {
 
   setUp(() {
     mockAdminRepository = MockAdminRepository();
-    when(mockAdminRepository.getMyfsStream())
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      mockAdminRepository.getMyfsStream(),
+    ).thenAnswer((_) => const Stream.empty());
     adminMyfsCubit = AdminMyfsCubit(adminRepository: mockAdminRepository);
   });
 
@@ -27,20 +28,20 @@ void main() {
     blocTest<AdminMyfsCubit, AdminMyfsState>(
       'emits [AdminMyfsError] when repository stream emits an error',
       build: () {
-        when(mockAdminRepository.getMyfsStream())
-            .thenAnswer((_) => Stream.error(Exception('Network Error')));
+        when(
+          mockAdminRepository.getMyfsStream(),
+        ).thenAnswer((_) => Stream.error(Exception('Network Error')));
         return AdminMyfsCubit(adminRepository: mockAdminRepository);
       },
-      expect: () => [
-        isA<AdminMyfsError>(),
-      ],
+      expect: () => [isA<AdminMyfsError>()],
     );
 
     test(
       'state remains AdminMyfsLoading when loadMyfs is called while already loading',
       () {
-        when(mockAdminRepository.getMyfsStream())
-            .thenAnswer((_) => const Stream.empty());
+        when(
+          mockAdminRepository.getMyfsStream(),
+        ).thenAnswer((_) => const Stream.empty());
         final cubit = AdminMyfsCubit(adminRepository: mockAdminRepository);
         cubit.loadMyfs();
         // Already in loading state — calling again should not change it

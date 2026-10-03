@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:myf_connect/features/myfs/data/models/myf.dart';
+import 'package:myf_connect/core/models/myf.dart';
 
 /// Abstract contract for the MYFs data source.
 ///
@@ -19,9 +19,13 @@ class MyfsRepositoryImpl implements MyfsRepository {
 
   @override
   Stream<List<Myf>> getMyfs() {
-    return _firestore.collection('myfs').orderBy('title').snapshots().map(
-      (snapshot) =>
-          snapshot.docs.map((doc) => Myf.fromFirestore(doc)).toList(),
-    );
+    return _firestore
+        .collection('myfs')
+        .orderBy('title')
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Myf.fromFirestore(doc)).toList(),
+        );
   }
 }

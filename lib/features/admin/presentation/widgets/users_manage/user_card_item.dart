@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
-import 'package:myf_connect/features/auth/data/models/app_user.dart';
+import 'package:myf_connect/core/models/app_user.dart';
 import 'package:myf_connect/features/admin/presentation/widgets/status_widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class UserCardItem extends StatelessWidget {
   final AppUser user;
@@ -19,7 +21,8 @@ class UserCardItem extends StatelessWidget {
     required this.onMyfPermissionChanged,
   });
 
-  String get _fullName => '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim();
+  String get _fullName =>
+      '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim();
 
   String get _initials {
     if (_fullName.isEmpty) return '?';
@@ -36,40 +39,44 @@ class UserCardItem extends StatelessWidget {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          tilePadding: context.responsivePadding(horizontal: 16, vertical: 8),
+          tilePadding: EdgeInsets.symmetric(horizontal: context.spacingMd, vertical: context.spacingSm),
           childrenPadding: EdgeInsets.zero,
           leading: CircleAvatar(
-            backgroundColor: MyfTheme.primaryRed.withValues(alpha: 0.1),
+            backgroundColor: context.colors.primary.withValues(alpha: 0.1),
             child: Text(
               _initials,
-              style: context.responsiveBodyMedium.copyWith(
-                color: MyfTheme.primaryRed,
+              style: context.typography.bodyMedium!.copyWith(
+                color: context.colors.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           title: Text(
             _fullName.isEmpty ? 'Unnamed User' : _fullName,
-            style: context.responsiveTitleMedium.copyWith(
+            style: context.typography.titleMedium!.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: context.spacing(4)),
+              SizedBox(height: context.spacingXs),
               Row(
                 children: [
                   Icon(
                     Icons.phone,
                     size: context.responsiveIconSize(14),
-                    color: MyfTheme.mediumGray,
+                    color: context.colors.textSecondary,
                   ),
-                  SizedBox(width: context.spacing(4)),
-                  Text(
-                    user.phone.isEmpty ? 'No phone' : user.phone,
-                    style: context.responsiveBodySmall.copyWith(
-                      color: MyfTheme.mediumGray,
+                  SizedBox(width: context.spacingXs),
+                  Expanded(
+                    child: Text(
+                      user.phone.isEmpty ? 'No phone' : user.phone,
+                      style: context.typography.bodySmall!.copyWith(
+                        color: context.colors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -81,13 +88,17 @@ class UserCardItem extends StatelessWidget {
                     Icon(
                       Icons.location_on,
                       size: context.responsiveIconSize(14),
-                      color: MyfTheme.mediumGray,
+                      color: context.colors.textSecondary,
                     ),
-                    SizedBox(width: context.spacing(4)),
-                    Text(
-                      user.district!,
-                      style: context.responsiveBodySmall.copyWith(
-                        color: MyfTheme.mediumGray,
+                    SizedBox(width: context.spacingXs),
+                    Expanded(
+                      child: Text(
+                        user.district!,
+                        style: context.typography.bodySmall!.copyWith(
+                          color: context.colors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -109,19 +120,19 @@ class UserCardItem extends StatelessWidget {
   Widget _buildUserDetails(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: context.responsivePadding(all: 16),
+      padding: EdgeInsets.all(context.spacingMd),
       decoration: BoxDecoration(
-        color: MyfTheme.lightGray,
+        color: context.colors.background,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(context.responsiveRadius(12)),
-          bottomRight: Radius.circular(context.responsiveRadius(12)),
+          bottomLeft: Radius.circular(context.radiusMd.topLeft.x),
+          bottomRight: Radius.circular(context.radiusMd.topLeft.x),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader(context, Icons.person, 'User Information'),
-          SizedBox(height: context.spacing(8)),
+          SizedBox(height: context.spacingSm),
           _buildInfoCard(context, [
             if ((user.district ?? '').isNotEmpty)
               _buildInfoRow(
@@ -135,14 +146,14 @@ class UserCardItem extends StatelessWidget {
             if ((user.gender ?? '').isNotEmpty)
               _buildInfoRow(context, Icons.wc, 'Gender', user.gender ?? ''),
           ]),
-          SizedBox(height: context.spacing(20)),
+          SizedBox(height: context.spacingLg),
           _buildSectionHeader(
             context,
             Icons.security,
             'Permissions Manager',
             subtitle: '${user.permissions.length} active permissions',
           ),
-          SizedBox(height: context.spacing(12)),
+          SizedBox(height: context.spacingMd),
           if (camps.isEmpty)
             _buildNoItemsAvailable(
               context,
@@ -159,7 +170,7 @@ class UserCardItem extends StatelessWidget {
               userPermissions: user.permissions,
               onPermissionChanged: onCampPermissionChanged,
             ),
-          SizedBox(height: context.spacing(16)),
+          SizedBox(height: context.spacingMd),
           if (myfs.isEmpty)
             _buildNoItemsAvailable(
               context,
@@ -190,34 +201,34 @@ class UserCardItem extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: context.responsivePadding(all: 8),
+          padding: EdgeInsets.all(context.spacingSm),
           decoration: BoxDecoration(
-            color: MyfTheme.primaryRed.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(context.responsiveRadius(8)),
+            color: context.colors.primary.withValues(alpha: 0.1),
+            borderRadius: context.radiusSm,
           ),
           child: Icon(
             icon,
-            color: MyfTheme.primaryRed,
+            color: context.colors.primary,
             size: context.responsiveIconSize(20),
           ),
         ),
-        SizedBox(width: context.spacing(12)),
+        SizedBox(width: context.spacingMd),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: context.responsiveTitleSmall.copyWith(
-                  color: MyfTheme.primaryRed,
+                style: context.typography.titleSmall!.copyWith(
+                  color: context.colors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               if (subtitle != null)
                 Text(
                   subtitle,
-                  style: context.responsiveBodySmall.copyWith(
-                    color: MyfTheme.mediumGray,
+                  style: context.typography.bodySmall!.copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
             ],
@@ -230,11 +241,11 @@ class UserCardItem extends StatelessWidget {
   Widget _buildInfoCard(BuildContext context, List<Widget> children) {
     if (children.isEmpty) return const SizedBox.shrink();
     return Container(
-      padding: context.responsivePadding(all: 12),
+      padding: EdgeInsets.all(context.spacingMd),
       decoration: BoxDecoration(
-        color: MyfTheme.white,
-        borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
-        border: Border.all(color: MyfTheme.mediumGray.withValues(alpha: 0.2)),
+        color: context.colors.surface,
+        borderRadius: context.radiusMd,
+        border: Border.all(color: context.colors.textSecondary.withValues(alpha: 0.2)),
       ),
       child: Column(children: children),
     );
@@ -248,22 +259,22 @@ class UserCardItem extends StatelessWidget {
     bool isMonospace = false,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.spacing(6)),
+      padding: EdgeInsets.symmetric(vertical: context.spacingSm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             icon,
             size: context.responsiveIconSize(18),
-            color: MyfTheme.primaryRed.withValues(alpha: 0.7),
+            color: context.colors.primary.withValues(alpha: 0.7),
           ),
-          SizedBox(width: context.spacing(12)),
+          SizedBox(width: context.spacingMd),
           SizedBox(
             width: 80,
             child: Text(
               label,
-              style: context.responsiveBodySmall.copyWith(
-                color: MyfTheme.mediumGray,
+              style: context.typography.bodySmall!.copyWith(
+                color: context.colors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -271,8 +282,8 @@ class UserCardItem extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: context.responsiveBodySmall.copyWith(
-                color: MyfTheme.darkGray,
+              style: context.typography.bodySmall!.copyWith(
+                color: context.colors.textPrimary,
                 fontFamily: isMonospace ? 'monospace' : null,
               ),
             ),
@@ -289,42 +300,42 @@ class UserCardItem extends StatelessWidget {
     IconData icon,
   ) {
     return Container(
-      padding: context.responsivePadding(all: 16),
+      padding: EdgeInsets.all(context.spacingMd),
       decoration: BoxDecoration(
-        color: MyfTheme.white,
-        borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
-        border: Border.all(color: MyfTheme.mediumGray.withValues(alpha: 0.2)),
+        color: context.colors.surface,
+        borderRadius: context.radiusMd,
+        border: Border.all(color: context.colors.textSecondary.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
-            padding: context.responsivePadding(all: 12),
+            padding: EdgeInsets.all(context.spacingMd),
             decoration: BoxDecoration(
-              color: MyfTheme.mediumGray.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(context.responsiveRadius(10)),
+              color: context.colors.textSecondary.withValues(alpha: 0.1),
+              borderRadius: context.radiusMd,
             ),
             child: Icon(
               icon,
-              color: MyfTheme.mediumGray,
+              color: context.colors.textSecondary,
               size: context.responsiveIconSize(28),
             ),
           ),
-          SizedBox(width: context.spacing(16)),
+          SizedBox(width: context.spacingMd),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'No $itemType Available',
-                  style: context.responsiveTitleSmall.copyWith(
+                  style: context.typography.titleSmall!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: context.spacing(4)),
+                SizedBox(height: context.spacingXs),
                 Text(
                   message,
-                  style: context.responsiveBodySmall.copyWith(
-                    color: MyfTheme.mediumGray,
+                  style: context.typography.bodySmall!.copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -357,13 +368,13 @@ class UserCardItem extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: MyfTheme.primaryRed,
+                  color: context.colors.primary,
                   size: context.responsiveIconSize(18),
                 ),
-                SizedBox(width: context.spacing(8)),
+                SizedBox(width: context.spacingSm),
                 Text(
                   title,
-                  style: context.responsiveTitleSmall.copyWith(
+                  style: context.typography.titleSmall!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -376,19 +387,19 @@ class UserCardItem extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: context.spacing(8)),
+        SizedBox(height: context.spacingSm),
         Container(
-          padding: context.responsivePadding(all: 12),
+          padding: EdgeInsets.all(context.spacingMd),
           decoration: BoxDecoration(
-            color: MyfTheme.white,
-            borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+            color: context.colors.surface,
+            borderRadius: context.radiusMd,
             border: Border.all(
-              color: MyfTheme.mediumGray.withValues(alpha: 0.2),
+              color: context.colors.textSecondary.withValues(alpha: 0.2),
             ),
           ),
           child: Wrap(
-            spacing: context.spacing(8),
-            runSpacing: context.spacing(8),
+            spacing: context.spacingSm,
+            runSpacing: context.spacingSm,
             children: items.map((item) {
               final itemId = item['id'] as String;
               final itemTitle = item['title'] as String;
@@ -397,7 +408,8 @@ class UserCardItem extends StatelessWidget {
               return PermissionChip(
                 text: itemTitle,
                 isSelected: selected,
-                onChanged: (isSelected) => onPermissionChanged(itemId, isSelected),
+                onChanged: (isSelected) =>
+                    onPermissionChanged(itemId, isSelected),
               );
             }).toList(),
           ),

@@ -10,8 +10,9 @@ void main() {
 
   setUp(() {
     mockAdminRepository = MockAdminRepository();
-    when(mockAdminRepository.getUsersStream())
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      mockAdminRepository.getUsersStream(),
+    ).thenAnswer((_) => const Stream.empty());
     adminUsersCubit = AdminUsersCubit(adminRepository: mockAdminRepository);
   });
 
@@ -27,20 +28,20 @@ void main() {
     blocTest<AdminUsersCubit, AdminUsersState>(
       'emits [AdminUsersError] when repository stream emits an error',
       build: () {
-        when(mockAdminRepository.getUsersStream())
-            .thenAnswer((_) => Stream.error(Exception('Firestore Error')));
+        when(
+          mockAdminRepository.getUsersStream(),
+        ).thenAnswer((_) => Stream.error(Exception('Firestore Error')));
         return AdminUsersCubit(adminRepository: mockAdminRepository);
       },
-      expect: () => [
-        isA<AdminUsersError>(),
-      ],
+      expect: () => [isA<AdminUsersError>()],
     );
 
     test(
       'state remains AdminUsersLoading when loadUsers is called while already loading',
       () {
-        when(mockAdminRepository.getUsersStream())
-            .thenAnswer((_) => const Stream.empty());
+        when(
+          mockAdminRepository.getUsersStream(),
+        ).thenAnswer((_) => const Stream.empty());
         final cubit = AdminUsersCubit(adminRepository: mockAdminRepository);
         cubit.loadUsers();
         // Already in loading state — calling again should not change it

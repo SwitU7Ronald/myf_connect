@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myf_connect/core/themes/theme.dart';
+import 'package:myf_connect/core/theme/theme.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_buttons.dart';
+
 
 enum ButtonType { primary, secondary, text, danger }
 
@@ -63,7 +66,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsiveIconSize = context.responsiveIconSize(20);
     final responsiveButtonHeight = context.responsiveIconSize(48);
-    final responsiveSpacing = context.spacing(8);
+    final responsiveSpacing = context.spacingSm;
 
     Widget buttonChild = loading
         ? SizedBox(
@@ -73,8 +76,8 @@ class PrimaryButton extends StatelessWidget {
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
                 type == ButtonType.secondary || type == ButtonType.text
-                    ? MyfTheme.primaryRed
-                    : MyfTheme.white,
+                    ? context.colors.primary
+                    : context.colors.surface,
               ),
             ),
           )
@@ -91,10 +94,7 @@ class PrimaryButton extends StatelessWidget {
                   label,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: context.responsiveFontSize(14),
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: context.typography.labelLarge!.copyWith(fontSize: context.responsiveFontSize(14)),
                 ),
               ),
             ],
@@ -103,13 +103,18 @@ class PrimaryButton extends StatelessWidget {
     ButtonStyle getResponsiveButtonStyle(ButtonStyle baseStyle) {
       return baseStyle.copyWith(
         padding: WidgetStateProperty.all(
-          context.responsivePadding(horizontal: 24, vertical: 14),
+          context.responsivePadding(horizontal: 24, vertical: 16),
         ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+            borderRadius: BorderRadius.circular(100), // Stadium-like pill buttons
           ),
         ),
+        elevation: WidgetStateProperty.resolveWith<double>((states) {
+          if (states.contains(WidgetState.hovered)) return 6;
+          if (states.contains(WidgetState.pressed)) return 2;
+          return type == ButtonType.primary ? 4 : 0;
+        }),
       );
     }
 
@@ -119,28 +124,28 @@ class PrimaryButton extends StatelessWidget {
       case ButtonType.primary:
         button = ElevatedButton(
           onPressed: loading ? null : onPressed,
-          style: getResponsiveButtonStyle(MyfTheme.primaryButtonStyle),
+          style: getResponsiveButtonStyle(AppButtons.primary(context)),
           child: buttonChild,
         );
         break;
       case ButtonType.secondary:
         button = OutlinedButton(
           onPressed: loading ? null : onPressed,
-          style: getResponsiveButtonStyle(MyfTheme.secondaryButtonStyle),
+          style: getResponsiveButtonStyle(AppButtons.secondary(context)),
           child: buttonChild,
         );
         break;
       case ButtonType.text:
         button = TextButton(
           onPressed: loading ? null : onPressed,
-          style: getResponsiveButtonStyle(MyfTheme.textButtonStyle),
+          style: getResponsiveButtonStyle(AppButtons.text(context)),
           child: buttonChild,
         );
         break;
       case ButtonType.danger:
         button = ElevatedButton(
           onPressed: loading ? null : onPressed,
-          style: getResponsiveButtonStyle(MyfTheme.dangerButtonStyle),
+          style: getResponsiveButtonStyle(AppButtons.danger(context)),
           child: buttonChild,
         );
         break;

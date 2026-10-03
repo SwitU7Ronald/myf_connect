@@ -4,14 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/features/auth/data/models/district_data.dart';
-import 'package:myf_connect/features/auth/data/models/app_user.dart';
-import 'package:myf_connect/features/auth/data/repositories/user_repository.dart';
-import 'package:myf_connect/core/config/app_router.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:myf_connect/features/auth/presentation/widgets/international_phone_field.dart';
+import 'package:myf_connect/core/models/app_user.dart';
+import 'package:myf_connect/core/services/users/user_repository.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
+import 'package:myf_connect/core/widgets/international_phone_field.dart';
 import 'package:myf_connect/core/utils/validators.dart';
 import 'package:myf_connect/features/auth/presentation/widgets/signup/signup_header_card.dart';
 import 'package:myf_connect/features/auth/presentation/widgets/signup/district_myf_selector.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class SignupDetailsPage extends StatefulWidget {
   const SignupDetailsPage({super.key});
@@ -56,9 +59,9 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null) {
         setState(() {
-          _firstNameCtrl.text = args['firstName'] ?? '';
-          _lastNameCtrl.text = args['lastName'] ?? '';
-          _nicknameCtrl.text = args['nickname'] ?? '';
+          _firstNameCtrl.text = args['firstName'] as String? ?? '';
+          _lastNameCtrl.text = args['lastName'] as String? ?? '';
+          _nicknameCtrl.text = args['nickname'] as String? ?? '';
         });
         debugPrint(
           'SignupDetailsPage: Auto-filled from Google - First: ${_firstNameCtrl.text}, Last: ${_lastNameCtrl.text}, Nickname: ${_nicknameCtrl.text}',
@@ -110,22 +113,22 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_birthdate == null) {
-      MyfTheme.showErrorSnackBar(context, 'Please select your birthdate');
+      AppSnackbars.showError(context, 'Please select your birthdate');
       return;
     }
 
     if (_gender == null) {
-      MyfTheme.showErrorSnackBar(context, 'Please select gender');
+      AppSnackbars.showError(context, 'Please select gender');
       return;
     }
 
     if (_selectedDistrict == null) {
-      MyfTheme.showErrorSnackBar(context, 'Please select your district');
+      AppSnackbars.showError(context, 'Please select your district');
       return;
     }
 
     if (_selectedMyf == null || _selectedMyf!.isEmpty) {
-      MyfTheme.showErrorSnackBar(
+      AppSnackbars.showError(
         context,
         'Please ${isOtherDistrictSelected ? 'enter' : 'select'} your church/MYF',
       );
@@ -133,13 +136,13 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     }
 
     if (_selectedCountry == null) {
-      MyfTheme.showErrorSnackBar(context, 'Please select country code');
+      AppSnackbars.showError(context, 'Please select country code');
       return;
     }
 
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) {
-      MyfTheme.showErrorSnackBar(
+      AppSnackbars.showError(
         context,
         'Authentication error. Please restart app.',
       );
@@ -176,7 +179,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     } catch (e) {
       debugPrint('Error saving profile: $e');
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Error saving profile: $e');
+        AppSnackbars.showError(context, 'Error saving profile: $e');
       }
     } finally {
       if (mounted) {
@@ -195,30 +198,30 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
     } catch (e) {
       debugPrint('Error during cancel: $e');
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Error canceling signup: $e');
+        AppSnackbars.showError(context, 'Error canceling signup: $e');
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.lightGray,
-      appBar: AppBar(
+    return PlatformScaffold(
+      backgroundColor: context.colors.background,
+      appBar: PlatformAppBar(
         title: Text(
           'Complete Your Profile',
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.headlineSmall!.copyWith(
+            color: context.colors.surface,
           ),
         ),
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
       ),
       body: LoadingOverlay(
         isLoading: _loading,
         loadingMessage: 'Saving profile...',
         child: SingleChildScrollView(
-          padding: context.responsivePadding(all: 24),
+          padding: EdgeInsets.all(context.spacingLg),
           child: ResponsiveConstrainedBox(
             child: Form(
               key: _formKey,
@@ -226,7 +229,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                 children: [
                   const SignupHeaderCard(),
 
-                  SizedBox(height: context.spacing(24)),
+                  SizedBox(height: context.spacingLg),
 
                   AppTextField(
                     controller: _firstNameCtrl,
@@ -236,7 +239,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     validator: (v) => AppValidators.required(v, 'First Name'),
                   ),
 
-                  SizedBox(height: context.spacing(16)),
+                  SizedBox(height: context.spacingMd),
 
                   AppTextField(
                     controller: _lastNameCtrl,
@@ -246,7 +249,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     validator: (v) => AppValidators.required(v, 'Last Name'),
                   ),
 
-                  SizedBox(height: context.spacing(16)),
+                  SizedBox(height: context.spacingMd),
 
                   AppTextField(
                     controller: _nicknameCtrl,
@@ -255,7 +258,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     textCapitalization: TextCapitalization.words,
                   ),
 
-                  SizedBox(height: context.spacing(16)),
+                  SizedBox(height: context.spacingMd),
 
                   InternationalPhoneField(
                     controller: _phoneCtrl,
@@ -264,7 +267,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     },
                   ),
 
-                  SizedBox(height: context.spacing(16)),
+                  SizedBox(height: context.spacingMd),
 
                   DatePickerField.dateOnly(
                     selectedDateTime: _birthdate,
@@ -275,31 +278,29 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     },
                   ),
 
-                  SizedBox(height: context.spacing(16)),
+                  SizedBox(height: context.spacingMd),
 
                   DropdownButtonFormField<String>(
                     initialValue: _gender,
                     decoration: InputDecoration(
                       labelText: 'Gender',
-                      labelStyle: TextStyle(
-                        fontSize: context.responsiveFontSize(14),
-                      ),
+                      labelStyle: context.typography.titleMedium,
                       hintText: 'Select your gender',
-                      hintStyle: TextStyle(
+                      hintStyle: context.typography.bodyMedium?.copyWith(
                         fontSize: context.responsiveFontSize(13),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(
-                          context.responsiveRadius(12),
+                          context.radiusMd.topLeft.x,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: MyfTheme.primaryRed,
+                          color: context.colors.primary,
                           width: 2,
                         ),
                         borderRadius: BorderRadius.circular(
-                          context.responsiveRadius(12),
+                          context.radiusMd.topLeft.x,
                         ),
                       ),
                       contentPadding: context.responsivePadding(
@@ -312,7 +313,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                         value: 'Male',
                         child: Text(
                           'Male',
-                          style: TextStyle(
+                          style: context.typography.bodyMedium?.copyWith(
                             fontSize: context.responsiveFontSize(14),
                           ),
                         ),
@@ -321,7 +322,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                         value: 'Female',
                         child: Text(
                           'Female',
-                          style: TextStyle(
+                          style: context.typography.bodyMedium?.copyWith(
                             fontSize: context.responsiveFontSize(14),
                           ),
                         ),
@@ -333,7 +334,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     validator: (v) => v == null ? 'Please select gender' : null,
                   ),
 
-                  SizedBox(height: context.spacing(16)),
+                  SizedBox(height: context.spacingMd),
 
                   DistrictMyfSelector(
                     selectedDistrict: _selectedDistrict,
@@ -353,7 +354,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     myfValidator: _validateMyf,
                   ),
 
-                  SizedBox(height: context.spacing(24)),
+                  SizedBox(height: context.spacingLg),
 
                   Column(
                     children: [
@@ -364,7 +365,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                         fullWidth: true,
                         icon: Icons.check_circle,
                       ),
-                      SizedBox(height: context.spacing(12)),
+                      SizedBox(height: context.spacingMd),
                       PrimaryButton.secondary(
                         label: 'Cancel',
                         onPressed: _loading ? null : _handleCancel,
@@ -374,7 +375,7 @@ class _SignupDetailsPageState extends State<SignupDetailsPage> {
                     ],
                   ),
 
-                  SizedBox(height: context.spacing(24)),
+                  SizedBox(height: context.spacingLg),
                 ],
               ),
             ),

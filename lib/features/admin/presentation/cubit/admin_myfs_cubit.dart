@@ -9,7 +9,7 @@ part 'admin_myfs_state.dart';
 
 class AdminMyfsCubit extends Cubit<AdminMyfsState> {
   final AdminRepository _adminRepository;
-  StreamSubscription? _subscription;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   AdminMyfsCubit({required AdminRepository adminRepository})
     : _adminRepository = adminRepository,
@@ -24,7 +24,7 @@ class AdminMyfsCubit extends Cubit<AdminMyfsState> {
       (snapshot) {
         emit(AdminMyfsLoaded(snapshot));
       },
-      onError: (error) {
+      onError: (Object error) {
         emit(AdminMyfsError(ErrorHandler.handle(error).message));
       },
     );

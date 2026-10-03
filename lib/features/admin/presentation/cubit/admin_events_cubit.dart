@@ -9,7 +9,7 @@ part 'admin_events_state.dart';
 
 class AdminEventsCubit extends Cubit<AdminEventsState> {
   final AdminRepository _adminRepository;
-  StreamSubscription? _subscription;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   AdminEventsCubit({required AdminRepository adminRepository})
     : _adminRepository = adminRepository,
@@ -24,7 +24,7 @@ class AdminEventsCubit extends Cubit<AdminEventsState> {
           (snapshot) {
             emit(AdminEventsLoaded(snapshot));
           },
-          onError: (error) {
+          onError: (Object error) {
             emit(AdminEventsError(ErrorHandler.handle(error).message));
           },
         );

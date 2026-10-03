@@ -5,6 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart'
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class MyfsEventsManagementPage extends StatefulWidget {
   final String myfId;
@@ -30,9 +33,11 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   Future<void> _showEventDialog({
     DocumentSnapshot<Map<String, dynamic>>? doc,
   }) async {
-    final titleCtrl = TextEditingController(text: doc?.data()?['title'] ?? '');
+    final titleCtrl = TextEditingController(
+      text: doc?.data()?['title'] as String? ?? '',
+    );
     final descCtrl = TextEditingController(
-      text: doc?.data()?['description'] ?? '',
+      text: doc?.data()?['description'] as String? ?? '',
     );
 
     DateTime? selected;
@@ -74,14 +79,14 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       }
     }
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (context, setDialogState) => AlertDialog(
+          builder: (context, setDialogState) => PlatformAlertDialog(
             title: Text(
               doc == null ? 'Add MYF Event' : 'Edit MYF Event',
-              style: context.responsiveHeadlineSmall,
+              style: context.typography.headlineSmall,
             ),
             content: SingleChildScrollView(
               child: SizedBox(
@@ -101,7 +106,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                             : null,
                       ),
 
-                      SizedBox(height: context.spacing(16)),
+                      SizedBox(height: context.spacingMd),
 
                       AppTextField(
                         controller: descCtrl,
@@ -114,7 +119,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                             : null,
                       ),
 
-                      SizedBox(height: context.spacing(16)),
+                      SizedBox(height: context.spacingMd),
 
                       InkWell(
                         onTap: () async {
@@ -122,7 +127,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                           setDialogState(() {});
                         },
                         borderRadius: BorderRadius.circular(
-                          context.responsiveRadius(12),
+                          context.radiusMd.topLeft.x,
                         ),
                         child: Container(
                           padding: context.responsivePadding(
@@ -131,30 +136,34 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+                              color: context.colors.textSecondary.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                             borderRadius: BorderRadius.circular(
-                              context.responsiveRadius(12),
+                              context.radiusMd.topLeft.x,
                             ),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.calendar_today,
-                                color: MyfTheme.primaryRed,
+                                color: context.colors.primary,
                                 size: context.responsiveIconSize(20),
                               ),
-                              SizedBox(width: context.spacing(16)),
+                              SizedBox(width: context.spacingMd),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Date & Time',
-                                      style: context.responsiveLabelMedium
-                                          .copyWith(color: MyfTheme.mediumGray),
+                                      style: context.typography.labelMedium!
+                                          .copyWith(
+                                            color: context.colors.textSecondary,
+                                          ),
                                     ),
-                                    SizedBox(height: context.spacing(4)),
+                                    SizedBox(height: context.spacingXs),
                                     Text(
                                       selected == null
                                           ? 'Select date & time'
@@ -163,11 +172,11 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                                                 .toString()
                                                 .split('.')
                                                 .first,
-                                      style: context.responsiveBodyMedium
+                                      style: context.typography.bodyMedium!
                                           .copyWith(
                                             color: selected == null
-                                                ? MyfTheme.mediumGray
-                                                : MyfTheme.darkGray,
+                                                ? context.colors.textSecondary
+                                                : context.colors.textPrimary,
                                           ),
                                     ),
                                   ],
@@ -191,14 +200,14 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                 label: 'Cancel',
                 onPressed: () => dialogContext.pop(),
               ),
-              SizedBox(width: context.spacing(8)),
+              SizedBox(width: context.spacingSm),
               PrimaryButton(
                 label: doc == null ? 'Add Event' : 'Update Event',
                 loading: loading,
                 onPressed: () async {
                   if (!formKey.currentState!.validate() || selected == null) {
                     if (selected == null) {
-                      MyfTheme.showErrorSnackBar(
+                      AppSnackbars.showError(
                         context,
                         'Please select date and time',
                       );
@@ -231,7 +240,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                     }
 
                     if (dialogContext.mounted) {
-                      MyfTheme.showSuccessSnackBar(
+                      AppSnackbars.showSuccess(
                         context,
                         doc == null
                             ? 'Event added successfully'
@@ -241,7 +250,7 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
                     }
                   } catch (e) {
                     if (mounted) {
-                      MyfTheme.showErrorSnackBar(context, 'Error: $e');
+                      AppSnackbars.showError(context, 'Error: $e');
                     }
                   } finally {
                     if (mounted) {
@@ -260,19 +269,19 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
   Future<void> _handleDeleteEvent(String id, String title) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete Event', style: context.responsiveHeadlineSmall),
+      builder: (context) => PlatformAlertDialog(
+        title: Text('Delete Event', style: context.typography.headlineSmall),
         content: Text(
           'Are you sure you want to delete "$title"? This cannot be undone.',
-          style: context.responsiveBodyMedium,
+          style: context.typography.bodyMedium,
         ),
-        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
+        actionsPadding: EdgeInsets.symmetric(horizontal: context.spacingMd, vertical: context.spacingMd),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
             onPressed: () => context.pop(false),
           ),
-          SizedBox(width: context.spacing(8)),
+          SizedBox(width: context.spacingSm),
           PrimaryButton.danger(
             label: 'Delete',
             onPressed: () => context.pop(true),
@@ -287,36 +296,36 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
       await di.sl<AdminRepository>().deleteEvent('myfs', widget.myfId, id);
 
       if (mounted) {
-        MyfTheme.showSuccessSnackBar(context, 'Event deleted successfully');
+        AppSnackbars.showSuccess(context, 'Event deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Failed to delete event: $e');
+        AppSnackbars.showError(context, 'Failed to delete event: $e');
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.lightGray,
-      appBar: AppBar(
+    return PlatformScaffold(
+      backgroundColor: context.colors.background,
+      appBar: PlatformAppBar(
         title: Text(
           'Manage Events - ${widget.myfTitle}',
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.headlineSmall!.copyWith(
+            color: context.colors.surface,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showEventDialog(),
         tooltip: 'Add Event',
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
         child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -345,58 +354,82 @@ class _MyfsEventsManagementPageState extends State<MyfsEventsManagementPage> {
             );
           }
 
-          return ListView.builder(
-            padding: context.responsivePadding(all: 16),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final d = docs[index];
-              final data = d.data();
-              final raw = data['dateTime'];
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 700;
 
-              DateTime? dt;
-              if (raw is String) dt = DateTime.tryParse(raw);
-              if (raw is Timestamp) dt = raw.toDate();
+              Widget buildItem(BuildContext context, int index) {
+                final d = docs[index];
+                final data = d.data();
+                final raw = data['dateTime'];
 
-              return Column(
-                children: [
-                  InfoCard(
-                    title: data['title'] ?? 'Untitled Event',
-                    subtitle: dt != null
-                        ? dt.toLocal().toString().split(' ').first
-                        : 'No date set',
-                    description: data['description'] ?? 'No description',
-                    icon: Icons.event,
-                    actions: [
-                      Tooltip(
-                        message: 'Edit Event',
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            color: MyfTheme.warningOrange,
-                            size: context.responsiveIconSize(20),
-                          ),
-                          onPressed: () => _showEventDialog(doc: d),
+                DateTime? dt;
+                if (raw is String) dt = DateTime.tryParse(raw);
+                if (raw is Timestamp) dt = raw.toDate();
+
+                return InfoCard(
+                  title: data['title'] as String? ?? 'Untitled Event',
+                  subtitle: dt != null
+                      ? dt.toLocal().toString().split(' ').first
+                      : 'No date set',
+                  description:
+                      data['description'] as String? ?? 'No description',
+                  icon: Icons.event,
+                  actions: [
+                    Tooltip(
+                      message: 'Edit Event',
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: context.colors.warning,
+                          size: context.responsiveIconSize(20),
+                        ),
+                        onPressed: () => _showEventDialog(doc: d),
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Delete Event',
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          color: context.colors.error,
+                          size: context.responsiveIconSize(20),
+                        ),
+                        onPressed: () => _handleDeleteEvent(
+                          d.id,
+                          data['title'] as String? ?? 'Untitled Event',
                         ),
                       ),
-                      Tooltip(
-                        message: 'Delete Event',
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.delete,
-                            color: MyfTheme.errorRed,
-                            size: context.responsiveIconSize(20),
-                          ),
-                          onPressed: () => _handleDeleteEvent(
-                            d.id,
-                            data['title'] ?? 'Untitled Event',
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                );
+              }
+
+              if (isWide) {
+                return GridView.builder(
+                  padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 400,
+                    crossAxisSpacing: context.spacingMd,
+                    mainAxisSpacing: context.spacingMd,
+                    mainAxisExtent: 180,
                   ),
-                  if (index < docs.length - 1)
-                    SizedBox(height: context.spacing(12)),
-                ],
+                  itemCount: docs.length,
+                  itemBuilder: buildItem,
+                );
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index < docs.length - 1 ? context.spacingMd : 0,
+                    ),
+                    child: buildItem(context, index),
+                  );
+                },
               );
             },
           );

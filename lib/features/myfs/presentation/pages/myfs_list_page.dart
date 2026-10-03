@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/features/myfs/presentation/bloc/myfs_bloc.dart';
-import 'package:myf_connect/features/events/presentation/cubit/rating_cubit.dart';
+import 'package:myf_connect/core/blocs/rating/rating_cubit.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class MyfsListPage extends StatelessWidget {
   const MyfsListPage({super.key});
@@ -24,7 +27,7 @@ class MyfsListPage extends StatelessWidget {
       );
     } else {
       debugPrint('MyfsListPage: User lacks permission for $myfTitle');
-      MyfTheme.showErrorSnackBar(
+      AppSnackbars.showError(
         context,
         'Access Denied: You need admin approval to view "$myfTitle". Please contact an administrator.',
       );
@@ -35,8 +38,8 @@ class MyfsListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => di.sl<MyfsBloc>()..add(MyfsSubscriptionRequested()),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('MYF Groups')),
+      child: PlatformScaffold(
+        appBar: PlatformAppBar(title: const Text('MYF Groups')),
         body: BlocBuilder<MyfsBloc, MyfsState>(
           builder: (context, state) {
             if (state.status == MyfsStatus.initial ||
@@ -71,12 +74,12 @@ class MyfsListPage extends StatelessWidget {
 
                 if (isWide) {
                   return GridView.builder(
-                    padding: MyfTheme.paddingM,
+                    padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
                     gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                        SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 400,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                          crossAxisSpacing: context.spacingMd,
+                          mainAxisSpacing: context.spacingMd,
                           mainAxisExtent:
                               180, // Fixed height for InfoCard in grid
                         ),
@@ -103,14 +106,12 @@ class MyfsListPage extends StatelessWidget {
                           userPermissions,
                         ),
                         trailing: BlocProvider(
-                          create: (context) => di.sl<RatingCubit>(
-                            param1: myfId,
-                            param2: false,
-                          )..loadRating(),
+                          create: (context) =>
+                              di.sl<RatingCubit>(param1: myfId, param2: false)
+                                ..loadRating(),
                           child: BlocBuilder<RatingCubit, RatingState>(
                             builder: (context, state) {
-                              if (state is! RatingLoaded ||
-                                  state.count == 0) {
+                              if (state is! RatingLoaded || state.count == 0) {
                                 return const SizedBox.shrink();
                               }
 
@@ -119,17 +120,17 @@ class MyfsListPage extends StatelessWidget {
                               return Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.star,
-                                    color: MyfTheme.warningOrange,
-                                    size: 18,
+                                    color: context.colors.warning,
+                                    size: context.responsiveIconSize(18),
                                   ),
-                                  SizedBox(width: MyfTheme.spacingXS),
+                                  SizedBox(width: context.spacingXs),
                                   Text(
                                     avgRating.toStringAsFixed(1),
-                                    style: MyfTheme.bodyMedium.copyWith(
+                                    style: context.typography.bodyMedium!.copyWith(
                                       fontWeight: FontWeight.w600,
-                                      color: MyfTheme.warningOrange,
+                                      color: context.colors.warning,
                                     ),
                                   ),
                                 ],
@@ -143,7 +144,7 @@ class MyfsListPage extends StatelessWidget {
                 }
 
                 return ListView.builder(
-                  padding: MyfTheme.paddingM,
+                  padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
                   itemCount: myfs.length,
                   itemBuilder: (context, index) {
                     final myf = myfs[index];
@@ -163,10 +164,9 @@ class MyfsListPage extends StatelessWidget {
                       onTap: () =>
                           _handleMyfTap(context, myfId, title, userPermissions),
                       trailing: BlocProvider(
-                        create: (context) => di.sl<RatingCubit>(
-                          param1: myfId,
-                          param2: false,
-                        )..loadRating(),
+                        create: (context) =>
+                            di.sl<RatingCubit>(param1: myfId, param2: false)
+                              ..loadRating(),
                         child: BlocBuilder<RatingCubit, RatingState>(
                           builder: (context, state) {
                             if (state is! RatingLoaded || state.count == 0) {
@@ -178,17 +178,17 @@ class MyfsListPage extends StatelessWidget {
                             return Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.star,
-                                  color: MyfTheme.warningOrange,
-                                  size: 18,
+                                  color: context.colors.warning,
+                                  size: context.responsiveIconSize(18),
                                 ),
-                                SizedBox(width: MyfTheme.spacingXS),
+                                SizedBox(width: context.spacingXs),
                                 Text(
                                   avgRating.toStringAsFixed(1),
-                                  style: MyfTheme.bodyMedium.copyWith(
+                                  style: context.typography.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: MyfTheme.warningOrange,
+                                    color: context.colors.warning,
                                   ),
                                 ),
                               ],

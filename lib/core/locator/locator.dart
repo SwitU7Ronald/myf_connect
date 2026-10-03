@@ -1,17 +1,18 @@
 import 'package:get_it/get_it.dart';
-import 'package:myf_connect/features/auth/data/repositories/auth_repository.dart';
-import 'package:myf_connect/features/auth/data/repositories/user_repository.dart';
+import 'package:myf_connect/core/services/auth/auth_repository.dart';
+import 'package:myf_connect/core/services/users/user_repository.dart';
 import 'package:myf_connect/features/camps/data/repositories/camps_repository.dart';
 import 'package:myf_connect/features/myfs/data/repositories/myfs_repository.dart';
 import 'package:myf_connect/features/events/data/repositories/event_repository.dart';
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
 import 'package:myf_connect/features/auth/presentation/cubit/profile_cubit.dart';
+import 'package:myf_connect/features/auth/data/repositories/profile_repository.dart';
 import 'package:myf_connect/features/camps/presentation/bloc/camps_bloc.dart';
 import 'package:myf_connect/features/myfs/presentation/bloc/myfs_bloc.dart';
 
-import 'package:myf_connect/features/events/presentation/cubit/events_cubit.dart';
-import 'package:myf_connect/features/events/presentation/cubit/rating_cubit.dart';
+import 'package:myf_connect/core/blocs/events/events_cubit.dart';
+import 'package:myf_connect/core/blocs/rating/rating_cubit.dart';
 import 'package:myf_connect/features/admin/presentation/cubit/admin_camps_cubit.dart';
 import 'package:myf_connect/features/admin/presentation/cubit/admin_myfs_cubit.dart';
 import 'package:myf_connect/features/admin/presentation/cubit/admin_users_cubit.dart';
@@ -40,6 +41,7 @@ void init() {
   sl.registerLazySingleton(
     () => AuthRepository(firebaseAuth: sl(), userRepository: sl()),
   );
+  sl.registerLazySingleton(() => ProfileRepository(firestore: sl()));
   sl.registerLazySingleton<CampsRepository>(
     () => CampsRepositoryImpl(firestore: sl()),
   );
@@ -71,21 +73,15 @@ void init() {
   // ── Shared Events & Rating Cubits (parameterised via GetIt params) ─
   // param1 = parentId (String), param2 = isCamp (bool)
   sl.registerFactoryParam<EventsCubit, String, bool>(
-    (parentId, isCamp) => EventsCubit(
-      eventRepository: sl(),
-      parentId: parentId,
-      isCamp: isCamp,
-    ),
+    (parentId, isCamp) =>
+        EventsCubit(eventRepository: sl(), parentId: parentId, isCamp: isCamp),
   );
   sl.registerFactoryParam<RatingCubit, String, bool>(
-    (parentId, isCamp) => RatingCubit(
-      eventRepository: sl(),
-      parentId: parentId,
-      isCamp: isCamp,
-    ),
+    (parentId, isCamp) =>
+        RatingCubit(eventRepository: sl(), parentId: parentId, isCamp: isCamp),
   );
 
-  sl.registerFactory(() => ProfileCubit(campsRepository: sl(), myfsRepository: sl()));
+  sl.registerFactory(() => ProfileCubit(profileRepository: sl()));
 
   sl.registerFactory(() => AdminCampsCubit(adminRepository: sl()));
   sl.registerFactory(() => AdminMyfsCubit(adminRepository: sl()));

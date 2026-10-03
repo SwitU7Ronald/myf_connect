@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class TeamPage extends StatefulWidget {
   const TeamPage({super.key});
@@ -30,7 +33,7 @@ class _TeamPageState extends State<TeamPage> {
     });
 
     try {
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
 
@@ -53,7 +56,7 @@ class _TeamPageState extends State<TeamPage> {
       debugPrint('TeamPage Navigation error: $e');
 
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Navigation error: $e');
+        AppSnackbars.showError(context, 'Navigation error: $e');
         context.go(AppRoutes.welcome);
       }
     } finally {
@@ -67,70 +70,76 @@ class _TeamPageState extends State<TeamPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.primaryRed,
+    return PlatformScaffold(
+      backgroundColor: context.colors.primary,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: MyfTheme.paddingL,
+          padding: EdgeInsets.all(context.spacingLg),
           child: Column(
             children: [
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
               Container(
-                padding: MyfTheme.paddingL,
+                padding: EdgeInsets.all(context.spacingLg),
                 decoration: BoxDecoration(
-                  color: MyfTheme.white.withValues(alpha: 0.1),
+                  color: context.colors.surface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(MyfTheme.radiusXXL),
                 ),
-                child: Icon(Icons.people, size: 80, color: MyfTheme.white),
+                child: Icon(
+                  Icons.people,
+                  size: context.responsiveIconSize(80),
+                  color: context.colors.surface,
+                ),
               ),
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
               Text(
                 'MYF Team',
-                style: MyfTheme.displayMedium.copyWith(color: MyfTheme.white),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: MyfTheme.spacingS),
-              Text(
-                'Meet the Leadership',
-                style: MyfTheme.bodyLarge.copyWith(
-                  color: MyfTheme.white.withValues(alpha: 0.8),
+                style: context.typography.displayMedium!.copyWith(
+                  color: context.colors.surface,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: MyfTheme.spacingXL),
+              SizedBox(height: context.spacingSm),
+              Text(
+                'Meet the Leadership',
+                style: context.typography.bodyLarge!.copyWith(
+                  color: context.colors.surface.withValues(alpha: 0.8),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: context.spacingXl),
               MyfCard(
-                color: MyfTheme.white.withValues(alpha: 0.1),
+                color: context.colors.surface.withValues(alpha: 0.1),
                 child: Column(
                   children: [
                     Text(
                       'Leadership Team',
-                      style: MyfTheme.titleLarge.copyWith(
-                        color: MyfTheme.white,
+                      style: context.typography.titleLarge!.copyWith(
+                        color: context.colors.surface,
                         fontWeight: FontWeight.w600,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: MyfTheme.spacingM),
+                    SizedBox(height: context.spacingMd),
                     Text(
                       'The MYF MYF is led by dedicated individuals committed to serving the MYF with passion and dedication.',
-                      style: MyfTheme.bodyMedium.copyWith(
-                        color: MyfTheme.white.withValues(alpha: 0.8),
+                      style: context.typography.bodyMedium!.copyWith(
+                        color: context.colors.surface.withValues(alpha: 0.8),
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: MyfTheme.spacingXL),
+              SizedBox(height: context.spacingXl),
               Text(
                 'Our Team',
-                style: MyfTheme.headlineSmall.copyWith(
-                  color: MyfTheme.white,
+                style: context.typography.headlineSmall!.copyWith(
+                  color: context.colors.surface,
                   fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
               Row(
                 children: [
                   Expanded(
@@ -140,7 +149,7 @@ class _TeamPageState extends State<TeamPage> {
                       location: 'A\'bad West',
                     ),
                   ),
-                  SizedBox(width: MyfTheme.spacingM),
+                  SizedBox(width: context.spacingMd),
                   Expanded(
                     child: _buildTeamMemberCard(
                       position: 'Vice President',
@@ -150,7 +159,7 @@ class _TeamPageState extends State<TeamPage> {
                   ),
                 ],
               ),
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
               Row(
                 children: [
                   Expanded(
@@ -160,7 +169,7 @@ class _TeamPageState extends State<TeamPage> {
                       location: 'Kathlal',
                     ),
                   ),
-                  SizedBox(width: MyfTheme.spacingM),
+                  SizedBox(width: context.spacingMd),
                   Expanded(
                     child: _buildTeamMemberCard(
                       position: 'Treasurer',
@@ -170,7 +179,7 @@ class _TeamPageState extends State<TeamPage> {
                   ),
                 ],
               ),
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
               Row(
                 children: [
                   Expanded(
@@ -180,7 +189,7 @@ class _TeamPageState extends State<TeamPage> {
                       location: 'A\'bad North',
                     ),
                   ),
-                  SizedBox(width: MyfTheme.spacingM),
+                  SizedBox(width: context.spacingMd),
                   Expanded(
                     child: _buildTeamMemberCard(
                       position: 'Nutrition & Stewardship',
@@ -190,7 +199,7 @@ class _TeamPageState extends State<TeamPage> {
                   ),
                 ],
               ),
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
               Row(
                 children: [
                   Expanded(
@@ -200,7 +209,7 @@ class _TeamPageState extends State<TeamPage> {
                       location: 'Nadiad',
                     ),
                   ),
-                  SizedBox(width: MyfTheme.spacingM),
+                  SizedBox(width: context.spacingMd),
                   Expanded(
                     child: _buildTeamMemberCard(
                       position: 'Outreach & Mission',
@@ -210,7 +219,7 @@ class _TeamPageState extends State<TeamPage> {
                   ),
                 ],
               ),
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
               Row(
                 children: [
                   Expanded(
@@ -220,7 +229,7 @@ class _TeamPageState extends State<TeamPage> {
                       location: 'A\'bad East',
                     ),
                   ),
-                  SizedBox(width: MyfTheme.spacingM),
+                  SizedBox(width: context.spacingMd),
                   Expanded(
                     child: _buildTeamMemberCard(
                       position: 'Sports & Games',
@@ -230,7 +239,7 @@ class _TeamPageState extends State<TeamPage> {
                   ),
                 ],
               ),
-              SizedBox(height: MyfTheme.spacingXL),
+              SizedBox(height: context.spacingXl),
               PrimaryButton.secondary(
                 label: loading
                     ? 'Loading...'
@@ -242,7 +251,7 @@ class _TeamPageState extends State<TeamPage> {
                 fullWidth: true,
                 icon: context.canPop() ? Icons.arrow_back : Icons.arrow_forward,
               ),
-              SizedBox(height: MyfTheme.spacingXL),
+              SizedBox(height: context.spacingXl),
             ],
           ),
         ),
@@ -256,9 +265,9 @@ class _TeamPageState extends State<TeamPage> {
     required String location,
   }) {
     return MyfCard(
-      color: MyfTheme.white.withValues(alpha: 0.1),
+      color: context.colors.surface.withValues(alpha: 0.1),
       child: SizedBox(
-        height: 160,
+        height: context.spacing(160),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -266,11 +275,11 @@ class _TeamPageState extends State<TeamPage> {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(right: MyfTheme.spacingXS),
+                  padding: EdgeInsets.only(right: context.spacingXs),
                   child: Text(
                     position,
-                    style: MyfTheme.titleSmall.copyWith(
-                      color: MyfTheme.white.withValues(alpha: 0.7),
+                    style: context.typography.titleSmall!.copyWith(
+                      color: context.colors.surface.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
                     maxLines: 2,
@@ -285,8 +294,8 @@ class _TeamPageState extends State<TeamPage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   name,
-                  style: MyfTheme.titleMedium.copyWith(
-                    color: MyfTheme.white,
+                  style: context.typography.titleMedium!.copyWith(
+                    color: context.colors.surface,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
@@ -302,15 +311,15 @@ class _TeamPageState extends State<TeamPage> {
                   children: [
                     Icon(
                       Icons.location_on,
-                      color: MyfTheme.white.withValues(alpha: 0.6),
-                      size: 14,
+                      color: context.colors.surface.withValues(alpha: 0.6),
+                      size: context.responsiveIconSize(14),
                     ),
-                    SizedBox(width: 4),
+                    SizedBox(width: context.spacingXs),
                     Expanded(
                       child: Text(
                         location,
-                        style: MyfTheme.bodySmall.copyWith(
-                          color: MyfTheme.white.withValues(alpha: 0.6),
+                        style: context.typography.bodySmall!.copyWith(
+                          color: context.colors.surface.withValues(alpha: 0.6),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

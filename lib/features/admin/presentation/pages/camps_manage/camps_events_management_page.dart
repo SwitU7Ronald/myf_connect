@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:myf_connect/features/events/data/models/event.dart';
+import 'package:myf_connect/core/models/event.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class CampsEventsManagementPage extends StatefulWidget {
   final String campId;
@@ -49,13 +52,13 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
     DateTime? selectedDateTime = event?.dateTime;
     bool loading = false;
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+        builder: (context, setDialogState) => PlatformAlertDialog(
           title: Text(
             event == null ? 'Add Event' : 'Edit Event',
-            style: context.responsiveHeadlineSmall,
+            style: context.typography.headlineSmall,
           ),
           content: SingleChildScrollView(
             child: SizedBox(
@@ -74,7 +77,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                           ? 'Title is required'
                           : null,
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     AppTextField(
                       controller: venueController,
@@ -82,7 +85,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                       hint: 'Enter event venue',
                       textCapitalization: TextCapitalization.words,
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     AppTextField(
                       controller: descriptionController,
@@ -94,7 +97,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                           ? 'Description is required'
                           : null,
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     DatePickerField.dateTime(
                       selectedDateTime: selectedDateTime,
@@ -122,7 +125,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
               label: 'Cancel',
               onPressed: () => dialogContext.pop(),
             ),
-            SizedBox(width: context.spacing(8)),
+            SizedBox(width: context.spacingSm),
             PrimaryButton(
               label: event == null ? 'Add Event' : 'Update Event',
               loading: loading,
@@ -130,7 +133,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                 if (!formKey.currentState!.validate() ||
                     selectedDateTime == null) {
                   if (selectedDateTime == null) {
-                    MyfTheme.showErrorSnackBar(
+                    AppSnackbars.showError(
                       context,
                       'Please select date and time',
                     );
@@ -165,7 +168,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                   }
 
                   if (dialogContext.mounted) {
-                    MyfTheme.showSuccessSnackBar(
+                    AppSnackbars.showSuccess(
                       context,
                       event == null
                           ? 'Event added successfully'
@@ -175,7 +178,7 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
                   }
                 } catch (e) {
                   if (mounted) {
-                    MyfTheme.showErrorSnackBar(context, 'Error: $e');
+                    AppSnackbars.showError(context, 'Error: $e');
                   }
                 } finally {
                   if (mounted) {
@@ -193,19 +196,19 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
   Future<void> _deleteEvent(String eventId, String eventTitle) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete Event', style: context.responsiveHeadlineSmall),
+      builder: (context) => PlatformAlertDialog(
+        title: Text('Delete Event', style: context.typography.headlineSmall),
         content: Text(
           'Are you sure you want to delete "$eventTitle"? This cannot be undone.',
-          style: context.responsiveBodyMedium,
+          style: context.typography.bodyMedium,
         ),
-        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
+        actionsPadding: EdgeInsets.symmetric(horizontal: context.spacingMd, vertical: context.spacingMd),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
             onPressed: () => context.pop(false),
           ),
-          SizedBox(width: context.spacing(8)),
+          SizedBox(width: context.spacingSm),
           PrimaryButton.danger(
             label: 'Delete',
             onPressed: () => context.pop(true),
@@ -224,36 +227,36 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
       );
 
       if (mounted) {
-        MyfTheme.showSuccessSnackBar(context, 'Event deleted successfully');
+        AppSnackbars.showSuccess(context, 'Event deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Error deleting event: $e');
+        AppSnackbars.showError(context, 'Error deleting event: $e');
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.lightGray,
-      appBar: AppBar(
+    return PlatformScaffold(
+      backgroundColor: context.colors.background,
+      appBar: PlatformAppBar(
         title: Text(
           'Manage Events - ${widget.campTitle}',
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.headlineSmall!.copyWith(
+            color: context.colors.surface,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showEventDialog(),
         tooltip: 'Add Event',
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
         child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: StreamBuilder<List<AppEvent>>(
@@ -282,52 +285,77 @@ class _CampsEventsManagementPageState extends State<CampsEventsManagementPage> {
             );
           }
 
-          return ListView.builder(
-            padding: context.responsivePadding(all: 16),
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              final event = events[index];
-              final dateStr = event.dateTime
-                  .toLocal()
-                  .toString()
-                  .split('.')
-                  .first;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 700;
 
-              return Column(
-                children: [
-                  InfoCard(
-                    title: event.title,
-                    subtitle: dateStr,
-                    description: event.description,
-                    icon: Icons.event,
-                    actions: [
-                      Tooltip(
-                        message: 'Edit Event',
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            color: MyfTheme.warningOrange,
-                            size: context.responsiveIconSize(20),
-                          ),
-                          onPressed: () => _showEventDialog(event: event),
+              Widget buildItem(BuildContext context, int index) {
+                final event = events[index];
+                final dateStr = event.dateTime
+                    .toLocal()
+                    .toString()
+                    .split('.')
+                    .first;
+
+                return InfoCard(
+                  title: event.title,
+                  subtitle: dateStr,
+                  description: event.description,
+                  icon: Icons.event,
+                  actions: [
+                    Tooltip(
+                      message: 'Edit Event',
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: context.colors.warning,
+                          size: context.responsiveIconSize(20),
                         ),
+                        onPressed: () => _showEventDialog(event: event),
                       ),
-                      Tooltip(
-                        message: 'Delete Event',
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.delete,
-                            color: MyfTheme.errorRed,
-                            size: context.responsiveIconSize(20),
-                          ),
-                          onPressed: () => _deleteEvent(event.id, event.title),
+                    ),
+                    Tooltip(
+                      message: 'Delete Event',
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          color: context.colors.error,
+                          size: context.responsiveIconSize(20),
                         ),
+                        onPressed: () => _deleteEvent(event.id, event.title),
                       ),
-                    ],
+                    ),
+                  ],
+                );
+              }
+
+              if (isWide) {
+                return GridView.builder(
+                  padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 400,
+                    crossAxisSpacing: context.spacingMd,
+                    mainAxisSpacing: context.spacingMd,
+                    mainAxisExtent: 180,
                   ),
-                  if (index < events.length - 1)
-                    SizedBox(height: context.spacing(12)),
-                ],
+                  itemCount: events.length,
+                  itemBuilder: buildItem,
+                );
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index < events.length - 1
+                          ? context.spacingMd
+                          : 0,
+                    ),
+                    child: buildItem(context, index),
+                  );
+                },
               );
             },
           );

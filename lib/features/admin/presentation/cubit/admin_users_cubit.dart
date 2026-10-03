@@ -9,7 +9,7 @@ part 'admin_users_state.dart';
 
 class AdminUsersCubit extends Cubit<AdminUsersState> {
   final AdminRepository _adminRepository;
-  StreamSubscription? _subscription;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   AdminUsersCubit({required AdminRepository adminRepository})
     : _adminRepository = adminRepository,
@@ -24,7 +24,7 @@ class AdminUsersCubit extends Cubit<AdminUsersState> {
       (snapshot) {
         emit(AdminUsersLoaded(snapshot));
       },
-      onError: (error) {
+      onError: (Object error) {
         emit(AdminUsersError(ErrorHandler.handle(error).message));
       },
     );

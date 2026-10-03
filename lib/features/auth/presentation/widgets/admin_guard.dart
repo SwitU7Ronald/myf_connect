@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
+import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class AdminGuard extends StatelessWidget {
   final Widget child;
@@ -17,16 +20,20 @@ class AdminGuard extends StatelessWidget {
           if (state.isAdmin) {
             return child;
           } else {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Access Denied')),
+            return PlatformScaffold(
+              appBar: PlatformAppBar(title: const Text('Access Denied')),
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.security, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
+                    Icon(
+                      Icons.security,
+                      size: context.responsiveIconSize(64),
+                      color: context.errorColor,
+                    ),
+                    SizedBox(height: context.spacingMd),
                     const Text('You do not have permission to view this page.'),
-                    const SizedBox(height: 16),
+                    SizedBox(height: context.spacingMd),
                     ElevatedButton(
                       onPressed: () => context.go(AppRoutes.mainMenu),
                       child: const Text('Go Back'),
@@ -37,7 +44,7 @@ class AdminGuard extends StatelessWidget {
             );
           }
         } else if (state is AuthLoading) {
-          return const Scaffold(
+          return const PlatformScaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         } else {
@@ -45,7 +52,7 @@ class AdminGuard extends StatelessWidget {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.go(AppRoutes.root);
           });
-          return const Scaffold(
+          return const PlatformScaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }

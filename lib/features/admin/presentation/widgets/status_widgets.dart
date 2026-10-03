@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myf_connect/core/themes/theme.dart';
+import 'package:myf_connect/core/theme/theme.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 enum StatusType { success, warning, error, info, neutral }
 
@@ -39,18 +41,18 @@ class StatusBadge extends StatelessWidget {
     this.isSmall = false,
   }) : type = StatusType.neutral;
 
-  Color get backgroundColor {
+  Color backgroundColor(BuildContext context) {
     switch (type) {
       case StatusType.success:
-        return MyfTheme.successGreen;
+        return context.colors.success;
       case StatusType.warning:
-        return MyfTheme.warningOrange;
+        return context.colors.warning;
       case StatusType.error:
-        return MyfTheme.errorRed;
+        return context.colors.error;
       case StatusType.info:
-        return MyfTheme.infoBlue;
+        return context.colors.info;
       case StatusType.neutral:
-        return MyfTheme.mediumGray;
+        return context.colors.textSecondary;
     }
   }
 
@@ -73,11 +75,11 @@ class StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isSmall ? MyfTheme.spacingS : MyfTheme.spacingM,
-        vertical: isSmall ? MyfTheme.spacingXS : MyfTheme.spacingS,
+        horizontal: isSmall ? context.spacingSm : context.spacingMd,
+        vertical: isSmall ? context.spacingXs : context.spacingSm,
       ),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: backgroundColor(context),
         borderRadius: BorderRadius.circular(
           isSmall ? MyfTheme.radiusS : MyfTheme.radiusM,
         ),
@@ -86,13 +88,13 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: isSmall ? 12 : 14, color: MyfTheme.white),
-            SizedBox(width: MyfTheme.spacingXS),
+            Icon(icon, size: isSmall ? 12 : 14, color: context.colors.surface),
+            SizedBox(width: context.spacingXs),
           ],
           Text(
             text,
-            style: TextStyle(
-              color: MyfTheme.white,
+            style: context.typography.bodyMedium?.copyWith(
+              color: context.colors.surface,
               fontSize: isSmall ? 10 : 12,
               fontWeight: FontWeight.w600,
             ),
@@ -121,14 +123,11 @@ class PermissionChip extends StatelessWidget {
       label: Text(text),
       selected: isSelected,
       onSelected: onChanged,
-      selectedColor: MyfTheme.primaryRed,
-      backgroundColor: MyfTheme.lightGray,
-      labelStyle: TextStyle(
-        color: isSelected ? MyfTheme.white : MyfTheme.darkGray,
-        fontWeight: FontWeight.w500,
-      ),
+      selectedColor: context.colors.primary,
+      backgroundColor: context.colors.background,
+      labelStyle: context.typography.titleMedium,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(MyfTheme.radiusM),
+        borderRadius: context.radiusMd,
       ),
     );
   }
@@ -151,20 +150,20 @@ class CountBadge extends StatelessWidget {
     if (count <= 0) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: MyfTheme.spacingS,
-        vertical: MyfTheme.spacingXS,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.spacingSm,
+        vertical: context.spacingXs,
       ),
       decoration: BoxDecoration(
-        color: backgroundColor ?? MyfTheme.primaryRed,
-        borderRadius: BorderRadius.circular(MyfTheme.radiusM),
+        color: backgroundColor ?? context.colors.primary,
+        borderRadius: context.radiusMd,
       ),
       constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
       child: Text(
         count > 99 ? '99+' : count.toString(),
-        style: TextStyle(
-          color: textColor ?? MyfTheme.white,
-          fontSize: 10,
+        style: context.typography.bodyMedium?.copyWith(
+          color: textColor ?? context.colors.surface,
+          fontSize: context.responsiveFontSize(10),
           fontWeight: FontWeight.bold,
         ),
         textAlign: TextAlign.center,
@@ -193,34 +192,36 @@ class ProgressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: MyfTheme.paddingM,
+        padding: EdgeInsets.all(context.spacingMd),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: MyfTheme.titleMedium),
+            Text(title, style: context.typography.titleMedium!),
             if (subtitle != null) ...[
-              SizedBox(height: MyfTheme.spacingXS),
+              SizedBox(height: context.spacingXs),
               Text(
                 subtitle!,
-                style: MyfTheme.bodySmall.copyWith(color: MyfTheme.mediumGray),
+                style: context.typography.bodySmall!.copyWith(
+                  color: context.colors.textSecondary,
+                ),
               ),
             ],
-            SizedBox(height: MyfTheme.spacingM),
+            SizedBox(height: context.spacingMd),
             LinearProgressIndicator(
               value: progress,
-              backgroundColor: MyfTheme.lightGray,
+              backgroundColor: context.colors.background,
               valueColor: AlwaysStoppedAnimation<Color>(
-                progressColor ?? MyfTheme.primaryRed,
+                progressColor ?? context.colors.primary,
               ),
             ),
             if (progressText != null) ...[
-              SizedBox(height: MyfTheme.spacingS),
+              SizedBox(height: context.spacingSm),
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   progressText!,
-                  style: MyfTheme.bodySmall.copyWith(
-                    color: MyfTheme.mediumGray,
+                  style: context.typography.bodySmall!.copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ),

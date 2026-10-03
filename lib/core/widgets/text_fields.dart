@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myf_connect/core/themes/theme.dart';
+import 'package:myf_connect/core/theme/theme.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class AppTextField extends StatefulWidget {
   final TextEditingController? controller;
@@ -74,9 +76,9 @@ class _AppTextFieldState extends State<AppTextField> {
       focusNode: _focusNode,
       decoration: InputDecoration(
         labelText: widget.label,
-        labelStyle: TextStyle(fontSize: context.responsiveFontSize(14)),
+        labelStyle: context.typography.bodyMedium!,
         hintText: widget.hint,
-        hintStyle: TextStyle(fontSize: context.responsiveFontSize(13)),
+        hintStyle: context.typography.bodyMedium!,
         prefixIcon: widget.prefixIcon != null
             ? Transform.scale(
                 scale: MediaQuery.sizeOf(context).width / 375,
@@ -86,26 +88,27 @@ class _AppTextFieldState extends State<AppTextField> {
         suffixIcon: widget.suffixIcon,
         counterText: widget.maxLength != null ? null : '',
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+          borderRadius: context.radiusMd,
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: MyfTheme.primaryRed, width: 2),
-          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+          borderSide: BorderSide(color: context.colors.primary, width: 2),
+          borderRadius: context.radiusMd,
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: MyfTheme.mediumGray.withValues(alpha: 0.3),
-          ),
-          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+          borderSide: BorderSide.none,
+          borderRadius: context.radiusMd,
         ),
         errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: MyfTheme.errorRed),
-          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+          borderSide: BorderSide(color: context.colors.error),
+          borderRadius: context.radiusMd,
         ),
-        contentPadding: context.responsivePadding(horizontal: 16, vertical: 14),
-        errorStyle: TextStyle(fontSize: context.responsiveFontSize(12)),
+        filled: true,
+        fillColor: context.colors.primary.withValues(alpha: 0.05),
+        contentPadding: context.responsivePadding(horizontal: 16, vertical: 16),
+        errorStyle: context.typography.bodySmall!,
       ),
-      style: TextStyle(fontSize: context.responsiveFontSize(15)),
+      style: context.typography.bodyLarge!,
       textCapitalization: widget.textCapitalization,
       onChanged: widget.onChanged,
       validator: widget.validator,

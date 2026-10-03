@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'
     show QueryDocumentSnapshot;
-import 'package:myf_connect/features/auth/data/models/app_user.dart';
+import 'package:myf_connect/core/models/app_user.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
@@ -14,6 +14,9 @@ import 'package:myf_connect/features/admin/presentation/widgets/users_manage/use
 import 'package:myf_connect/features/admin/presentation/widgets/user_stats_card.dart';
 import 'package:myf_connect/features/admin/presentation/widgets/users_manage/user_card_item.dart';
 import 'dart:async';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class UsersManagementPage extends StatefulWidget {
   const UsersManagementPage({super.key});
@@ -85,7 +88,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
       }
 
       if (mounted) {
-        MyfTheme.showSuccessSnackBar(
+        AppSnackbars.showSuccess(
           context,
           enabled ? 'Camp permission granted' : 'Camp permission removed',
         );
@@ -93,7 +96,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     } catch (e) {
       debugPrint('Error updating camp permission: $e');
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Failed to update camp permission');
+        AppSnackbars.showError(context, 'Failed to update camp permission');
       }
     }
   }
@@ -111,7 +114,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
       }
 
       if (mounted) {
-        MyfTheme.showSuccessSnackBar(
+        AppSnackbars.showSuccess(
           context,
           enabled ? 'MYF permission granted' : 'MYF permission removed',
         );
@@ -119,7 +122,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     } catch (e) {
       debugPrint('Error updating MYF permission: $e');
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Failed to update MYF permission');
+        AppSnackbars.showError(context, 'Failed to update MYF permission');
       }
     }
   }
@@ -144,9 +147,9 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: MyfTheme.lightGray,
-        appBar: _buildAppBar(),
+      child: PlatformScaffold(
+        backgroundColor: context.colors.background,
+        appBar: _buildPlatformAppBar(),
         body: MultiBlocProvider(
           providers: [
             BlocProvider(create: (_) => di.sl<AdminCampsCubit>()),
@@ -208,17 +211,20 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                       final (districts, genders) = _extractFilters(_usersCache);
                       final filtered = _applyFilters(_usersCache);
 
-                      return Column(
-                        children: [
+                      return Padding(
+                        padding: EdgeInsets.only(top: context.appBarOverlap),
+                        child: Column(
+                          children: [
                           UserStatsCard(
                             total: _usersCache.length,
                             filtered: filtered.length,
-                            hasFilters: _search.isNotEmpty ||
-                                        _selectedGender != null ||
-                                        _selectedDistrict != null ||
-                                        _selectedCampId != null ||
-                                        _selectedMyfId != null ||
-                                        _permFilter != PermissionFilter.all,
+                            hasFilters:
+                                _search.isNotEmpty ||
+                                _selectedGender != null ||
+                                _selectedDistrict != null ||
+                                _selectedCampId != null ||
+                                _selectedMyfId != null ||
+                                _permFilter != PermissionFilter.all,
                           ),
 
                           if (_showFilters)
@@ -282,6 +288,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                                   ),
                           ),
                         ],
+                        ),
                       );
                     },
                   );
@@ -294,17 +301,17 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
+  PreferredSizeWidget _buildPlatformAppBar() {
+    return PlatformAppBar(
       title: Text(
         'Users Management',
-        style: context.responsiveHeadlineSmall.copyWith(
-          color: MyfTheme.white,
+        style: context.typography.headlineSmall!.copyWith(
+          color: context.colors.surface,
           fontWeight: FontWeight.bold,
         ),
       ),
-      backgroundColor: MyfTheme.primaryRed,
-      foregroundColor: MyfTheme.white,
+      backgroundColor: context.colors.primary,
+      foregroundColor: context.colors.surface,
       elevation: 0,
       actions: [
         IconButton(
@@ -327,36 +334,52 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
     );
   }
 
-
-
   Widget _buildUserList(
     List<AppUser> users,
     List<Map<String, Object>> camps,
     List<Map<String, Object>> myfs,
   ) {
-    return ListView.separated(
-      controller: _scrollController,
-      padding: context.responsivePadding(all: 16),
-      itemCount: users.length,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      separatorBuilder: (context, index) =>
-          SizedBox(height: context.spacing(12)),
-      itemBuilder: (context, index) {
-        final user = users[index];
-        return UserCardItem(
-          user: user,
-          camps: camps,
-          myfs: myfs,
-          onCampPermissionChanged: (id, enabled) => _setCampPermission(
-            uid: user.uid,
-            campId: id,
-            enabled: enabled,
-          ),
-          onMyfPermissionChanged: (id, enabled) => _setMyfPermission(
-            uid: user.uid,
-            myfId: id,
-            enabled: enabled,
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 700;
+
+        Widget buildItem(BuildContext context, int index) {
+          final user = users[index];
+          return UserCardItem(
+            user: user,
+            camps: camps,
+            myfs: myfs,
+            onCampPermissionChanged: (id, enabled) =>
+                _setCampPermission(uid: user.uid, campId: id, enabled: enabled),
+            onMyfPermissionChanged: (id, enabled) =>
+                _setMyfPermission(uid: user.uid, myfId: id, enabled: enabled),
+          );
+        }
+
+        if (isWide) {
+          return GridView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.all(context.spacingMd),
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 500,
+              crossAxisSpacing: context.spacingMd,
+              mainAxisSpacing: context.spacingMd,
+              mainAxisExtent: 220,
+            ),
+            itemCount: users.length,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            itemBuilder: buildItem,
+          );
+        }
+
+        return ListView.separated(
+          controller: _scrollController,
+          padding: EdgeInsets.all(context.spacingMd),
+          itemCount: users.length,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          separatorBuilder: (context, index) =>
+              SizedBox(height: context.spacingMd),
+          itemBuilder: buildItem,
         );
       },
     );

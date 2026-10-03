@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/core/widgets/widgets.dart';
-import 'package:myf_connect/features/events/presentation/cubit/events_cubit.dart';
-import 'package:myf_connect/features/events/presentation/widgets/event_card.dart';
+import 'package:myf_connect/core/blocs/events/events_cubit.dart';
+import 'package:myf_connect/core/widgets/event_card.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class MyfsDetailPage extends StatefulWidget {
   final String myfId;
@@ -56,19 +58,22 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
               icon: upcoming ? Icons.upcoming : Icons.history,
               title: upcoming ? 'No Upcoming Events' : 'No Past Events',
               description: upcoming
-                  ? 'Check back later for upcoming events in this MYF group.'
-                  : 'No past events found for this MYF group.',
+                  ? 'Check back later for upcoming events in this MYF.'
+                  : 'No past events found for this MYF.',
             );
           }
 
           return ResponsiveConstrainedBox(
             child: ListView.builder(
-              padding: context.responsivePadding(all: 16),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.spacingMd,
+                vertical: context.spacingMd,
+              ),
               itemCount: events.length,
               itemBuilder: (context, index) {
                 final event = events[index];
                 return Padding(
-                  padding: EdgeInsets.only(bottom: context.spacing(12)),
+                  padding: EdgeInsets.only(bottom: context.spacingMd),
                   child: EventCard(
                     title: event.title,
                     description: event.description,
@@ -94,65 +99,127 @@ class _MyfsDetailPageState extends State<MyfsDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.myfTitle,
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: Theme.of(context).appBarTheme.foregroundColor,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Theme.of(context).appBarTheme.foregroundColor,
-          unselectedLabelColor: Theme.of(
-            context,
-          ).appBarTheme.foregroundColor?.withValues(alpha: 0.7),
-          indicatorColor: Theme.of(context).appBarTheme.foregroundColor,
-          labelStyle: TextStyle(
-            fontSize: context.responsiveFontSize(14),
-            fontWeight: FontWeight.w600,
-          ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: context.responsiveFontSize(14),
-            fontWeight: FontWeight.w500,
-          ),
-          tabs: [
-            Tab(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.upcoming, size: context.responsiveIconSize(18)),
-                  SizedBox(width: context.spacing(6)),
-                  const Text('Upcoming'),
-                ],
+    return BlocProvider(
+      create: (context) =>
+          di.sl<EventsCubit>(param1: widget.myfId, param2: false)
+            ..loadEvents(),
+      child: Scaffold(
+        backgroundColor: context.colors.background,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                expandedHeight: 220,
+                pinned: true,
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.surface,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: const EdgeInsets.only(left: 16, bottom: 60),
+                  title: Text(
+                    widget.myfTitle,
+                    style: context.typography.titleLarge!.copyWith(
+                      color: context.colors.surface,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              context.colors.primary,
+                              context.colors.primary.withValues(alpha: 0.7),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: -30,
+                        top: -30,
+                        child: Icon(
+                          Icons.people,
+                          size: 200,
+                          color: context.colors.surface.withValues(alpha: 0.07),
+                        ),
+                      ),
+                      // Bottom scrim for text readability
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.5),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(48),
+                  child: ColoredBox(
+                    color: context.colors.surface,
+                    child: TabBar(
+                      controller: _tabController,
+                      labelColor: context.colors.primary,
+                      unselectedLabelColor: context.colors.textSecondary,
+                      indicatorColor: context.colors.primary,
+                      indicatorWeight: 3,
+                      labelStyle: context.typography.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      unselectedLabelStyle: context.typography.titleMedium,
+                      tabs: [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.upcoming, size: context.responsiveIconSize(18)),
+                              SizedBox(width: context.spacingSm),
+                              const Text('Upcoming'),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.history, size: context.responsiveIconSize(18)),
+                              SizedBox(width: context.spacingSm),
+                              const Text('Past'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            Tab(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.history, size: context.responsiveIconSize(18)),
-                  SizedBox(width: context.spacing(6)),
-                  const Text('Past'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: BlocProvider(
-        create: (context) => di.sl<EventsCubit>(
-          param1: widget.myfId,
-          param2: false,
-        )..loadEvents(),
-        child: TabBarView(
-          controller: _tabController,
-          children: [_buildEventList(true), _buildEventList(false)],
+            ];
+          },
+          body: TabBarView(
+            controller: _tabController,
+            children: [_buildEventList(true), _buildEventList(false)],
+          ),
         ),
       ),
     );

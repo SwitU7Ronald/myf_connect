@@ -4,6 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class MyfsCreatePage extends StatefulWidget {
   const MyfsCreatePage({super.key});
@@ -40,12 +43,12 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
       });
 
       if (mounted) {
-        MyfTheme.showSuccessSnackBar(context, 'MYF created successfully');
+        AppSnackbars.showSuccess(context, 'MYF created successfully');
         navigator.pop();
       }
     } catch (e) {
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Error creating MYF: $e');
+        AppSnackbars.showError(context, 'Error creating MYF: $e');
       }
     } finally {
       if (mounted) {
@@ -56,111 +59,114 @@ class _MyfsCreatePageState extends State<MyfsCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.lightGray,
-      appBar: AppBar(
+    return PlatformScaffold(
+      backgroundColor: context.colors.background,
+      appBar: PlatformAppBar(
         title: Text(
           'Create New MYF',
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.headlineSmall!.copyWith(
+            color: context.colors.surface,
           ),
         ),
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
       ),
       body: LoadingOverlay(
         isLoading: _loading,
         loadingMessage: 'Creating MYF...',
         child: SingleChildScrollView(
-          padding: context.responsivePadding(all: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                MyfCard(
-                  padding: context.responsivePadding(all: 20),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: context.responsivePadding(all: 16),
-                        decoration: BoxDecoration(
-                          color: MyfTheme.primaryRed.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            context.responsiveRadius(20),
+          padding: EdgeInsets.all(context.spacingLg),
+          child: ResponsiveConstrainedBox(
+            maxWidth: 600,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  MyfCard(
+                    padding: EdgeInsets.all(context.spacingLg),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(context.spacingMd),
+                          decoration: BoxDecoration(
+                            color: context.colors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              context.radiusXl.topLeft.x,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.group_add,
+                            size: context.responsiveIconSize(48),
+                            color: context.colors.primary,
                           ),
                         ),
-                        child: Icon(
-                          Icons.group_add,
-                          size: context.responsiveIconSize(48),
-                          color: MyfTheme.primaryRed,
+                        SizedBox(height: context.spacingMd),
+                        Text(
+                          'Create New MYF Group',
+                          style: context.typography.headlineSmall,
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                      SizedBox(height: context.spacing(16)),
-                      Text(
-                        'Create New MYF Group',
-                        style: context.responsiveHeadlineSmall,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: context.spacing(8)),
-                      Text(
-                        'Fill in the details to create a new MYF group',
-                        style: context.responsiveBodyMedium.copyWith(
-                          color: MyfTheme.mediumGray,
+                        SizedBox(height: context.spacingSm),
+                        Text(
+                          'Fill in the details to create a new MYF group',
+                          style: context.typography.bodyMedium!.copyWith(
+                            color: context.colors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: context.spacingLg),
+
+                  AppTextField(
+                    controller: _titleController,
+                    label: 'MYF Title',
+                    hint: 'Enter MYF group title',
+                    textCapitalization: TextCapitalization.words,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Title is required'
+                        : null,
+                  ),
+
+                  SizedBox(height: context.spacingMd),
+
+                  AppTextField(
+                    controller: _descriptionController,
+                    label: 'Description',
+                    hint: 'Enter MYF group description',
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: 4,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Description is required'
+                        : null,
+                  ),
+
+                  SizedBox(height: context.spacingXl),
+
+                  Column(
+                    children: [
+                      PrimaryButton(
+                        label: 'Create MYF',
+                        onPressed: _saveMyf,
+                        loading: _loading,
+                        fullWidth: true,
+                        icon: Icons.add_circle,
+                      ),
+                      SizedBox(height: context.spacingMd),
+                      PrimaryButton.secondary(
+                        label: 'Cancel',
+                        onPressed: _loading ? null : () => context.pop(),
+                        fullWidth: true,
+                        icon: Icons.cancel,
                       ),
                     ],
                   ),
-                ),
 
-                SizedBox(height: context.spacing(24)),
-
-                AppTextField(
-                  controller: _titleController,
-                  label: 'MYF Title',
-                  hint: 'Enter MYF group title',
-                  textCapitalization: TextCapitalization.words,
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Title is required'
-                      : null,
-                ),
-
-                SizedBox(height: context.spacing(16)),
-
-                AppTextField(
-                  controller: _descriptionController,
-                  label: 'Description',
-                  hint: 'Enter MYF group description',
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLines: 4,
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Description is required'
-                      : null,
-                ),
-
-                SizedBox(height: context.spacing(32)),
-
-                Column(
-                  children: [
-                    PrimaryButton(
-                      label: 'Create MYF',
-                      onPressed: _saveMyf,
-                      loading: _loading,
-                      fullWidth: true,
-                      icon: Icons.add_circle,
-                    ),
-                    SizedBox(height: context.spacing(12)),
-                    PrimaryButton.secondary(
-                      label: 'Cancel',
-                      onPressed: _loading ? null : () => context.pop(),
-                      fullWidth: true,
-                      icon: Icons.cancel,
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: context.spacing(24)),
-              ],
+                  SizedBox(height: context.spacingLg),
+                ],
+              ),
             ),
           ),
         ),

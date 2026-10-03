@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class CreditPage extends StatefulWidget {
   const CreditPage({super.key});
@@ -27,7 +30,7 @@ class _CreditPageState extends State<CreditPage> {
     setState(() => _loading = true);
 
     try {
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
 
@@ -51,7 +54,7 @@ class _CreditPageState extends State<CreditPage> {
     } catch (e) {
       debugPrint('CreditPage: Navigation error: $e');
       if (mounted) {
-        MyfTheme.showErrorSnackBar(context, 'Navigation error: $e');
+        AppSnackbars.showError(context, 'Navigation error: $e');
         context.go(AppRoutes.welcome);
       }
     } finally {
@@ -63,30 +66,32 @@ class _CreditPageState extends State<CreditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.primaryRed,
+    return PlatformScaffold(
+      backgroundColor: context.colors.primary,
       bottomNavigationBar: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: MyfTheme.paddingL,
+              padding: EdgeInsets.all(context.spacingLg),
               child: ElevatedButton(
                 onPressed: _loading ? null : _navigateNext,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: MyfTheme.white,
-                  foregroundColor: MyfTheme.primaryRed,
-                  padding: const EdgeInsets.symmetric(vertical: MyfTheme.spacingM),
+                  backgroundColor: context.colors.surface,
+                  foregroundColor: context.colors.primary,
+                  padding: EdgeInsets.symmetric(
+                    vertical: context.spacingMd,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(MyfTheme.radiusL),
+                    borderRadius: context.radiusLg,
                   ),
                 ),
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
-                          color: MyfTheme.primaryRed,
+                          color: context.colors.primary,
                         ),
                       )
                     : Row(
@@ -94,12 +99,12 @@ class _CreditPageState extends State<CreditPage> {
                         children: [
                           Text(
                             context.canPop() ? 'Back' : 'Continue',
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: context.typography.bodyMedium?.copyWith(
+                              fontSize: context.responsiveFontSize(16),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: context.spacingSm),
                           Icon(
                             context.canPop()
                                 ? Icons.arrow_back
@@ -114,40 +119,46 @@ class _CreditPageState extends State<CreditPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: MyfTheme.paddingL,
+          padding: EdgeInsets.all(context.spacingLg),
           child: Column(
             children: [
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
 
               Container(
-                padding: MyfTheme.paddingL,
+                padding: EdgeInsets.all(context.spacingLg),
                 decoration: BoxDecoration(
-                  color: MyfTheme.white.withValues(alpha: 0.1),
+                  color: context.colors.surface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(MyfTheme.radiusXXL),
                 ),
-                child: Icon(Icons.church, size: 80, color: MyfTheme.white),
+                child: Icon(
+                  Icons.church,
+                  size: context.responsiveIconSize(80),
+                  color: context.colors.surface,
+                ),
               ),
 
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
 
               Text(
                 'MYF Connect',
-                style: MyfTheme.displayMedium.copyWith(color: MyfTheme.white),
+                style: context.typography.displayMedium!.copyWith(
+                  color: context.colors.surface,
+                ),
                 textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
 
               Text(
                 'Leaders',
-                style: MyfTheme.headlineMedium.copyWith(
-                  color: MyfTheme.white,
+                style: context.typography.headlineMedium!.copyWith(
+                  color: context.colors.surface,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -159,7 +170,7 @@ class _CreditPageState extends State<CreditPage> {
                     ),
                   ),
 
-                  SizedBox(width: MyfTheme.spacingL),
+                  SizedBox(width: context.spacingLg),
 
                   Expanded(
                     child: _buildRoundedTeamLeaderCard(
@@ -170,18 +181,18 @@ class _CreditPageState extends State<CreditPage> {
                 ],
               ),
 
-              SizedBox(height: MyfTheme.spacingL),
+              SizedBox(height: context.spacingLg),
 
               Text(
                 'Our Team',
-                style: MyfTheme.headlineMedium.copyWith(
-                  color: MyfTheme.white,
+                style: context.typography.headlineMedium!.copyWith(
+                  color: context.colors.surface,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -189,7 +200,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'GRC MYF Youth Director',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -197,7 +208,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'GRC MYF Advisor',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -205,7 +216,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'GRC MYF Advisor',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -213,7 +224,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'Team President',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -221,7 +232,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'Team Secretary',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -229,7 +240,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'Team Treasurer',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -237,7 +248,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'Sports & Entertainment Lead',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -245,7 +256,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'Convenor - Physical Arrangements',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -253,7 +264,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'App Convener',
               ),
 
-              SizedBox(height: MyfTheme.spacingM),
+              SizedBox(height: context.spacingMd),
 
               _buildTeamMemberCard(
                 imagePath: 'assets/mock_avatar.jpg',
@@ -261,7 +272,7 @@ class _CreditPageState extends State<CreditPage> {
                 position: 'App Developer',
               ),
 
-              SizedBox(height: MyfTheme.spacingXL),
+              SizedBox(height: context.spacingXl),
             ],
           ),
         ),
@@ -278,17 +289,17 @@ class _CreditPageState extends State<CreditPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 120,
-          height: 120,
+          width: context.spacing(120),
+          height: context.spacing(120),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: MyfTheme.white.withValues(alpha: 0.3),
+              color: context.colors.surface.withValues(alpha: 0.3),
               width: 3,
             ),
             boxShadow: [
               BoxShadow(
-                color: MyfTheme.black.withValues(alpha: 0.3),
+                color: context.colors.textPrimary.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
@@ -300,14 +311,14 @@ class _CreditPageState extends State<CreditPage> {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey,
+                    color: context.colors.textSecondary.withValues(alpha: 0.3),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.person,
-                    size: 60,
-                    color: Colors.white,
+                    size: context.responsiveIconSize(60),
+                    color: context.colors.surface,
                   ),
                 );
               },
@@ -315,12 +326,12 @@ class _CreditPageState extends State<CreditPage> {
           ),
         ),
 
-        SizedBox(height: MyfTheme.spacingM),
+        SizedBox(height: context.spacingMd),
 
         Text(
           name,
-          style: MyfTheme.titleSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.titleSmall!.copyWith(
+            color: context.colors.surface,
             fontWeight: FontWeight.w600,
           ),
           textAlign: TextAlign.center,
@@ -337,35 +348,35 @@ class _CreditPageState extends State<CreditPage> {
     required String position,
   }) {
     return MyfCard(
-      color: MyfTheme.white.withValues(alpha: 0.1),
+      color: context.colors.surface.withValues(alpha: 0.1),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(MyfTheme.radiusL),
+            borderRadius: context.radiusLg,
             child: Image.asset(
               imagePath,
-              width: 70,
-              height: 70,
+              width: context.spacing(70),
+              height: context.spacing(70),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: 70,
-                  height: 70,
+                  width: context.spacing(70),
+                  height: context.spacing(70),
                   decoration: BoxDecoration(
-                    color: MyfTheme.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(MyfTheme.radiusL),
+                    color: context.colors.surface.withValues(alpha: 0.2),
+                    borderRadius: context.radiusLg,
                   ),
                   child: Icon(
                     Icons.person,
-                    size: 35,
-                    color: MyfTheme.white.withValues(alpha: 0.7),
+                    size: context.responsiveIconSize(35),
+                    color: context.colors.surface.withValues(alpha: 0.7),
                   ),
                 );
               },
             ),
           ),
 
-          SizedBox(width: MyfTheme.spacingM),
+          SizedBox(width: context.spacingMd),
 
           Expanded(
             child: Column(
@@ -373,16 +384,16 @@ class _CreditPageState extends State<CreditPage> {
               children: [
                 Text(
                   name,
-                  style: MyfTheme.titleLarge.copyWith(
-                    color: MyfTheme.white,
+                  style: context.typography.titleLarge!.copyWith(
+                    color: context.colors.surface,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: MyfTheme.spacingXS),
+                SizedBox(height: context.spacingXs),
                 Text(
                   position,
-                  style: MyfTheme.bodyMedium.copyWith(
-                    color: MyfTheme.white.withValues(alpha: 0.8),
+                  style: context.typography.bodyMedium!.copyWith(
+                    color: context.colors.surface.withValues(alpha: 0.8),
                   ),
                 ),
               ],

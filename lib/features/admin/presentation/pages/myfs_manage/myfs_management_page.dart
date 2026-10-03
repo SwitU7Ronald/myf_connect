@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
 import 'package:myf_connect/features/admin/presentation/cubit/admin_myfs_cubit.dart';
-import 'package:myf_connect/features/admin/presentation/pages/myfs_manage/myfs_events_management_page.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class MyfsManagementPage extends StatelessWidget {
   const MyfsManagementPage({super.key});
@@ -19,19 +21,19 @@ class MyfsManagementPage extends StatelessWidget {
   Future<void> _deleteMyf(BuildContext context, String id, String title) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Delete MYF', style: context.responsiveHeadlineSmall),
+      builder: (dialogContext) => PlatformAlertDialog(
+        title: Text('Delete MYF', style: context.typography.headlineSmall),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
-          style: context.responsiveBodyMedium,
+          style: context.typography.bodyMedium,
         ),
-        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
+        actionsPadding: EdgeInsets.symmetric(horizontal: context.spacingMd, vertical: context.spacingMd),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
             onPressed: () => dialogContext.pop(false),
           ),
-          SizedBox(width: context.spacing(8)),
+          SizedBox(width: context.spacingSm),
           PrimaryButton.danger(
             label: 'Delete',
             onPressed: () => dialogContext.pop(true),
@@ -44,7 +46,7 @@ class MyfsManagementPage extends StatelessWidget {
 
     final navigator = Navigator.of(context);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (loadingContext) => PopScope(
@@ -59,7 +61,7 @@ class MyfsManagementPage extends StatelessWidget {
       navigator.pop();
 
       if (context.mounted) {
-        MyfTheme.showSuccessSnackBar(
+        AppSnackbars.showSuccess(
           context,
           'MYF and all events deleted successfully',
         );
@@ -70,7 +72,7 @@ class MyfsManagementPage extends StatelessWidget {
       navigator.pop();
 
       if (context.mounted) {
-        MyfTheme.showErrorSnackBar(
+        AppSnackbars.showError(
           context,
           'Failed to delete MYF: ${e.toString()}',
         );
@@ -84,15 +86,19 @@ class MyfsManagementPage extends StatelessWidget {
     Map<String, dynamic> data,
   ) async {
     final formKey = GlobalKey<FormState>();
-    final titleCtrl = TextEditingController(text: data['title'] ?? '');
-    final descCtrl = TextEditingController(text: data['description'] ?? '');
+    final titleCtrl = TextEditingController(
+      text: data['title'] as String? ?? '',
+    );
+    final descCtrl = TextEditingController(
+      text: data['description'] as String? ?? '',
+    );
     bool loading = false;
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text('Edit MYF', style: context.responsiveHeadlineSmall),
+        builder: (context, setDialogState) => PlatformAlertDialog(
+          title: Text('Edit MYF', style: context.typography.headlineSmall),
           content: SingleChildScrollView(
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.85,
@@ -110,7 +116,7 @@ class MyfsManagementPage extends StatelessWidget {
                           ? 'Title is required'
                           : null,
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     AppTextField(
                       controller: descCtrl,
@@ -136,7 +142,7 @@ class MyfsManagementPage extends StatelessWidget {
               label: 'Cancel',
               onPressed: () => dialogContext.pop(),
             ),
-            SizedBox(width: context.spacing(8)),
+            SizedBox(width: context.spacingSm),
             PrimaryButton(
               label: 'Update MYF',
               loading: loading,
@@ -154,14 +160,14 @@ class MyfsManagementPage extends StatelessWidget {
 
                   if (dialogContext.mounted) {
                     dialogContext.pop();
-                    MyfTheme.showSuccessSnackBar(
+                    AppSnackbars.showSuccess(
                       context,
                       'MYF updated successfully',
                     );
                   }
                 } catch (e) {
                   debugPrint('❌ MYF Update Error: $e');
-                  MyfTheme.showErrorSnackBar(context, 'Error updating MYF: $e');
+                  AppSnackbars.showError(context, 'Error updating MYF: $e');
                 } finally {
                   setDialogState(() => loading = false);
                 }
@@ -175,23 +181,23 @@ class MyfsManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.lightGray,
-      appBar: AppBar(
+    return PlatformScaffold(
+      backgroundColor: context.colors.background,
+      appBar: PlatformAppBar(
         title: Text(
           'MYF Management',
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.headlineSmall!.copyWith(
+            color: context.colors.surface,
           ),
         ),
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCreateMyf(context),
         tooltip: 'Add MYF',
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
         child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: BlocProvider(
@@ -224,75 +230,92 @@ class MyfsManagementPage extends StatelessWidget {
                 );
               }
 
-              return ListView.builder(
-                padding: context.responsivePadding(all: 16),
-                itemCount: myfDocs.length,
-                itemBuilder: (context, index) {
-                  final myf = myfDocs[index];
-                  final data = myf.data() as Map<String, dynamic>;
-                  final myfId = myf.id;
-                  final title = data['title'] ?? 'Untitled MYF';
-                  final description = data['description'] ?? '';
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 700;
 
-                  return Column(
-                    children: [
-                      InfoCard(
-                        title: title,
-                        description: description.isNotEmpty
-                            ? description
-                            : 'No description available',
-                        icon: Icons.group,
-                        actions: [
-                          Tooltip(
-                            message: 'Edit MYF',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                color: MyfTheme.warningOrange,
-                                size: context.responsiveIconSize(20),
-                              ),
-                              onPressed: () =>
-                                  _showEditMyfDialog(context, myfId, data),
+                  Widget buildItem(BuildContext context, int index) {
+                    final myf = myfDocs[index];
+                    final data = myf.data() as Map<String, dynamic>;
+                    final myfId = myf.id;
+                    final title = data['title'] as String? ?? 'Untitled MYF';
+                    final description = data['description'] as String? ?? '';
+
+                    return InfoCard(
+                      title: title,
+                      description: description.isNotEmpty
+                          ? description
+                          : 'No description available',
+                      icon: Icons.group,
+                      actions: [
+                        Tooltip(
+                          message: 'Edit MYF',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: context.colors.warning,
+                              size: context.responsiveIconSize(20),
                             ),
+                            onPressed: () =>
+                                _showEditMyfDialog(context, myfId, data),
                           ),
-                          Tooltip(
-                            message: 'Manage Events',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.event,
-                                color: MyfTheme.infoBlue,
-                                size: context.responsiveIconSize(20),
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => MyfsEventsManagementPage(
-                                      myfId: myfId,
-                                      myfTitle: title,
-                                    ),
-                                  ),
-                                );
-                              },
+                        ),
+                        Tooltip(
+                          message: 'Manage Events',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.event,
+                              color: context.colors.info,
+                              size: context.responsiveIconSize(20),
                             ),
+                            onPressed: () {
+                              context.push('${AppRoutes.adminMyfs}/$myfId/events');
+                            },
                           ),
-                          Tooltip(
-                            message: 'Delete MYF',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: MyfTheme.errorRed,
-                                size: context.responsiveIconSize(20),
-                              ),
-                              onPressed: () =>
-                                  _deleteMyf(context, myfId, title),
+                        ),
+                        Tooltip(
+                          message: 'Delete MYF',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: context.colors.error,
+                              size: context.responsiveIconSize(20),
                             ),
+                            onPressed: () => _deleteMyf(context, myfId, title),
                           ),
-                        ],
-                      ),
-                      if (index < myfDocs.length - 1)
-                        SizedBox(height: context.spacing(12)),
-                    ],
+                        ),
+                      ],
+                    );
+                  }
+
+                  if (isWide) {
+                    return GridView.builder(
+                      padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                      gridDelegate:
+                          SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 400,
+                            crossAxisSpacing: context.spacingMd,
+                            mainAxisSpacing: context.spacingMd,
+                            mainAxisExtent: 200,
+                          ),
+                      itemCount: myfDocs.length,
+                      itemBuilder: buildItem,
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                    itemCount: myfDocs.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index < myfDocs.length - 1
+                              ? context.spacingMd
+                              : 0,
+                        ),
+                        child: buildItem(context, index),
+                      );
+                    },
                   );
                 },
               );

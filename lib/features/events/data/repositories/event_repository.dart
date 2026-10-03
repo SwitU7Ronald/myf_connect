@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:myf_connect/features/events/data/models/event.dart';
+import 'package:myf_connect/core/models/event.dart';
 
 /// Repository for fetching and rating events for both Camps and MYFs.
 ///
@@ -16,11 +16,7 @@ class EventRepository {
   CollectionReference<Map<String, dynamic>> _eventsCol(
     String collection,
     String parentId,
-  ) =>
-      _firestore
-          .collection(collection)
-          .doc(parentId)
-          .collection('events');
+  ) => _firestore.collection(collection).doc(parentId).collection('events');
 
   // ── All Events ────────────────────────────────────────────────────
 
@@ -30,8 +26,9 @@ class EventRepository {
         .orderBy('dateTime')
         .snapshots()
         .map(
-          (snap) =>
-              snap.docs.map((doc) => AppEvent.fromMap(doc.id, doc.data())).toList(),
+          (snap) => snap.docs
+              .map((doc) => AppEvent.fromMap(doc.id, doc.data()))
+              .toList(),
         );
   }
 
@@ -42,8 +39,9 @@ class EventRepository {
         .orderBy('dateTime')
         .snapshots()
         .map(
-          (snap) =>
-              snap.docs.map((doc) => AppEvent.fromMap(doc.id, doc.data())).toList(),
+          (snap) => snap.docs
+              .map((doc) => AppEvent.fromMap(doc.id, doc.data()))
+              .toList(),
         );
   }
 
@@ -54,8 +52,9 @@ class EventRepository {
         .orderBy('dateTime', descending: true)
         .snapshots()
         .map(
-          (snap) =>
-              snap.docs.map((doc) => AppEvent.fromMap(doc.id, doc.data())).toList(),
+          (snap) => snap.docs
+              .map((doc) => AppEvent.fromMap(doc.id, doc.data()))
+              .toList(),
         );
   }
 
@@ -82,8 +81,8 @@ class EventRepository {
 
           for (final doc in snapshot.docs) {
             final data = doc.data();
-            final avgRating = (data['avgRating'] ?? 0.0).toDouble();
-            final numRatings = data['numRatings'] ?? 0;
+            final avgRating = (data['avgRating'] as num? ?? 0.0).toDouble();
+            final numRatings = (data['numRatings'] as num? ?? 0).toInt();
             if (numRatings > 0) {
               totalRating += avgRating;
               eventCount++;
@@ -129,7 +128,7 @@ class EventRepository {
   }) async {
     final eventRef = _eventsCol(collection, parentId).doc(eventId);
 
-    await _firestore.runTransaction((transaction) async {
+    await _firestore.runTransaction<void>((transaction) async {
       final freshEventSnapshot = await transaction.get(eventRef);
 
       if (!freshEventSnapshot.exists) {

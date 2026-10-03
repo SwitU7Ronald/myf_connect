@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:myf_connect/features/camps/data/models/camp.dart';
+import 'package:myf_connect/core/models/camp.dart';
 
 /// Abstract contract for the Camps data source.
 ///
@@ -19,9 +19,13 @@ class CampsRepositoryImpl implements CampsRepository {
 
   @override
   Stream<List<Camp>> getCamps() {
-    return _firestore.collection('camps').orderBy('date').snapshots().map(
-      (snapshot) =>
-          snapshot.docs.map((doc) => Camp.fromFirestore(doc)).toList(),
-    );
+    return _firestore
+        .collection('camps')
+        .orderBy('date')
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Camp.fromFirestore(doc)).toList(),
+        );
   }
 }

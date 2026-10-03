@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'
     show Timestamp, FieldValue;
@@ -8,7 +8,9 @@ import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
 import 'package:myf_connect/features/admin/data/repositories/admin_repository.dart';
 import 'package:myf_connect/features/admin/presentation/cubit/admin_camps_cubit.dart';
-import 'package:myf_connect/features/admin/presentation/pages/camps_manage/camps_events_management_page.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class CampsManagementPage extends StatelessWidget {
   const CampsManagementPage({super.key});
@@ -24,19 +26,19 @@ class CampsManagementPage extends StatelessWidget {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Delete Camp', style: context.responsiveHeadlineSmall),
+      builder: (dialogContext) => PlatformAlertDialog(
+        title: Text('Delete Camp', style: context.typography.headlineSmall),
         content: Text(
           'Are you sure you want to delete "$title" and all its events? This cannot be undone.',
-          style: context.responsiveBodyMedium,
+          style: context.typography.bodyMedium,
         ),
-        actionsPadding: context.responsivePadding(horizontal: 16, vertical: 12),
+        actionsPadding: EdgeInsets.symmetric(horizontal: context.spacingMd, vertical: context.spacingMd),
         actions: [
           PrimaryButton.secondary(
             label: 'Cancel',
             onPressed: () => dialogContext.pop(false),
           ),
-          SizedBox(width: context.spacing(8)),
+          SizedBox(width: context.spacingSm),
           PrimaryButton.danger(
             label: 'Delete',
             onPressed: () => dialogContext.pop(true),
@@ -49,7 +51,7 @@ class CampsManagementPage extends StatelessWidget {
 
     final navigator = Navigator.of(context);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (loadingContext) => PopScope(
@@ -64,7 +66,7 @@ class CampsManagementPage extends StatelessWidget {
       navigator.pop();
 
       if (context.mounted) {
-        MyfTheme.showSuccessSnackBar(
+        AppSnackbars.showSuccess(
           context,
           'Camp and all events deleted successfully',
         );
@@ -75,7 +77,7 @@ class CampsManagementPage extends StatelessWidget {
       navigator.pop();
 
       if (context.mounted) {
-        MyfTheme.showErrorSnackBar(
+        AppSnackbars.showError(
           context,
           'Failed to delete camp: ${e.toString()}',
         );
@@ -89,9 +91,15 @@ class CampsManagementPage extends StatelessWidget {
     Map<String, dynamic> data,
   ) async {
     final formKey = GlobalKey<FormState>();
-    final titleCtrl = TextEditingController(text: data['title'] ?? '');
-    final placeCtrl = TextEditingController(text: data['place'] ?? '');
-    final descCtrl = TextEditingController(text: data['description'] ?? '');
+    final titleCtrl = TextEditingController(
+      text: data['title'] as String? ?? '',
+    );
+    final placeCtrl = TextEditingController(
+      text: data['place'] as String? ?? '',
+    );
+    final descCtrl = TextEditingController(
+      text: data['description'] as String? ?? '',
+    );
 
     DateTime? selectedDate = () {
       final raw = data['date'];
@@ -102,11 +110,11 @@ class CampsManagementPage extends StatelessWidget {
 
     bool loading = false;
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text('Edit Camp', style: context.responsiveHeadlineSmall),
+        builder: (context, setDialogState) => PlatformAlertDialog(
+          title: Text('Edit Camp', style: context.typography.headlineSmall),
           content: SingleChildScrollView(
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.85,
@@ -124,7 +132,7 @@ class CampsManagementPage extends StatelessWidget {
                           ? 'Title is required'
                           : null,
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     AppTextField(
                       controller: placeCtrl,
@@ -135,7 +143,7 @@ class CampsManagementPage extends StatelessWidget {
                           ? 'Place is required'
                           : null,
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     DatePickerField.dateOnly(
                       selectedDateTime: selectedDate,
@@ -148,7 +156,7 @@ class CampsManagementPage extends StatelessWidget {
                       onDateTimeSelected: (date) =>
                           setDialogState(() => selectedDate = date),
                     ),
-                    SizedBox(height: context.spacing(16)),
+                    SizedBox(height: context.spacingMd),
 
                     AppTextField(
                       controller: descCtrl,
@@ -174,14 +182,14 @@ class CampsManagementPage extends StatelessWidget {
               label: 'Cancel',
               onPressed: () => dialogContext.pop(),
             ),
-            SizedBox(width: context.spacing(8)),
+            SizedBox(width: context.spacingSm),
             PrimaryButton(
               label: 'Update Camp',
               loading: loading,
               onPressed: () async {
                 if (!formKey.currentState!.validate() || selectedDate == null) {
                   if (selectedDate == null) {
-                    MyfTheme.showErrorSnackBar(context, 'Please select a date');
+                    AppSnackbars.showError(context, 'Please select a date');
                   }
                   return;
                 }
@@ -211,14 +219,14 @@ class CampsManagementPage extends StatelessWidget {
 
                   if (dialogContext.mounted) {
                     dialogContext.pop();
-                    MyfTheme.showSuccessSnackBar(
+                    AppSnackbars.showSuccess(
                       context,
                       'Camp updated successfully',
                     );
                   }
                 } catch (e) {
                   debugPrint('Camp Update Error: $e');
-                  MyfTheme.showErrorSnackBar(
+                  AppSnackbars.showError(
                     context,
                     'Error updating camp: $e',
                   );
@@ -235,23 +243,23 @@ class CampsManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyfTheme.lightGray,
-      appBar: AppBar(
+    return PlatformScaffold(
+      backgroundColor: context.colors.background,
+      appBar: PlatformAppBar(
         title: Text(
           'Camps Management',
-          style: context.responsiveHeadlineSmall.copyWith(
-            color: MyfTheme.white,
+          style: context.typography.headlineSmall!.copyWith(
+            color: context.colors.surface,
           ),
         ),
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCreateCamp(context),
         tooltip: 'Add Camp',
-        backgroundColor: MyfTheme.primaryRed,
-        foregroundColor: MyfTheme.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.surface,
         child: Icon(Icons.add, size: context.responsiveIconSize(28)),
       ),
       body: BlocProvider(
@@ -284,91 +292,108 @@ class CampsManagementPage extends StatelessWidget {
                 );
               }
 
-              return ListView.builder(
-                padding: context.responsivePadding(all: 16),
-                itemCount: camps.length,
-                itemBuilder: (context, index) {
-                  final camp = camps[index];
-                  final campId = camp.id;
-                  final data = camp.data() as Map<String, dynamic>;
-                  final title = data['title'] ?? 'Unnamed Camp';
-                  final place = data['place'] ?? '';
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 700;
 
-                  String dateStr = '';
-                  final dateVal = data['date'];
-                  if (dateVal is Timestamp) {
-                    dateStr = dateVal
-                        .toDate()
-                        .toLocal()
-                        .toString()
-                        .split(' ')
-                        .first;
-                  } else if (dateVal is String) {
-                    final parsedDate = DateTime.tryParse(dateVal);
-                    dateStr =
-                        parsedDate?.toLocal().toString().split(' ').first ?? '';
+                  Widget buildItem(BuildContext context, int index) {
+                    final camp = camps[index];
+                    final campId = camp.id;
+                    final data = camp.data() as Map<String, dynamic>;
+                    final title = data['title'] as String? ?? 'Unnamed Camp';
+                    final place = data['place'] as String? ?? '';
+
+                    String dateStr = '';
+                    final dateVal = data['date'];
+                    if (dateVal is Timestamp) {
+                      dateStr = dateVal
+                          .toDate()
+                          .toLocal()
+                          .toString()
+                          .split(' ')
+                          .first;
+                    } else if (dateVal is String) {
+                      final parsedDate = DateTime.tryParse(dateVal);
+                      dateStr =
+                          parsedDate?.toLocal().toString().split(' ').first ??
+                          '';
+                    }
+
+                    return InfoCard(
+                      title: title,
+                      subtitle: place.isNotEmpty ? place : null,
+                      description: dateStr.isNotEmpty ? 'Date: $dateStr' : null,
+                      icon: Icons.campaign,
+                      actions: [
+                        Tooltip(
+                          message: 'Edit Camp',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: context.colors.warning,
+                              size: context.responsiveIconSize(20),
+                            ),
+                            onPressed: () =>
+                                _showEditCampDialog(context, campId, data),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Manage Events',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.event,
+                              color: context.colors.info,
+                              size: context.responsiveIconSize(20),
+                            ),
+                            onPressed: () {
+                              context.push('${AppRoutes.adminCamps}/$campId/events');
+                            },
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Delete Camp',
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: context.colors.error,
+                              size: context.responsiveIconSize(20),
+                            ),
+                            onPressed: () =>
+                                _deleteCamp(context, campId, title),
+                          ),
+                        ),
+                      ],
+                    );
                   }
 
-                  return Column(
-                    children: [
-                      InfoCard(
-                        title: title,
-                        subtitle: place.isNotEmpty ? place : null,
-                        description: dateStr.isNotEmpty
-                            ? 'Date: $dateStr'
-                            : null,
-                        icon: Icons.campaign,
-                        actions: [
-                          Tooltip(
-                            message: 'Edit Camp',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                color: MyfTheme.warningOrange,
-                                size: context.responsiveIconSize(20),
-                              ),
-                              onPressed: () =>
-                                  _showEditCampDialog(context, campId, data),
-                            ),
+                  if (isWide) {
+                    return GridView.builder(
+                      padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                      gridDelegate:
+                          SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 400,
+                            crossAxisSpacing: context.spacingMd,
+                            mainAxisSpacing: context.spacingMd,
+                            mainAxisExtent: 200,
                           ),
-                          Tooltip(
-                            message: 'Manage Events',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.event,
-                                color: MyfTheme.infoBlue,
-                                size: context.responsiveIconSize(20),
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => CampsEventsManagementPage(
-                                      campId: campId,
-                                      campTitle: title,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Tooltip(
-                            message: 'Delete Camp',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: MyfTheme.errorRed,
-                                size: context.responsiveIconSize(20),
-                              ),
-                              onPressed: () =>
-                                  _deleteCamp(context, campId, title),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (index < camps.length - 1)
-                        SizedBox(height: context.spacing(12)),
-                    ],
+                      itemCount: camps.length,
+                      itemBuilder: buildItem,
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
+                    itemCount: camps.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index < camps.length - 1
+                              ? context.spacingMd
+                              : 0,
+                        ),
+                        child: buildItem(context, index),
+                      );
+                    },
                   );
                 },
               );

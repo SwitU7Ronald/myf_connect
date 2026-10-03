@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/features/auth/data/models/district_data.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 /// A compound widget that renders the District dropdown and the conditional
 /// Church/MYF dropdown (or text field when "Other" is selected).
@@ -36,15 +38,15 @@ class DistrictMyfSelector extends StatelessWidget {
   }) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(fontSize: context.responsiveFontSize(14)),
+      labelStyle: context.typography.bodyMedium!,
       hintText: hint,
-      hintStyle: TextStyle(fontSize: context.responsiveFontSize(13)),
+      hintStyle: context.typography.bodyMedium!,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+        borderRadius: context.radiusMd,
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: MyfTheme.primaryRed, width: 2),
-        borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+        borderSide: BorderSide(color: context.colors.primary, width: 2),
+        borderRadius: context.radiusMd,
       ),
       contentPadding: context.responsivePadding(horizontal: 16, vertical: 14),
     );
@@ -71,7 +73,7 @@ class DistrictMyfSelector extends StatelessWidget {
                 width: MediaQuery.of(context).size.width - 80,
                 child: Text(
                   district,
-                  style: TextStyle(fontSize: context.responsiveFontSize(14)),
+                  style: context.typography.bodyMedium!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -82,7 +84,7 @@ class DistrictMyfSelector extends StatelessWidget {
           validator: districtValidator,
         ),
 
-        SizedBox(height: context.spacing(16)),
+        SizedBox(height: context.spacingMd),
 
         // --- Church/MYF Selector (conditional) ---
         if (selectedDistrict != null && !_isOtherDistrict)
@@ -102,7 +104,7 @@ class DistrictMyfSelector extends StatelessWidget {
                   width: MediaQuery.of(context).size.width - 80,
                   child: Text(
                     myf,
-                    style: TextStyle(fontSize: context.responsiveFontSize(14)),
+                    style: context.typography.bodyMedium!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

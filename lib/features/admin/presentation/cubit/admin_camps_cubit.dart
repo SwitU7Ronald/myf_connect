@@ -9,7 +9,7 @@ part 'admin_camps_state.dart';
 
 class AdminCampsCubit extends Cubit<AdminCampsState> {
   final AdminRepository _adminRepository;
-  StreamSubscription? _subscription;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   AdminCampsCubit({required AdminRepository adminRepository})
     : _adminRepository = adminRepository,
@@ -24,7 +24,7 @@ class AdminCampsCubit extends Cubit<AdminCampsState> {
       (snapshot) {
         emit(AdminCampsLoaded(snapshot));
       },
-      onError: (error) {
+      onError: (Object error) {
         emit(AdminCampsError(ErrorHandler.handle(error).message));
       },
     );

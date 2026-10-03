@@ -1,16 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:myf_connect/features/auth/data/repositories/auth_repository.dart';
-import 'package:myf_connect/features/auth/data/repositories/user_repository.dart';
-import 'package:myf_connect/features/auth/data/models/app_user.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
+import 'package:myf_connect/core/services/auth/auth_repository.dart';
+import 'package:myf_connect/core/models/app_user.dart';
+import '../../../../helpers/test_helpers.mocks.dart';
 
-import 'auth_bloc_test.mocks.dart';
-
-@GenerateMocks([AuthRepository, UserRepository, User, IdTokenResult])
 void main() {
   late AuthBloc authBloc;
   late MockAuthRepository mockAuthRepository;
@@ -55,7 +50,7 @@ void main() {
     });
 
     blocTest<AuthBloc, AuthState>(
-      'emits [AuthLoading, AuthUnauthenticated] when user is not signed in',
+      'AuthCheckRequested emits [AuthLoading, AuthUnauthenticated] when user is null',
       build: () {
         when(mockAuthRepository.currentUser).thenReturn(null);
         return authBloc;
@@ -65,7 +60,7 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'emits [AuthLoading, AuthNeedsProfileCompletion] when user is signed in but not in database',
+      'AuthCheckRequested emits [AuthLoading, AuthNeedsProfileCompletion] when user is signed in but appUser null',
       build: () {
         when(mockAuthRepository.currentUser).thenReturn(mockUser);
         when(mockUserRepository.getUser('123')).thenAnswer((_) async => null);
@@ -76,7 +71,7 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'emits [AuthLoading, AuthAuthenticated] when user is fully authenticated and profile complete',
+      'AuthCheckRequested emits [AuthLoading, AuthAuthenticated] when profile complete',
       build: () {
         when(mockAuthRepository.currentUser).thenReturn(mockUser);
         when(
@@ -85,10 +80,47 @@ void main() {
         when(
           mockUser.getIdTokenResult(true),
         ).thenAnswer((_) async => mockIdTokenResult);
-        when(mockIdTokenResult.claims).thenReturn({'admin': false});
+        when(mockIdTokenResult.claims).thenReturn({'admin': true});
         return authBloc;
       },
       act: (bloc) => bloc.add(AuthCheckRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthAuthenticated>().having(
+          (state) => state.isAdmin,
+          'isAdmin',
+          true,
+        ),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthCheckRequested emits [AuthLoading, AuthError, AuthUnauthenticated] on error',
+      build: () {
+        when(mockAuthRepository.currentUser).thenThrow(Exception('test'));
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthCheckRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthError>(),
+        isA<AuthUnauthenticated>(),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthLoginRequested emits [AuthLoading, AuthAuthenticated] on success',
+      build: () {
+        when(
+          mockAuthRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => AuthResult.success(mockUser, tAppUser));
+        when(
+          mockUser.getIdTokenResult(true),
+        ).thenAnswer((_) async => mockIdTokenResult);
+        when(mockIdTokenResult.claims).thenReturn({'admin': false});
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthLoginRequested()),
       expect: () => [
         isA<AuthLoading>(),
         isA<AuthAuthenticated>().having(
@@ -100,13 +132,118 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'emits [AuthLoading, AuthUnauthenticated] on AuthLogoutRequested',
+      'AuthLoginRequested emits [AuthLoading, AuthNeedsProfileCompletion] on needsProfileCompletion',
       build: () {
-        when(mockAuthRepository.signOut()).thenAnswer((_) async => {});
+        when(mockAuthRepository.signInWithGoogle()).thenAnswer(
+          (_) async => AuthResult.needsProfileCompletion(mockUser, true),
+        );
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthLoginRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthNeedsProfileCompletion>().having(
+          (state) => state.isNewUser,
+          'isNewUser',
+          true,
+        ),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthLoginRequested emits [AuthLoading, AuthUnauthenticated] on cancelled',
+      build: () {
+        when(
+          mockAuthRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => AuthResult.cancelled());
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthLoginRequested()),
+      expect: () => [isA<AuthLoading>(), isA<AuthUnauthenticated>()],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthLoginRequested emits [AuthLoading, AuthError, AuthUnauthenticated] on error',
+      build: () {
+        when(
+          mockAuthRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => AuthResult.error('error'));
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthLoginRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthError>(),
+        isA<AuthUnauthenticated>(),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthLoginRequested emits [AuthLoading, AuthError, AuthUnauthenticated] on exception',
+      build: () {
+        when(
+          mockAuthRepository.signInWithGoogle(),
+        ).thenThrow(Exception('test'));
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthLoginRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthError>(),
+        isA<AuthUnauthenticated>(),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthLogoutRequested emits [AuthLoading, AuthUnauthenticated]',
+      build: () {
+        when(mockAuthRepository.signOut()).thenAnswer((_) async {});
         return authBloc;
       },
       act: (bloc) => bloc.add(AuthLogoutRequested()),
       expect: () => [isA<AuthLoading>(), isA<AuthUnauthenticated>()],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthLogoutRequested emits [AuthLoading, AuthError, AuthUnauthenticated] on error',
+      build: () {
+        when(mockAuthRepository.signOut()).thenThrow(Exception('test'));
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthLogoutRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthError>(),
+        isA<AuthUnauthenticated>(),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthDeleteAccountRequested emits [AuthLoading, AuthUnauthenticated]',
+      build: () {
+        when(
+          mockAuthRepository.deleteIncompleteAccount(),
+        ).thenAnswer((_) async {});
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthDeleteAccountRequested()),
+      expect: () => [isA<AuthLoading>(), isA<AuthUnauthenticated>()],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthDeleteAccountRequested emits [AuthLoading, AuthError, AuthUnauthenticated] on error',
+      build: () {
+        when(
+          mockAuthRepository.deleteIncompleteAccount(),
+        ).thenThrow(Exception('test'));
+        return authBloc;
+      },
+      act: (bloc) => bloc.add(AuthDeleteAccountRequested()),
+      expect: () => [
+        isA<AuthLoading>(),
+        isA<AuthError>(),
+        isA<AuthUnauthenticated>(),
+      ],
     );
   });
 }

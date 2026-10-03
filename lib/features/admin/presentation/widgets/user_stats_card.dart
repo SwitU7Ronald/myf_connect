@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class UserStatsCard extends StatelessWidget {
   final int total;
@@ -16,9 +18,9 @@ class UserStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MyfCard(
-      margin: context.responsivePadding(horizontal: 16, vertical: 8),
-      padding: context.responsivePadding(all: 16),
-      color: MyfTheme.primaryRed,
+      margin: EdgeInsets.symmetric(horizontal: context.spacingMd, vertical: context.spacingSm),
+      padding: EdgeInsets.all(context.spacingMd),
+      color: context.colors.primary,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -27,14 +29,14 @@ class UserStatsCard extends StatelessWidget {
             children: [
               Text(
                 'Total Users',
-                style: context.responsiveBodySmall.copyWith(
-                  color: MyfTheme.white.withValues(alpha: 0.8),
+                style: context.typography.bodySmall!.copyWith(
+                  color: context.colors.surface.withValues(alpha: 0.8),
                 ),
               ),
               Text(
                 '$total',
-                style: context.responsiveHeadlineMedium.copyWith(
-                  color: MyfTheme.white,
+                style: context.typography.headlineMedium!.copyWith(
+                  color: context.colors.surface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -44,23 +46,23 @@ class UserStatsCard extends StatelessWidget {
             Container(
               padding: context.responsivePadding(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: MyfTheme.white.withValues(alpha: 0.2),
+                color: context.colors.surface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(
-                  context.responsiveRadius(20),
+                  context.radiusXl.topLeft.x,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.filter_alt,
-                    color: MyfTheme.white,
+                    color: context.colors.surface,
                     size: context.responsiveIconSize(16),
                   ),
-                  SizedBox(width: context.spacing(4)),
+                  SizedBox(width: context.spacingXs),
                   Text(
                     'Filtered: $filtered',
-                    style: context.responsiveBodyMedium.copyWith(
-                      color: MyfTheme.white,
+                    style: context.typography.bodyMedium!.copyWith(
+                      color: context.colors.surface,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

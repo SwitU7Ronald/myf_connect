@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/constants/app_strings.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -78,10 +81,9 @@ class _WelcomePageState extends State<WelcomePage> {
           final displayName = state.user.displayName ?? '';
           final extractedNames = _extractNamesFromDisplayName(displayName);
 
-          Navigator.pushReplacementNamed(
-            context,
+          context.go(
             AppRoutes.signupDetails,
-            arguments: {
+            extra: {
               'email': state.user.email,
               'displayName': displayName,
               'firstName': extractedNames['firstName'],
@@ -92,7 +94,7 @@ class _WelcomePageState extends State<WelcomePage> {
             },
           );
         } else if (state is AuthError) {
-          MyfTheme.showErrorSnackBar(
+          AppSnackbars.showError(
             context,
             'Sign-in error: ${state.message}',
           );
@@ -101,110 +103,137 @@ class _WelcomePageState extends State<WelcomePage> {
       builder: (context, state) {
         final isLoading = state is AuthLoading;
 
-        return Scaffold(
-          backgroundColor: MyfTheme.primaryRed,
+        return PlatformScaffold(
+          backgroundColor: context.colors.primary,
           body: SafeArea(
             child: Padding(
-              padding: context.responsivePadding(all: 24),
-              child: ResponsiveConstrainedBox(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-
-                    Container(
-                      padding: context.responsivePadding(all: 24),
-                      decoration: BoxDecoration(
-                        color: MyfTheme.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          context.responsiveRadius(20),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.church,
-                        size: context.responsiveIconSize(80),
-                        color: MyfTheme.white,
-                      ),
-                    ),
-
-                    SizedBox(height: context.spacing(24)),
-
-                    Text(
-                      'MYF Connect',
-                      style: context.responsiveDisplayMedium.copyWith(
-                        color: MyfTheme.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    SizedBox(height: context.spacing(12)),
-
-                    Text(
-                      'Connect with MYF Camps & MYF',
-                      style: context.responsiveBodyLarge.copyWith(
-                        color: MyfTheme.white.withValues(alpha: 0.8),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    SizedBox(height: context.spacing(48)),
-
-                    MyfCard(
-                      color: MyfTheme.white.withValues(alpha: 0.1),
-                      padding: context.responsivePadding(all: 20),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: context.responsiveIconSize(24),
-                            color: MyfTheme.white,
+              padding: EdgeInsets.all(context.spacingLg),
+              child: Center(
+                // Ensures proper centering on ultra-wide Mac screens
+                child: ResponsiveConstrainedBox(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // This pattern allows Spacers to work while still providing scrolling on small desktop windows
+                      return SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                          SizedBox(height: context.spacing(12)),
-                          Text(
-                            AppStrings.signInWithGooglePrompt,
-                            style: context.responsiveBodyMedium.copyWith(
-                              color: MyfTheme.white,
+                          child: IntrinsicHeight(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Spacer(),
+
+                                Container(
+                                  padding: EdgeInsets.all(context.spacingLg),
+                                  decoration: BoxDecoration(
+                                    color: context.colors.surface.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      context.radiusXl.topLeft.x,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.church,
+                                    size: context.responsiveIconSize(80),
+                                    color: context.colors.surface,
+                                  ),
+                                ),
+
+                                SizedBox(height: context.spacingLg),
+
+                                Text(
+                                  'MYF Connect',
+                                  style: context.responsiveDisplayMedium
+                                      .copyWith(color: context.colors.surface),
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: context.spacingMd),
+
+                                Text(
+                                  'Connect with MYF Camps & MYF',
+                                  style: context.typography.bodyLarge!.copyWith(
+                                    color: context.colors.surface.withValues(
+                                      alpha: 0.8,
+                                    ),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: context.spacingXxl),
+
+                                MyfCard(
+                                  color: context.colors.surface.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  padding: EdgeInsets.all(context.spacingLg),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        size: context.responsiveIconSize(24),
+                                        color: context.colors.surface,
+                                      ),
+                                      SizedBox(height: context.spacingMd),
+                                      Text(
+                                        AppStrings.signInWithGooglePrompt,
+                                        style: context.typography.bodyMedium!
+                                            .copyWith(
+                                              color: context.colors.surface,
+                                            ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                SizedBox(height: context.spacingXl),
+
+                                PrimaryButton(
+                                  label: AppStrings.continueWithGoogle,
+                                  onPressed: isLoading
+                                      ? null
+                                      : _continueWithGoogle,
+                                  loading: isLoading,
+                                  fullWidth: true,
+                                  icon: Icons.login,
+                                ),
+
+                                SizedBox(height: context.spacingMd),
+
+                                PrimaryButton.secondary(
+                                  label: AppStrings.credits,
+                                  onPressed: isLoading
+                                      ? null
+                                      : () {
+                                          context.push(AppRoutes.credit);
+                                        },
+                                  fullWidth: true,
+                                  icon: Icons.info,
+                                ),
+
+                                const Spacer(),
+
+                                Text(
+                                  'Version 1.0.0',
+                                  style: context.typography.bodySmall!.copyWith(
+                                    color: context.colors.surface.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                  ),
+                                ),
+
+                                SizedBox(height: context.spacingSm),
+                              ],
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: context.spacing(32)),
-
-                    PrimaryButton(
-                      label: AppStrings.continueWithGoogle,
-                      onPressed: isLoading ? null : _continueWithGoogle,
-                      loading: isLoading,
-                      fullWidth: true,
-                      icon: Icons.login,
-                    ),
-
-                    SizedBox(height: context.spacing(12)),
-
-                    PrimaryButton.secondary(
-                      label: AppStrings.credits,
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              context.push(AppRoutes.credit);
-                            },
-                      fullWidth: true,
-                      icon: Icons.info,
-                    ),
-
-                    const Spacer(),
-
-                    Text(
-                      'Version 1.0.0',
-                      style: context.responsiveBodySmall.copyWith(
-                        color: MyfTheme.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-
-                    SizedBox(height: context.spacing(8)),
-                  ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

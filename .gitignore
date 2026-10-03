@@ -156,4 +156,4 @@ ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 
 # CI/CD
-.github/
+.github/.env

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/features/camps/presentation/bloc/camps_bloc.dart';
-import 'package:myf_connect/features/events/presentation/cubit/rating_cubit.dart';
+import 'package:myf_connect/core/blocs/rating/rating_cubit.dart';
+import 'package:myf_connect/core/models/camp.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class CampsListPage extends StatelessWidget {
   const CampsListPage({super.key});
@@ -24,7 +28,7 @@ class CampsListPage extends StatelessWidget {
       );
     } else {
       debugPrint('CampsListPage: User lacks permission for $campTitle');
-      MyfTheme.showErrorSnackBar(
+      AppSnackbars.showError(
         context,
         'Access Denied: You need admin approval to view "$campTitle". Please contact an administrator.',
       );
@@ -36,8 +40,8 @@ class CampsListPage extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           di.sl<CampsBloc>()..add(CampsSubscriptionRequested()),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Camps')),
+      child: PlatformScaffold(
+        appBar: PlatformAppBar(title: const Text('Camps')),
         body: BlocBuilder<CampsBloc, CampsState>(
           builder: (context, state) {
             if (state.status == CampsStatus.initial ||
@@ -72,12 +76,12 @@ class CampsListPage extends StatelessWidget {
 
                 if (isWide) {
                   return GridView.builder(
-                    padding: MyfTheme.paddingM,
+                    padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
                     gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                        SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 400,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                          crossAxisSpacing: context.spacingMd,
+                          mainAxisSpacing: context.spacingMd,
                           mainAxisExtent: 180,
                         ),
                     itemCount: camps.length,
@@ -92,7 +96,7 @@ class CampsListPage extends StatelessWidget {
                 }
 
                 return ListView.builder(
-                  padding: MyfTheme.paddingM,
+                  padding: EdgeInsets.only(top: context.appBarOverlap + context.spacingMd, left: context.spacingMd, right: context.spacingMd, bottom: context.spacingMd),
                   itemCount: camps.length,
                   itemBuilder: (context, index) {
                     return _buildCampItem(
@@ -112,7 +116,7 @@ class CampsListPage extends StatelessWidget {
 
   Widget _buildCampItem(
     BuildContext context,
-    dynamic camp,
+    Camp camp,
     List<String> userPermissions,
   ) {
     final campId = camp.id;
@@ -136,10 +140,8 @@ class CampsListPage extends StatelessWidget {
       isLocked: !hasPermission,
       onTap: () => _handleCampTap(context, campId, title, userPermissions),
       trailing: BlocProvider(
-        create: (context) => di.sl<RatingCubit>(
-          param1: campId,
-          param2: true,
-        )..loadRating(),
+        create: (context) =>
+            di.sl<RatingCubit>(param1: campId, param2: true)..loadRating(),
         child: BlocBuilder<RatingCubit, RatingState>(
           builder: (context, state) {
             if (state is! RatingLoaded || state.count == 0) {
@@ -149,13 +151,13 @@ class CampsListPage extends StatelessWidget {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: MyfTheme.warningOrange, size: 18),
-                SizedBox(width: MyfTheme.spacingXS),
+                Icon(Icons.star, color: context.colors.warning, size: 18),
+                SizedBox(width: context.spacingXs),
                 Text(
                   state.avgRating.toStringAsFixed(1),
-                  style: MyfTheme.bodyMedium.copyWith(
+                  style: context.typography.bodyMedium!.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: MyfTheme.warningOrange,
+                    color: context.colors.warning,
                   ),
                 ),
               ],

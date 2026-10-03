@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:myf_connect/core/config/app_router.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/locator/locator.dart' as di;
-import 'package:myf_connect/features/auth/data/models/app_user.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:myf_connect/core/models/app_user.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
 import 'package:myf_connect/features/auth/presentation/cubit/profile_cubit.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_snackbars.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,19 +19,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authState = context.read<AuthBloc>().state;
-      if (authState is AuthAuthenticated) {
-        context.read<ProfileCubit>().loadOrganizedPermissions(
-          authState.appUser.permissions,
-        );
-      }
-    });
-  }
-
   Future<void> logout() async {
     context.read<AuthBloc>().add(AuthLogoutRequested());
   }
@@ -40,7 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
         if (state is AuthUnauthenticated) {
           context.go(AppRoutes.welcome);
         } else if (state is AuthError) {
-          MyfTheme.showErrorSnackBar(context, state.message);
+          AppSnackbars.showError(context, state.message);
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
@@ -49,34 +39,36 @@ class _ProfilePageState extends State<ProfilePage> {
             final userModel = state.appUser;
 
             return BlocProvider(
-              create: (_) => di.sl<ProfileCubit>(),
-              child: Scaffold(
-                backgroundColor: MyfTheme.lightGray,
-                appBar: AppBar(
+              create: (_) =>
+                  di.sl<ProfileCubit>()
+                    ..loadOrganizedPermissions(userModel.permissions),
+              child: PlatformScaffold(
+                backgroundColor: context.colors.background,
+                appBar: PlatformAppBar(
                   title: const Text('Profile'),
-                  backgroundColor: MyfTheme.primaryRed,
-                  foregroundColor: MyfTheme.white,
+                  backgroundColor: context.colors.primary,
+                  foregroundColor: context.colors.surface,
                 ),
-                body: SafeArea(
+                body: Padding(padding: EdgeInsets.only(top: context.appBarOverlap), child: SafeArea(
                   child: ResponsiveConstrainedBox(
                     child: Column(
                       children: [
                         Expanded(
                           child: SingleChildScrollView(
-                            padding: MyfTheme.paddingL,
+                            padding: EdgeInsets.all(context.spacingLg),
                             child: Column(
                               children: [
                                 buildProfileCard(userModel),
-                                SizedBox(height: MyfTheme.spacingL),
+                                SizedBox(height: context.spacingLg),
                                 buildPersonalDetailsCard(userModel),
-                                SizedBox(height: MyfTheme.spacingL),
+                                SizedBox(height: context.spacingLg),
                                 buildPermissionsCard(userModel),
                               ],
                             ),
                           ),
                         ),
                         Container(
-                          padding: MyfTheme.paddingM,
+                          padding: EdgeInsets.all(context.spacingMd),
                           child: Column(
                             children: [
                               Row(
@@ -84,20 +76,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Expanded(
                                     child: PrimaryButton.secondary(
                                       label: 'Credits',
-                                      onPressed: () => Navigator.pushNamed(
-                                        context,
+                                      onPressed: () => context.push(
                                         AppRoutes.credit,
                                       ),
                                       fullWidth: true,
                                       icon: Icons.info_outline,
                                     ),
                                   ),
-                                  SizedBox(width: MyfTheme.spacingM),
+                                  SizedBox(width: context.spacingMd),
                                   Expanded(
                                     child: PrimaryButton.secondary(
                                       label: 'Team',
-                                      onPressed: () => Navigator.pushNamed(
-                                        context,
+                                      onPressed: () => context.push(
                                         AppRoutes.team,
                                       ),
                                       fullWidth: true,
@@ -106,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: MyfTheme.spacingM),
+                              SizedBox(height: context.spacingMd),
                               SizedBox(
                                 width: double.infinity,
                                 child: PrimaryButton.danger(
@@ -123,16 +113,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
+                ),
               ),
             );
           }
 
-          return Scaffold(
-            backgroundColor: MyfTheme.lightGray,
-            appBar: AppBar(
+          return PlatformScaffold(
+            backgroundColor: context.colors.background,
+            appBar: PlatformAppBar(
               title: const Text('Profile'),
-              backgroundColor: MyfTheme.primaryRed,
-              foregroundColor: MyfTheme.white,
+              backgroundColor: context.colors.primary,
+              foregroundColor: context.colors.surface,
             ),
             body: const LoadingWidget(message: 'Loading profile...'),
           );
@@ -149,45 +140,45 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: MyfTheme.primaryRed,
+            backgroundColor: context.colors.primary,
             child: Text(
               (userModel.firstName?.isNotEmpty ?? false)
                   ? userModel.firstName!.substring(0, 1).toUpperCase()
                   : '?',
-              style: MyfTheme.displaySmall.copyWith(
-                color: MyfTheme.white,
+              style: context.typography.displaySmall!.copyWith(
+                color: context.colors.surface,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          SizedBox(height: MyfTheme.spacingM),
+          SizedBox(height: context.spacingMd),
           if (userModel.nickname?.isNotEmpty ?? false) ...[
             Text(
               userModel.nickname!,
-              style: MyfTheme.titleLarge.copyWith(
+              style: context.typography.titleLarge!.copyWith(
                 fontStyle: FontStyle.italic,
-                color: MyfTheme.primaryRed,
+                color: context.colors.primary,
                 fontWeight: FontWeight.w700,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: MyfTheme.spacingS),
+            SizedBox(height: context.spacingSm),
           ],
           Text(
             '${userModel.firstName ?? '-'} ${userModel.lastName ?? ''}',
-            style: MyfTheme.headlineSmall,
+            style: context.typography.headlineSmall!,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: MyfTheme.spacingS),
+          SizedBox(height: context.spacingSm),
           Text(
             userModel.phone,
-            style: MyfTheme.bodyLarge.copyWith(color: MyfTheme.mediumGray),
+            style: context.typography.bodyLarge!.copyWith(color: context.colors.textSecondary),
           ),
           if (userModel.email?.isNotEmpty ?? false) ...[
-            SizedBox(height: MyfTheme.spacingXS),
+            SizedBox(height: context.spacingXs),
             Text(
               userModel.email!,
-              style: MyfTheme.bodySmall.copyWith(color: MyfTheme.mediumGray),
+              style: context.typography.bodySmall!.copyWith(color: context.colors.textSecondary),
             ),
           ],
         ],
@@ -201,11 +192,11 @@ class _ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Personal Details', style: MyfTheme.titleLarge),
+          Text('Personal Details', style: context.typography.titleLarge!),
           Divider(
-            height: MyfTheme.spacingL,
+            height: context.spacingLg,
             thickness: 1.2,
-            color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+            color: context.colors.textSecondary.withValues(alpha: 0.3),
           ),
           buildDetailRow(
             'Birthdate',
@@ -227,15 +218,19 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Row(
             children: [
-              Icon(Icons.verified_user, color: MyfTheme.primaryRed, size: 24),
-              SizedBox(width: MyfTheme.spacingS),
-              Text('Approved Permissions', style: MyfTheme.titleLarge),
+              Icon(
+                Icons.verified_user,
+                color: context.colors.primary,
+                size: context.responsiveIconSize(24),
+              ),
+              SizedBox(width: context.spacingSm),
+              Text('Approved Permissions', style: context.typography.titleLarge!),
             ],
           ),
           Divider(
-            height: MyfTheme.spacingL,
+            height: context.spacingLg,
             thickness: 1.2,
-            color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+            color: context.colors.textSecondary.withValues(alpha: 0.3),
           ),
           Builder(
             builder: (context) {
@@ -271,18 +266,18 @@ class _ProfilePageState extends State<ProfilePage> {
                               title: 'Camp Permissions',
                               icon: Icons.campaign,
                               permissions: campPerms,
-                              color: MyfTheme.primaryRed,
+                              color: context.colors.primary,
                               emptyMessage: 'No camp permissions',
                             ),
                           ),
-                          SizedBox(width: MyfTheme.spacingM),
+                          SizedBox(width: context.spacingMd),
 
                           Expanded(
                             child: _buildPermissionColumn(
                               title: 'MYF Permissions',
                               icon: Icons.group,
                               permissions: myfPerms,
-                              color: MyfTheme.infoBlue,
+                              color: context.colors.info,
                               emptyMessage: 'No MYF permissions',
                             ),
                           ),
@@ -313,12 +308,12 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Row(
           children: [
-            Icon(icon, color: color, size: 18),
-            SizedBox(width: MyfTheme.spacingXS),
+            Icon(icon, color: color, size: context.responsiveIconSize(18)),
+            SizedBox(width: context.spacingXs),
             Expanded(
               child: Text(
                 title,
-                style: MyfTheme.titleSmall.copyWith(
+                style: context.typography.titleSmall!.copyWith(
                   color: color,
                   fontWeight: FontWeight.bold,
                 ),
@@ -327,34 +322,34 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
-        SizedBox(height: MyfTheme.spacingXS),
+        SizedBox(height: context.spacingXs),
 
         Container(
           padding: EdgeInsets.symmetric(
-            horizontal: MyfTheme.spacingS,
+            horizontal: context.spacingSm,
             vertical: 2,
           ),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(MyfTheme.radiusS),
+            borderRadius: context.radiusSm,
           ),
           child: Text(
             '${permissions.length} ${permissions.length == 1 ? 'permission' : 'permissions'}',
-            style: MyfTheme.bodySmall.copyWith(
+            style: context.typography.bodySmall!.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        SizedBox(height: MyfTheme.spacingS),
+        SizedBox(height: context.spacingSm),
 
         Expanded(
           child: Container(
             width: double.infinity,
-            padding: MyfTheme.paddingM,
+            padding: EdgeInsets.all(context.spacingMd),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(MyfTheme.radiusM),
+              borderRadius: context.radiusMd,
               border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
             child: permissions.isEmpty
@@ -368,19 +363,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         return Padding(
                           padding: EdgeInsets.only(
                             bottom: index < permissions.length - 1
-                                ? MyfTheme.spacingS
+                                ? context.spacingSm
                                 : 0,
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.check_circle, color: color, size: 16),
-                              SizedBox(width: MyfTheme.spacingXS),
+                              Icon(
+                                Icons.check_circle,
+                                color: color,
+                                size: context.responsiveIconSize(16),
+                              ),
+                              SizedBox(width: context.spacingXs),
                               Expanded(
                                 child: Text(
                                   permTitle,
-                                  style: MyfTheme.bodySmall.copyWith(
-                                    color: MyfTheme.darkGray,
+                                  style: context.typography.bodySmall!.copyWith(
+                                    color: context.colors.textPrimary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -400,12 +399,16 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildEmptyPermissionState(String message, Color color) {
     return Column(
       children: [
-        Icon(Icons.lock_outline, color: color.withValues(alpha: 0.3), size: 32),
-        SizedBox(height: MyfTheme.spacingS),
+        Icon(
+          Icons.lock_outline,
+          color: color.withValues(alpha: 0.3),
+          size: context.responsiveIconSize(32),
+        ),
+        SizedBox(height: context.spacingSm),
         Text(
           message,
-          style: MyfTheme.bodySmall.copyWith(
-            color: MyfTheme.mediumGray,
+          style: context.typography.bodySmall!.copyWith(
+            color: context.colors.textSecondary,
             fontStyle: FontStyle.italic,
           ),
           textAlign: TextAlign.center,
@@ -416,7 +419,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MyfTheme.spacingM),
+      padding: EdgeInsets.only(bottom: context.spacingMd),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -424,10 +427,10 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 3,
             child: Text(
               label,
-              style: MyfTheme.titleSmall.copyWith(color: MyfTheme.mediumGray),
+              style: context.typography.titleSmall!.copyWith(color: context.colors.textSecondary),
             ),
           ),
-          Expanded(flex: 5, child: Text(value, style: MyfTheme.bodyMedium)),
+          Expanded(flex: 5, child: Text(value, style: context.typography.bodyMedium!)),
         ],
       ),
     );

@@ -29,27 +29,24 @@ void main() {
       'emits [AdminEventsLoading] then stops when stream is empty',
       build: () => AdminEventsCubit(adminRepository: mockAdminRepository),
       act: (cubit) {
-        when(mockAdminRepository.getEventsStream(collectionType, parentId))
-            .thenAnswer((_) => const Stream.empty());
+        when(
+          mockAdminRepository.getEventsStream(collectionType, parentId),
+        ).thenAnswer((_) => const Stream.empty());
         cubit.loadEvents(collectionType, parentId);
       },
-      expect: () => [
-        isA<AdminEventsLoading>(),
-      ],
+      expect: () => [isA<AdminEventsLoading>()],
     );
 
     blocTest<AdminEventsCubit, AdminEventsState>(
       'emits [AdminEventsLoading, AdminEventsError] when repository throws',
       build: () {
-        when(mockAdminRepository.getEventsStream(collectionType, parentId))
-            .thenAnswer((_) => Stream.error(Exception('Permission denied')));
+        when(
+          mockAdminRepository.getEventsStream(collectionType, parentId),
+        ).thenAnswer((_) => Stream.error(Exception('Permission denied')));
         return AdminEventsCubit(adminRepository: mockAdminRepository);
       },
       act: (cubit) => cubit.loadEvents(collectionType, parentId),
-      expect: () => [
-        isA<AdminEventsLoading>(),
-        isA<AdminEventsError>(),
-      ],
+      expect: () => [isA<AdminEventsLoading>(), isA<AdminEventsError>()],
     );
   });
 }

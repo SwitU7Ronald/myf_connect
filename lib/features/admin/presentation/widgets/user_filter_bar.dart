@@ -3,6 +3,8 @@ import 'package:myf_connect/core/widgets/widgets.dart';
 
 import 'package:myf_connect/features/admin/presentation/widgets/users_manage/user_filter_enums.dart';
 import 'package:myf_connect/features/admin/presentation/widgets/users_manage/filter_components.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class UserFilterBar extends StatefulWidget {
   final TextEditingController searchController;
@@ -76,20 +78,25 @@ class _UserFilterBarState extends State<UserFilterBar> {
         : widget.onMyfChanged;
 
     return MyfCard(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      padding: MyfTheme.paddingM,
+      margin: EdgeInsets.fromLTRB(
+        context.spacingMd,
+        context.spacingSm,
+        context.spacingMd,
+        context.spacingSm,
+      ),
+      padding: EdgeInsets.all(context.spacingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(),
-          const SizedBox(height: 12),
+          SizedBox(height: context.spacingMd),
           _buildSearchField(),
-          const SizedBox(height: 16),
+          SizedBox(height: context.spacingMd),
           _buildSortRow(),
-          const SizedBox(height: 16),
+          SizedBox(height: context.spacingMd),
           _buildDemographicsRow(),
-          const SizedBox(height: 12),
+          SizedBox(height: context.spacingMd),
           _buildPermissionToggle(),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
@@ -107,21 +114,24 @@ class _UserFilterBarState extends State<UserFilterBar> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
+        Text(
           'Filters & Search',
-          style: TextStyle(
-            fontSize: 16,
+          style: context.typography.bodyMedium?.copyWith(
+            fontSize: context.responsiveFontSize(16),
             fontWeight: FontWeight.bold,
-            color: MyfTheme.primaryRed,
+            color: context.colors.primary,
           ),
         ),
         TextButton.icon(
           onPressed: widget.onClear,
-          icon: const Icon(Icons.clear_all, size: 16),
-          label: const Text('Clear All'),
+          icon: Icon(Icons.clear_all, size: context.responsiveIconSize(16)),
+          label: Text('Clear All'),
           style: TextButton.styleFrom(
-            foregroundColor: MyfTheme.primaryRed,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            foregroundColor: context.colors.primary,
+            padding: EdgeInsets.symmetric(
+              horizontal: context.spacingSm,
+              vertical: context.spacingXs,
+            ),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
@@ -136,15 +146,18 @@ class _UserFilterBarState extends State<UserFilterBar> {
       focusNode: widget.searchFocus,
       decoration: InputDecoration(
         hintText: 'Search users',
-        hintStyle: const TextStyle(fontSize: 14, color: MyfTheme.mediumGray),
-        prefixIcon: const Icon(
+        hintStyle: context.typography.bodyMedium?.copyWith(
+          fontSize: context.responsiveFontSize(14),
+          color: context.colors.textSecondary,
+        ),
+        prefixIcon: Icon(
           Icons.search,
-          size: 20,
-          color: MyfTheme.mediumGray,
+          size: context.responsiveIconSize(20),
+          color: context.colors.textSecondary,
         ),
         suffixIcon: widget.searchController.text.isNotEmpty
             ? IconButton(
-                icon: const Icon(Icons.clear, size: 18),
+                icon: Icon(Icons.clear, size: context.responsiveIconSize(18)),
                 onPressed: () {
                   widget.searchController.clear();
                   widget.searchFocus.unfocus();
@@ -152,32 +165,32 @@ class _UserFilterBarState extends State<UserFilterBar> {
               )
             : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(context.radiusM),
           borderSide: BorderSide(
-            color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+            color: context.colors.textSecondary.withValues(alpha: 0.3),
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(context.radiusM),
           borderSide: BorderSide(
-            color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+            color: context.colors.textSecondary.withValues(alpha: 0.3),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: MyfTheme.primaryRed, width: 1.5),
+          borderRadius: BorderRadius.circular(context.radiusM),
+          borderSide: BorderSide(color: context.colors.primary, width: 1.5),
         ),
         filled: true,
-        fillColor: MyfTheme.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
+        fillColor: context.colors.surface,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: context.spacingMd,
+          vertical: context.spacingMd,
         ),
         isDense: true,
       ),
       textInputAction: TextInputAction.search,
       onSubmitted: (_) => widget.searchFocus.unfocus(),
-      style: const TextStyle(fontSize: 14),
+      style: context.typography.bodyMedium!,
     );
   }
 
@@ -185,26 +198,26 @@ class _UserFilterBarState extends State<UserFilterBar> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Sort By',
-          style: TextStyle(
-            fontSize: 12,
+          style: context.typography.bodyMedium?.copyWith(
+            fontSize: context.responsiveFontSize(12),
             fontWeight: FontWeight.w600,
-            color: MyfTheme.mediumGray,
+            color: context.colors.textSecondary,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: context.spacingXs),
         Row(
           children: [
             Expanded(
               child: Container(
-                height: 48,
+                height: context.spacingXxl,
                 decoration: BoxDecoration(
-                  color: MyfTheme.white,
+                  color: context.colors.surface,
                   border: Border.all(
-                    color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+                    color: context.colors.textSecondary.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(context.radiusS),
                 ),
                 child: DropdownButtonFormField<SortBy>(
                   initialValue: widget.sortBy,
@@ -222,46 +235,46 @@ class _UserFilterBarState extends State<UserFilterBar> {
                   ],
                   onChanged: (v) =>
                       v != null ? widget.onSortByChanged(v) : null,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                      horizontal: context.spacingMd,
+                      vertical: context.spacing(10),
                     ),
                     isDense: true,
                   ),
                   isExpanded: true,
                   menuMaxHeight: 250,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: MyfTheme.darkGray,
+                  style: context.typography.bodyMedium?.copyWith(
+                    fontSize: context.responsiveFontSize(14),
+                    color: context.colors.textPrimary,
                   ),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_drop_down,
                     size: 20,
-                    color: MyfTheme.mediumGray,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: context.spacingMd),
             Container(
-              height: 48,
-              width: 48,
+              height: context.spacingXxl,
+              width: context.spacingXxl,
               decoration: BoxDecoration(
-                color: MyfTheme.white,
+                color: context.colors.surface,
                 border: Border.all(
-                  color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+                  color: context.colors.textSecondary.withValues(alpha: 0.3),
                 ),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(context.radiusS),
               ),
               child: IconButton(
                 icon: Icon(
                   widget.sortOrder == SortOrder.asc
                       ? Icons.arrow_upward
                       : Icons.arrow_downward,
-                  size: 18,
-                  color: MyfTheme.primaryRed,
+                  size: context.responsiveIconSize(18),
+                  color: context.colors.primary,
                 ),
                 onPressed: () => widget.onSortOrderChanged(
                   widget.sortOrder == SortOrder.asc
@@ -296,7 +309,7 @@ class _UserFilterBarState extends State<UserFilterBar> {
             onChanged: widget.onGenderChanged,
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: context.spacingMd),
         Expanded(
           child: FilterDropdown<String?>(
             label: 'District',
@@ -328,18 +341,21 @@ class _UserFilterBarState extends State<UserFilterBar> {
           }
         });
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(context.radiusS),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        padding: EdgeInsets.symmetric(
+          vertical: context.spacing(10),
+          horizontal: context.spacingMd,
+        ),
         decoration: BoxDecoration(
           color: _showPermissionFilters
-              ? MyfTheme.primaryRed.withValues(alpha: 0.05)
-              : MyfTheme.mediumGray.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(8),
+              ? context.colors.primary.withValues(alpha: 0.05)
+              : context.colors.textSecondary.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(context.radiusS),
           border: Border.all(
             color: _showPermissionFilters
-                ? MyfTheme.primaryRed.withValues(alpha: 0.3)
-                : MyfTheme.mediumGray.withValues(alpha: 0.2),
+                ? context.colors.primary.withValues(alpha: 0.3)
+                : context.colors.textSecondary.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -348,19 +364,19 @@ class _UserFilterBarState extends State<UserFilterBar> {
               Icons.security,
               size: 18,
               color: _showPermissionFilters
-                  ? MyfTheme.primaryRed
-                  : MyfTheme.mediumGray,
+                  ? context.colors.primary
+                  : context.colors.textSecondary,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: context.spacingSm),
             Expanded(
               child: Text(
                 'Permission Filters',
-                style: TextStyle(
-                  fontSize: 13,
+                style: context.typography.bodyMedium?.copyWith(
+                  fontSize: context.responsiveFontSize(13),
                   fontWeight: FontWeight.w600,
                   color: _showPermissionFilters
-                      ? MyfTheme.primaryRed
-                      : MyfTheme.mediumGray,
+                      ? context.colors.primary
+                      : context.colors.textSecondary,
                 ),
               ),
             ),
@@ -368,8 +384,8 @@ class _UserFilterBarState extends State<UserFilterBar> {
               _showPermissionFilters ? Icons.expand_less : Icons.expand_more,
               size: 20,
               color: _showPermissionFilters
-                  ? MyfTheme.primaryRed
-                  : MyfTheme.mediumGray,
+                  ? context.colors.primary
+                  : context.colors.textSecondary,
             ),
           ],
         ),
@@ -384,7 +400,7 @@ class _UserFilterBarState extends State<UserFilterBar> {
   ) {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        SizedBox(height: context.spacingMd),
 
         Row(
           children: [
@@ -402,7 +418,7 @@ class _UserFilterBarState extends State<UserFilterBar> {
                 },
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: context.spacingSm),
             Expanded(
               child: PermissionTypeButton(
                 label: 'MYF Groups',
@@ -420,7 +436,7 @@ class _UserFilterBarState extends State<UserFilterBar> {
           ],
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: context.spacingMd),
 
         Row(
           children: [
@@ -447,7 +463,7 @@ class _UserFilterBarState extends State<UserFilterBar> {
                 onChanged: onChanged,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: context.spacingMd),
             Expanded(
               child: FilterDropdown<PermissionFilter>(
                 label: 'Access',

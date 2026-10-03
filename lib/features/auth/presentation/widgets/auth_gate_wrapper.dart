@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myf_connect/core/config/app_router.dart';
-import 'package:myf_connect/core/themes/theme.dart';
-import 'package:myf_connect/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:myf_connect/core/routes/app_router.dart';
+import 'package:myf_connect/core/services/auth/auth_bloc.dart';
+import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+import 'package:myf_connect/core/widgets/app_buttons.dart';
+
 
 class AuthGateWrapper extends StatefulWidget {
   const AuthGateWrapper({super.key});
@@ -38,31 +41,35 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
       },
       builder: (context, state) {
         if (state is AuthError) {
-          return Scaffold(
-            backgroundColor: MyfTheme.lightGray,
-            appBar: AppBar(
-              title: const Text('Error'),
-              backgroundColor: MyfTheme.primaryRed,
-              foregroundColor: MyfTheme.white,
+          return PlatformScaffold(
+            backgroundColor: context.colors.background,
+            appBar: PlatformAppBar(
+              title: Text('Error'),
+              backgroundColor: context.colors.primary,
+              foregroundColor: context.colors.surface,
             ),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error, size: 64, color: MyfTheme.errorRed),
-                  SizedBox(height: MyfTheme.spacingM),
+                  Icon(
+                    Icons.error,
+                    size: context.responsiveIconSize(64),
+                    color: context.colors.error,
+                  ),
+                  SizedBox(height: context.spacingMd),
                   Text(
                     'Authentication Error: ${state.message}',
-                    style: MyfTheme.bodyMedium,
+                    style: context.typography.bodyMedium!,
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: MyfTheme.spacingM),
+                  SizedBox(height: context.spacingMd),
                   ElevatedButton(
                     onPressed: () {
                       context.read<AuthBloc>().add(AuthCheckRequested());
                     },
-                    style: MyfTheme.primaryButtonStyle,
-                    child: const Text('Retry'),
+                    style: AppButtons.primary(context),
+                    child: Text('Retry'),
                   ),
                 ],
               ),
@@ -70,21 +77,21 @@ class _AuthGateWrapperState extends State<AuthGateWrapper> {
           );
         }
 
-        return Scaffold(
-          backgroundColor: MyfTheme.lightGray,
+        return PlatformScaffold(
+          backgroundColor: context.colors.background,
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    MyfTheme.primaryRed,
+                    context.colors.primary,
                   ),
                 ),
-                SizedBox(height: MyfTheme.spacingM),
+                SizedBox(height: context.spacingMd),
                 Text(
                   _navigated ? 'Navigating...' : 'Loading...',
-                  style: MyfTheme.bodyMedium,
+                  style: context.typography.bodyMedium!,
                 ),
               ],
             ),

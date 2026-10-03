@@ -36,7 +36,7 @@ class LoggerServiceImpl implements LoggerService {
     debugPrint('🛑 ERROR: $message');
     if (error != null) debugPrint('Error: $error');
     if (stackTrace != null) debugPrint('Stack: $stackTrace');
-    
+
     // Send to Crashlytics
     try {
       FirebaseCrashlytics.instance.recordError(

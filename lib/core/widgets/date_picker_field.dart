@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myf_connect/core/themes/theme.dart';
+import 'package:myf_connect/core/theme/theme.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class DatePickerField extends StatefulWidget {
   final DateTime? selectedDateTime;
@@ -47,42 +49,44 @@ class _DatePickerFieldState extends State<DatePickerField> {
       onTap: widget._isDateOnly
           ? () => _showDatePicker(context)
           : () => _showDateTimePicker(context),
-      borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
+      borderRadius: context.radiusMd,
       child: Container(
         padding: context.responsivePadding(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          border: Border.all(color: MyfTheme.mediumGray.withValues(alpha: 0.3)),
-          borderRadius: BorderRadius.circular(context.responsiveRadius(12)),
-          color: MyfTheme.white,
+          border: Border.all(
+            color: context.colors.textSecondary.withValues(alpha: 0.3),
+          ),
+          borderRadius: context.radiusMd,
+          color: context.colors.surface,
         ),
         child: Row(
           children: [
             Icon(
               widget._isDateOnly ? Icons.calendar_today : Icons.access_time,
-              color: MyfTheme.primaryRed,
+              color: context.colors.primary,
               size: context.responsiveIconSize(20),
             ),
-            SizedBox(width: context.spacing(12)),
+            SizedBox(width: context.spacingMd),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.label,
-                    style: TextStyle(
+                    style: context.typography.bodyMedium!.copyWith(
                       fontSize: context.responsiveFontSize(12),
-                      color: MyfTheme.mediumGray,
+                      color: context.colors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: context.spacing(4)),
+                  SizedBox(height: context.spacingXs),
                   Text(
                     selectedText,
-                    style: TextStyle(
+                    style: context.typography.bodyMedium!.copyWith(
                       fontSize: context.responsiveFontSize(14),
                       color: widget.selectedDateTime == null
-                          ? MyfTheme.mediumGray
-                          : MyfTheme.darkGray,
+                          ? context.colors.textSecondary
+                          : context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myf_connect/core/themes/theme.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
 import 'package:myf_connect/core/constants/app_strings.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
 
-class MyfCard extends StatelessWidget {
+
+class MyfCard extends StatefulWidget {
   final Widget child;
   final EdgeInsets? padding;
   final EdgeInsets? margin;
@@ -24,29 +25,42 @@ class MyfCard extends StatelessWidget {
   });
 
   @override
+  State<MyfCard> createState() => _MyfCardState();
+}
+
+class _MyfCardState extends State<MyfCard> {
+  @override
   Widget build(BuildContext context) {
-    final responsivePadding = padding ?? context.responsivePadding(all: 16);
+    final responsivePadding = widget.padding ?? EdgeInsets.all(context.spacingMd);
     final responsiveMargin =
-        margin ?? EdgeInsets.symmetric(vertical: context.spacing(8));
+        widget.margin ?? EdgeInsets.symmetric(vertical: context.spacingSm);
     final responsiveRadius =
-        borderRadius ?? BorderRadius.circular(context.responsiveRadius(16));
+        widget.borderRadius ?? context.radiusLg;
 
-    Widget cardChild = Container(padding: responsivePadding, child: child);
+    Widget cardChild = Container(padding: responsivePadding, child: widget.child);
 
-    if (onTap != null) {
+    if (widget.onTap != null) {
       cardChild = InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         borderRadius: responsiveRadius,
+        hoverColor: context.colors.primary.withValues(alpha: 0.05),
         child: cardChild,
       );
     }
 
-    return Card(
-      color: color ?? MyfTheme.white,
-      elevation: elevation ?? context.responsive.cardElevation,
-      margin: responsiveMargin,
-      shape: RoundedRectangleBorder(borderRadius: responsiveRadius),
-      child: cardChild,
+    return MouseRegion(
+      cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: LiquidGlassContainer(
+        margin: responsiveMargin,
+        borderRadius: responsiveRadius.topLeft.x,
+        baseColor: widget.color,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: responsiveRadius,
+          clipBehavior: Clip.antiAlias,
+          child: cardChild,
+        ),
+      ),
     );
   }
 }
@@ -87,24 +101,24 @@ class InfoCard extends StatelessWidget {
               children: [
                 if (icon != null) ...[
                   Container(
-                    padding: context.responsivePadding(all: 8),
+                    padding: EdgeInsets.all(context.spacingSm),
                     decoration: BoxDecoration(
                       color: isLocked
-                          ? MyfTheme.mediumGray.withValues(alpha: 0.1)
-                          : MyfTheme.primaryRed.withValues(alpha: 0.1),
+                          ? context.colors.textSecondary.withValues(alpha: 0.1)
+                          : context.colors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(
-                        context.responsiveRadius(8),
+                        context.radiusSm.topLeft.x,
                       ),
                     ),
                     child: Icon(
                       icon,
                       color: isLocked
-                          ? MyfTheme.mediumGray
-                          : MyfTheme.primaryRed,
+                          ? context.colors.textSecondary
+                          : context.colors.primary,
                       size: context.responsiveIconSize(20),
                     ),
                   ),
-                  SizedBox(width: context.spacing(16)),
+                  SizedBox(width: context.spacingMd),
                 ],
                 Expanded(
                   child: Column(
@@ -112,16 +126,16 @@ class InfoCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: context.responsiveTitleMedium,
+                        style: context.typography.titleMedium,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (subtitle != null) ...[
-                        SizedBox(height: context.spacing(4)),
+                        SizedBox(height: context.spacingXs),
                         Text(
                           subtitle!,
-                          style: context.responsiveBodySmall.copyWith(
-                            color: MyfTheme.mediumGray,
+                          style: context.typography.bodySmall!.copyWith(
+                            color: context.colors.textSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -137,20 +151,20 @@ class InfoCard extends StatelessWidget {
                       if (trailing != null) ...[
                         trailing!,
                         if (isLocked || onTap != null)
-                          SizedBox(width: context.spacing(8)),
+                          SizedBox(width: context.spacingSm),
                       ],
                       if (isLocked)
                         Container(
-                          padding: context.responsivePadding(all: 8),
+                          padding: EdgeInsets.all(context.spacingSm),
                           decoration: BoxDecoration(
-                            color: MyfTheme.errorRed.withValues(alpha: 0.1),
+                            color: context.colors.error.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
-                              context.responsiveRadius(8),
+                              context.radiusSm.topLeft.x,
                             ),
                           ),
                           child: Icon(
                             Icons.lock_outline,
-                            color: MyfTheme.errorRed,
+                            color: context.colors.error,
                             size: context.responsiveIconSize(20),
                           ),
                         )
@@ -158,7 +172,7 @@ class InfoCard extends StatelessWidget {
                         Icon(
                           Icons.arrow_forward_ios,
                           size: context.responsiveIconSize(16),
-                          color: MyfTheme.mediumGray,
+                          color: context.colors.textSecondary,
                         ),
                     ],
                   ),
@@ -166,25 +180,25 @@ class InfoCard extends StatelessWidget {
               ],
             ),
             if (description != null) ...[
-              SizedBox(height: context.spacing(16)),
+              SizedBox(height: context.spacingMd),
               Text(
                 description!,
-                style: context.responsiveBodyMedium,
+                style: context.typography.bodyMedium,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
             if (isLocked) ...[
-              SizedBox(height: context.spacing(8)),
+              SizedBox(height: context.spacingSm),
               Container(
-                padding: context.responsivePadding(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: context.spacingSm, vertical: context.spacingXs),
                 decoration: BoxDecoration(
-                  color: MyfTheme.warningOrange.withValues(alpha: 0.1),
+                  color: context.colors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(
-                    context.responsiveRadius(8),
+                    context.radiusSm.topLeft.x,
                   ),
                   border: Border.all(
-                    color: MyfTheme.warningOrange.withValues(alpha: 0.3),
+                    color: context.colors.warning.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -193,14 +207,14 @@ class InfoCard extends StatelessWidget {
                     Icon(
                       Icons.info_outline,
                       size: context.responsiveIconSize(14),
-                      color: MyfTheme.warningOrange,
+                      color: context.colors.warning,
                     ),
-                    SizedBox(width: context.spacing(4)),
+                    SizedBox(width: context.spacingXs),
                     Flexible(
                       child: Text(
                         AppStrings.adminApprovalRequired,
-                        style: context.responsiveBodySmall.copyWith(
-                          color: MyfTheme.warningOrange,
+                        style: context.typography.bodySmall!.copyWith(
+                          color: context.colors.warning,
                           fontWeight: FontWeight.w600,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -211,7 +225,7 @@ class InfoCard extends StatelessWidget {
               ),
             ],
             if (actions != null && actions!.isNotEmpty) ...[
-              SizedBox(height: context.spacing(16)),
+              SizedBox(height: context.spacingMd),
               Row(mainAxisAlignment: MainAxisAlignment.end, children: actions!),
             ],
           ],
@@ -243,31 +257,31 @@ class FeatureCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: context.responsivePadding(all: 24),
+            padding: EdgeInsets.all(context.spacingLg),
             decoration: BoxDecoration(
-              color: MyfTheme.primaryRed.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(context.responsiveRadius(20)),
+              color: context.colors.primary.withValues(alpha: 0.1),
+              borderRadius: context.radiusXl,
             ),
             child: Icon(
               icon,
               size: context.responsiveIconSize(48),
-              color: MyfTheme.primaryRed,
+              color: context.colors.primary,
             ),
           ),
-          SizedBox(height: context.spacing(16)),
+          SizedBox(height: context.spacingMd),
           Text(
             title,
-            style: context.responsiveTitleLarge,
+            style: context.typography.titleLarge,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           if (description != null) ...[
-            SizedBox(height: context.spacing(8)),
+            SizedBox(height: context.spacingSm),
             Text(
               description!,
-              style: context.responsiveBodyMedium.copyWith(
-                color: MyfTheme.mediumGray,
+              style: context.typography.bodyMedium!.copyWith(
+                color: context.colors.textSecondary,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -279,4 +293,3 @@ class FeatureCard extends StatelessWidget {
     );
   }
 }
-

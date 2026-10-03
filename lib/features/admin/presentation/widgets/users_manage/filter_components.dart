@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myf_connect/core/themes/theme.dart';
+import 'package:myf_connect/core/theme/theme.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class FilterDropdown<T> extends StatelessWidget {
   final String label;
@@ -23,21 +25,18 @@ class FilterDropdown<T> extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: MyfTheme.mediumGray,
+          style: context.typography.labelMedium?.copyWith(
+            color: context.colors.textSecondary,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: context.spacingXs),
         Container(
-          height: 48,
           decoration: BoxDecoration(
-            color: MyfTheme.white,
+            color: context.colors.surface,
             border: Border.all(
-              color: MyfTheme.mediumGray.withValues(alpha: 0.3),
+              color: context.colors.textSecondary.withValues(alpha: 0.3),
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(context.radiusS),
           ),
           child: DropdownButtonFormField<T>(
             initialValue: value,
@@ -53,11 +52,14 @@ class FilterDropdown<T> extends StatelessWidget {
             ),
             isExpanded: true,
             menuMaxHeight: 250,
-            style: const TextStyle(fontSize: 14, color: MyfTheme.darkGray),
-            icon: const Icon(
+            style: context.typography.bodyMedium?.copyWith(
+              fontSize: context.responsiveFontSize(14),
+              color: context.colors.textPrimary,
+            ),
+            icon: Icon(
               Icons.arrow_drop_down,
               size: 20,
-              color: MyfTheme.mediumGray,
+              color: context.colors.textSecondary,
             ),
           ),
         ),
@@ -84,16 +86,19 @@ class PermissionTypeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(context.radiusS),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        padding: EdgeInsets.symmetric(
+          vertical: context.spacing(10),
+          horizontal: context.spacingMd,
+        ),
         decoration: BoxDecoration(
-          color: isSelected ? MyfTheme.primaryRed : MyfTheme.white,
-          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? context.colors.primary : context.colors.surface,
+          borderRadius: BorderRadius.circular(context.radiusS),
           border: Border.all(
             color: isSelected
-                ? MyfTheme.primaryRed
-                : MyfTheme.mediumGray.withValues(alpha: 0.3),
+                ? context.colors.primary
+                : context.colors.textSecondary.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -102,15 +107,17 @@ class PermissionTypeButton extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? MyfTheme.white : MyfTheme.mediumGray,
+              color: isSelected ? context.colors.surface : context.colors.textSecondary,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: context.spacingSm),
             Flexible(
               child: Text(
                 label,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isSelected ? MyfTheme.white : MyfTheme.darkGray,
+                style: context.typography.bodyMedium?.copyWith(
+                  fontSize: context.responsiveFontSize(13),
+                  color: isSelected
+                      ? context.colors.surface
+                      : context.colors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,

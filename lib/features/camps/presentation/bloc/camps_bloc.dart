@@ -1,12 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:myf_connect/features/camps/data/models/camp.dart';
+import 'package:myf_connect/core/models/camp.dart';
 import 'package:myf_connect/features/camps/data/repositories/camps_repository.dart';
-import 'package:myf_connect/features/auth/data/repositories/user_repository.dart';
-import 'package:myf_connect/features/auth/data/repositories/auth_repository.dart';
+import 'package:myf_connect/core/services/users/user_repository.dart';
+import 'package:myf_connect/core/services/auth/auth_repository.dart';
 
 import 'dart:async';
-import 'package:myf_connect/features/auth/data/models/app_user.dart';
+import 'package:myf_connect/core/models/app_user.dart';
 import 'package:myf_connect/core/error/error_handler.dart';
 
 part 'camps_event.dart';

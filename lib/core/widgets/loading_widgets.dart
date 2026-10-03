@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myf_connect/core/themes/theme.dart';
+import 'package:myf_connect/core/theme/theme.dart';
 import 'package:myf_connect/core/widgets/widgets.dart';
+import 'package:myf_connect/core/theme/theme_extensions.dart';
+
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
@@ -14,13 +16,13 @@ class LoadingWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: MyfTheme.primaryRed),
+          CircularProgressIndicator(color: context.colors.primary),
           if (message != null) ...[
-            SizedBox(height: context.spacing(16)),
+            SizedBox(height: context.spacingMd),
             Text(
               message!,
-              style: context.responsiveBodyMedium.copyWith(
-                color: MyfTheme.mediumGray,
+              style: context.typography.bodyMedium!.copyWith(
+                color: context.colors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -47,15 +49,15 @@ class EmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
-        padding: context.responsivePadding(all: 32),
+        padding: EdgeInsets.all(context.spacingXl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: context.responsivePadding(all: 24),
+              padding: EdgeInsets.all(context.spacingLg),
               decoration: BoxDecoration(
-                color: MyfTheme.mediumGray.withValues(alpha: 0.1),
+                color: context.colors.textSecondary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(
                   context.responsiveRadius(32),
                 ),
@@ -63,27 +65,27 @@ class EmptyStateWidget extends StatelessWidget {
               child: Icon(
                 icon,
                 size: context.responsiveIconSize(64),
-                color: MyfTheme.mediumGray,
+                color: context.colors.textSecondary,
               ),
             ),
-            SizedBox(height: context.spacing(24)),
+            SizedBox(height: context.spacingLg),
             Text(
               title,
-              style: TextStyle(
+              style: context.typography.bodyMedium!.copyWith(
                 fontSize: context.responsiveFontSize(18),
                 fontWeight: FontWeight.w600,
-                color: MyfTheme.darkGray,
+                color: context.colors.textPrimary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: context.spacing(12)),
+            SizedBox(height: context.spacingMd),
             Text(
               description,
-              style: TextStyle(
+              style: context.typography.bodyMedium!.copyWith(
                 fontSize: context.responsiveFontSize(14),
-                color: MyfTheme.mediumGray,
+                color: context.colors.textSecondary,
               ),
               textAlign: TextAlign.center,
               maxLines: 4,
@@ -114,15 +116,15 @@ class ErrorStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
-        padding: context.responsivePadding(all: 32),
+        padding: EdgeInsets.all(context.spacingXl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: context.responsivePadding(all: 24),
+              padding: EdgeInsets.all(context.spacingLg),
               decoration: BoxDecoration(
-                color: MyfTheme.errorRed.withValues(alpha: 0.1),
+                color: context.colors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(
                   context.responsiveRadius(32),
                 ),
@@ -130,28 +132,28 @@ class ErrorStateWidget extends StatelessWidget {
               child: Icon(
                 Icons.error_outline,
                 size: context.responsiveIconSize(64),
-                color: MyfTheme.errorRed,
+                color: context.colors.error,
               ),
             ),
-            SizedBox(height: context.spacing(24)),
+            SizedBox(height: context.spacingLg),
             Text(
               title,
-              style: TextStyle(
+              style: context.typography.bodyMedium!.copyWith(
                 fontSize: context.responsiveFontSize(18),
                 fontWeight: FontWeight.w600,
-                color: MyfTheme.darkGray,
+                color: context.colors.textPrimary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             if (description != null) ...[
-              SizedBox(height: context.spacing(12)),
+              SizedBox(height: context.spacingMd),
               Text(
                 description!,
-                style: TextStyle(
+                style: context.typography.bodyMedium!.copyWith(
                   fontSize: context.responsiveFontSize(14),
-                  color: MyfTheme.mediumGray,
+                  color: context.colors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 4,
@@ -159,24 +161,24 @@ class ErrorStateWidget extends StatelessWidget {
               ),
             ],
             if (onRetry != null && retryLabel != null) ...[
-              SizedBox(height: context.spacing(24)),
+              SizedBox(height: context.spacingLg),
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
                 label: Text(
                   retryLabel!,
-                  style: TextStyle(fontSize: context.responsiveFontSize(14)),
+                  style: context.typography.bodyMedium!,
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: MyfTheme.primaryRed,
-                  foregroundColor: MyfTheme.white,
+                  backgroundColor: context.colors.primary,
+                  foregroundColor: context.colors.surface,
                   padding: context.responsivePadding(
                     horizontal: 24,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
-                      context.responsiveRadius(12),
+                      context.radiusMd.topLeft.x,
                     ),
                   ),
                 ),
@@ -209,19 +211,19 @@ class LoadingOverlay extends StatelessWidget {
         if (isLoading)
           Positioned.fill(
             child: Container(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: context.colors.textPrimary.withValues(alpha: 0.3),
               child: Center(
                 child: Container(
-                  padding: context.responsivePadding(all: 32),
-                  margin: context.responsivePadding(all: 24),
+                  padding: EdgeInsets.all(context.spacingXl),
+                  margin: EdgeInsets.all(context.spacingLg),
                   decoration: BoxDecoration(
-                    color: MyfTheme.white,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(
-                      context.responsiveRadius(16),
+                      context.radiusLg.topLeft.x,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: context.colors.textPrimary.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),

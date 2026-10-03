@@ -8,7 +8,9 @@
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Dummy passing test for CI initialization', (WidgetTester tester) async {
+  testWidgets('Dummy passing test for CI initialization', (
+    WidgetTester tester,
+  ) async {
     // We will implement real tests for repositories and Blocs next.
     expect(true, isTrue);
   });

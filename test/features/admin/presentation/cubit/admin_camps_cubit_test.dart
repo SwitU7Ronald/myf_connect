@@ -10,11 +10,12 @@ void main() {
 
   setUp(() {
     mockAdminRepository = MockAdminRepository();
-    
+
     // Provide a default empty stream to avoid exceptions when Cubit calls loadCamps() in constructor
-    when(mockAdminRepository.getCampsStream())
-        .thenAnswer((_) => const Stream.empty());
-        
+    when(
+      mockAdminRepository.getCampsStream(),
+    ).thenAnswer((_) => const Stream.empty());
+
     adminCampsCubit = AdminCampsCubit(adminRepository: mockAdminRepository);
   });
 
@@ -30,13 +31,12 @@ void main() {
     blocTest<AdminCampsCubit, AdminCampsState>(
       'emits [AdminCampsLoading, AdminCampsError] when repository throws error',
       build: () {
-        when(mockAdminRepository.getCampsStream())
-            .thenAnswer((_) => Stream.error(Exception('Network Error')));
+        when(
+          mockAdminRepository.getCampsStream(),
+        ).thenAnswer((_) => Stream.error(Exception('Network Error')));
         return AdminCampsCubit(adminRepository: mockAdminRepository);
       },
-      expect: () => [
-        isA<AdminCampsError>(),
-      ],
+      expect: () => [isA<AdminCampsError>()],
     );
   });
 }
